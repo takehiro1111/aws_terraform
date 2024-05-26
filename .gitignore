@@ -67,8 +67,6 @@ terraform-state
 terraform-state.*
 tfstate/terraform-state
 tfstate/terraform-state.*
-stg/.terraform.lock.hcl
-.terraform.lock.hcl
 stg/.terraform
 .terraform
 
