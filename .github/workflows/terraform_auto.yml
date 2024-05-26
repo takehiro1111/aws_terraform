@@ -41,8 +41,8 @@ env:
             terraform_version: ${{ env.TF_VERSION }}
 
         - name: Validate
-        run: |
-          terraform validate
+          run: |
+            terraform validate
 
         - name: Fmt
           run: |
