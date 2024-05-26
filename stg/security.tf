@@ -396,12 +396,12 @@ data "aws_iam_policy_document" "deploy_github_actions" {
       ]
   }
   statement {
-  sid       = "ALL"
-  effect    = "Allow"
-  actions   = ["*"]
-  resources = [
-      "*"
-    ]
+    sid       = "ALL"
+    effect    = "Allow"
+    actions   = ["*"]
+    resources = [
+        "*"
+      ]
   }
 }
 

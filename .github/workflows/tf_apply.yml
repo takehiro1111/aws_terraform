@@ -1,0 +1,62 @@
+name: terraform_deploy
+
+on:
+  workflow_dispatch:
+
+
+env:
+  AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.7.5
+
+
+jobs:
+  terraform1:
+    name: terraform plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stg/
+
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write 
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{env.AWS_REGION}}
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
+          role-session-name: GithubActions_AssumeRole
+          #CloudTrailログ等の監査ログでどのセッションがどの操作を行ったのかを追跡するために設定。
+            
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init
+        id: init
+        run: |
+          terraform init
+
+      - name: Validate
+        run: |
+          terraform validate
+
+      - name: Fmt
+        run: |
+          terraform fmt
+    
+      - name: Plan
+        run: |
+          terraform plan
+      
+      - name: Apply
+        run: |
+          terraform apply -auto-approve
+
