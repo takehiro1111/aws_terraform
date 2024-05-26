@@ -23,12 +23,12 @@ resource "aws_cloudwatch_log_group" "public_instance" {
 }
 
 # VPCフローログ --------------------------------
-# resource "aws_cloudwatch_log_group" "flow_log" {
-#   name              = "/vpc/flow-log"
-#   log_group_class   = "STANDARD" // https://aws.amazon.com/jp/blogs/news/new-amazon-cloudwatch-log-class-for-infrequent-access-logs-at-a-reduced-price/
-#   skip_destroy      = true
-#   retention_in_days = 7
-# }
+resource "aws_cloudwatch_log_group" "flow_log" {
+  name              = "/vpc/flow-log"
+  log_group_class   = "STANDARD" // https://aws.amazon.com/jp/blogs/news/new-amazon-cloudwatch-log-class-for-infrequent-access-logs-at-a-reduced-price/
+  skip_destroy      = true
+  retention_in_days = 7
+}
 
 # fluent-bitのログ収集 ----------------------------
 # resource "aws_cloudwatch_log_group" "for_ecs" {
