@@ -4,155 +4,155 @@
 /* 
  * tanaka-test.education.nextbeat.dev
  */
-resource "aws_route53_zone" "sekigaku" {
-  name = module.value.sekigaku
-}
+# resource "aws_route53_zone" "sekigaku" {
+#   name = module.value.sekigaku
+# }
 
-resource "aws_route53_record" "sekigaku_default_ns" {
-  allow_overwrite = true
-  name            = module.value.sekigaku
-  type            = "NS"
-  zone_id         = aws_route53_zone.sekigaku.id
-  ttl             = 172800
+# resource "aws_route53_record" "sekigaku_default_ns" {
+#   allow_overwrite = true
+#   name            = module.value.sekigaku
+#   type            = "NS"
+#   zone_id         = aws_route53_zone.sekigaku.id
+#   ttl             = 172800
 
-  records = aws_route53_zone.sekigaku.name_servers
-}
+#   records = aws_route53_zone.sekigaku.name_servers
+# }
 
-resource "aws_route53_record" "sekigaku_default_soa" {
-  name    = module.value.sekigaku
-  type    = "SOA"
-  zone_id = aws_route53_zone.sekigaku.id
-  ttl     = 900
+# resource "aws_route53_record" "sekigaku_default_soa" {
+#   name    = module.value.sekigaku
+#   type    = "SOA"
+#   zone_id = aws_route53_zone.sekigaku.id
+#   ttl     = 900
 
-  records = [
-    "${aws_route53_zone.sekigaku.primary_name_server}. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+#   records = [
+#     "${aws_route53_zone.sekigaku.primary_name_server}. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
 
-  ]
-}
+#   ]
+# }
 
 // CloudFrontへのエイリアスレコード
-resource "aws_route53_record" "cloudfront_alias" {
-  zone_id = aws_route53_zone.sekigaku.zone_id
-  name    = module.value.cloudfront_domain
-  type    = "A"
+# resource "aws_route53_record" "cloudfront_alias" {
+#   zone_id = aws_route53_zone.sekigaku.zone_id
+#   name    = module.value.cloudfront_domain
+#   type    = "A"
 
-  alias {
-    name                   = aws_cloudfront_distribution.stg.domain_name
-    zone_id                = aws_cloudfront_distribution.stg.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
+#   alias {
+#     name                   = aws_cloudfront_distribution.stg.domain_name
+#     zone_id                = aws_cloudfront_distribution.stg.hosted_zone_id
+#     evaluate_target_health = false
+#   }
+# }
 
-resource "aws_route53_record" "cdn_function" {
-  zone_id = aws_route53_zone.sekigaku.zone_id
-  name    = module.value.cdn_function
-  type    = "A"
+# resource "aws_route53_record" "cdn_function" {
+#   zone_id = aws_route53_zone.sekigaku.zone_id
+#   name    = module.value.cdn_function
+#   type    = "A"
 
-  alias {
-    name                   = aws_cloudfront_distribution.stg.domain_name
-    zone_id                = aws_cloudfront_distribution.stg.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
+#   alias {
+#     name                   = aws_cloudfront_distribution.stg.domain_name
+#     zone_id                = aws_cloudfront_distribution.stg.hosted_zone_id
+#     evaluate_target_health = false
+#   }
+# }
 
 //ACMのドメイン検証用
-resource "aws_route53_record" "hashicorp_ap_northeast_1" {
-  for_each = {
-    for dvo in aws_acm_certificate.hashicorp.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# resource "aws_route53_record" "hashicorp_ap_northeast_1" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.hashicorp.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  allow_overwrite = true // 既存のレコードがある場合は上書きする
-  name            = each.value.name
-  records         = [each.value.record]
-  type            = each.value.type
-  ttl             = 60
-  zone_id         = aws_route53_zone.sekigaku.zone_id
-}
+#   allow_overwrite = true // 既存のレコードがある場合は上書きする
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   type            = each.value.type
+#   ttl             = 60
+#   zone_id         = aws_route53_zone.sekigaku.zone_id
+# }
 
-resource "aws_route53_record" "hashicorp_us_east_1" {
-  for_each = {
-    for dvo in aws_acm_certificate.hashicorp_us_east_1.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# resource "aws_route53_record" "hashicorp_us_east_1" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.hashicorp_us_east_1.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = aws_route53_zone.sekigaku.zone_id
-}
+#   allow_overwrite = true
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   ttl             = 60
+#   type            = each.value.type
+#   zone_id         = aws_route53_zone.sekigaku.zone_id
+# }
 
 /* 
  * stg-tanaka.education.nextbeat.dev
  */
-resource "aws_route53_zone" "stg" {
-  name = module.value.stg_tanaka_education_nextbeat_dev
-}
+# resource "aws_route53_zone" "stg" {
+#   name = module.value.stg_tanaka_education_nextbeat_dev
+# }
 
-resource "aws_route53_record" "stg_default_ns" {
-  allow_overwrite = true
-  name            = module.value.stg_tanaka_education_nextbeat_dev
-  type            = "NS"
-  zone_id         = aws_route53_zone.stg.id
-  ttl             = 172800
+# resource "aws_route53_record" "stg_default_ns" {
+#   allow_overwrite = true
+#   name            = module.value.stg_tanaka_education_nextbeat_dev
+#   type            = "NS"
+#   zone_id         = aws_route53_zone.stg.id
+#   ttl             = 172800
 
-  records = aws_route53_zone.stg.name_servers
-}
+#   records = aws_route53_zone.stg.name_servers
+# }
 
-resource "aws_route53_record" "stg_default_soa" {
-  name    =  module.value.stg_tanaka_education_nextbeat_dev
-  type    = "SOA"
-  zone_id = aws_route53_zone.stg.id
-  ttl     = 900
+# resource "aws_route53_record" "stg_default_soa" {
+#   name    =  module.value.stg_tanaka_education_nextbeat_dev
+#   type    = "SOA"
+#   zone_id = aws_route53_zone.stg.id
+#   ttl     = 900
 
-  records = [
-    "${aws_route53_zone.stg.primary_name_server}. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+#   records = [
+#     "${aws_route53_zone.stg.primary_name_server}. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
 
-  ]
-}
+#   ]
+# }
 
 //ACMのドメイン検証用
-resource "aws_route53_record" "stg_ap_northeast_1" {
-  for_each = {
-    for dvo in aws_acm_certificate.stg.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# resource "aws_route53_record" "stg_ap_northeast_1" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.stg.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  allow_overwrite = true // 既存のレコードがある場合は上書きする
-  name            = each.value.name
-  records         = [each.value.record]
-  type            = each.value.type
-  ttl             = 60
-  zone_id         = aws_route53_zone.stg.zone_id
-}
+#   allow_overwrite = true // 既存のレコードがある場合は上書きする
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   type            = each.value.type
+#   ttl             = 60
+#   zone_id         = aws_route53_zone.stg.zone_id
+# }
 
-resource "aws_route53_record" "stg_us_east_1" {
-  for_each = {
-    for dvo in aws_acm_certificate.stg_us_east_1.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# resource "aws_route53_record" "stg_us_east_1" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.stg_us_east_1.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = aws_route53_zone.stg.zone_id
-}
+#   allow_overwrite = true
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   ttl             = 60
+#   type            = each.value.type
+#   zone_id         = aws_route53_zone.stg.zone_id
+# }
 
 
 /* 
@@ -199,7 +199,7 @@ resource "aws_route53_record" "tanaka_cloud_net_ap_northeast_1" {
   records         = [each.value.record]
   type            = each.value.type
   ttl             = 60
-  zone_id         = aws_route53_zone.stg.zone_id
+  zone_id         = aws_route53_zone.tanaka_cloud_net.zone_id
 }
 
 # ACM DNS Validation(us-east-1)
@@ -233,6 +233,7 @@ resource "aws_route53_record" "cdn_tanaka_cloud_net" {
   }
 }
 
+// ALBへのエイリアスレコード
 resource "aws_route53_record" "lb_tanaka_cloud_net" {
   zone_id = aws_route53_zone.tanaka_cloud_net.zone_id
   name    = module.value.lb_tanaka_cloud_net
@@ -250,64 +251,64 @@ resource "aws_route53_record" "lb_tanaka_cloud_net" {
 #===================================
 #ALB用
 #ap-northeast-1
-resource "aws_acm_certificate" "hashicorp" {
-  domain_name               = module.value.wildcard_sekigaku
-  validation_method         = "DNS"
-  subject_alternative_names = [module.value.sekigaku]
+# resource "aws_acm_certificate" "hashicorp" {
+#   domain_name               = module.value.wildcard_sekigaku
+#   validation_method         = "DNS"
+#   subject_alternative_names = [module.value.sekigaku]
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_acm_certificate_validation" "hashicorp" {
-  certificate_arn         = aws_acm_certificate.hashicorp.arn
-  validation_record_fqdns = [for record in aws_route53_record.hashicorp_ap_northeast_1 : record.fqdn]
-}
+# resource "aws_acm_certificate_validation" "hashicorp" {
+#   certificate_arn         = aws_acm_certificate.hashicorp.arn
+#   validation_record_fqdns = [for record in aws_route53_record.hashicorp_ap_northeast_1 : record.fqdn]
+# }
 
 #us-east-1
-resource "aws_acm_certificate" "hashicorp_us_east_1" {
-  domain_name               = module.value.wildcard_sekigaku
-  validation_method         = "DNS"
-  subject_alternative_names = [module.value.sekigaku]
-  provider                  = aws.us-east-1
+# resource "aws_acm_certificate" "hashicorp_us_east_1" {
+#   domain_name               = module.value.wildcard_sekigaku
+#   validation_method         = "DNS"
+#   subject_alternative_names = [module.value.sekigaku]
+#   provider                  = aws.us-east-1
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_acm_certificate_validation" "hashicorp_us_east_1" {
-  certificate_arn         = aws_acm_certificate.hashicorp_us_east_1.arn
-  validation_record_fqdns = [for record in aws_route53_record.hashicorp_us_east_1 : record.fqdn]
-  provider                = aws.us-east-1
-}
+# resource "aws_acm_certificate_validation" "hashicorp_us_east_1" {
+#   certificate_arn         = aws_acm_certificate.hashicorp_us_east_1.arn
+#   validation_record_fqdns = [for record in aws_route53_record.hashicorp_us_east_1 : record.fqdn]
+#   provider                = aws.us-east-1
+# }
 
-resource "aws_acm_certificate" "stg" {
-  domain_name               = module.value.wildcard_stg_tanaka_education_nextbeat_dev
-  validation_method         = "DNS"
-  subject_alternative_names = [module.value.stg_tanaka_education_nextbeat_dev]
+# resource "aws_acm_certificate" "stg" {
+#   domain_name               = module.value.wildcard_stg_tanaka_education_nextbeat_dev
+#   validation_method         = "DNS"
+#   subject_alternative_names = [module.value.stg_tanaka_education_nextbeat_dev]
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 # resource "aws_acm_certificate_validation" "stg" {
 #   certificate_arn         = aws_acm_certificate.stg.arn
 #   validation_record_fqdns = [for record in aws_route53_record.stg_ap_northeast_1 : record.fqdn]
 # }
 
-resource "aws_acm_certificate" "stg_us_east_1" {
-  domain_name               = module.value.wildcard_stg_tanaka_education_nextbeat_dev
-  validation_method         = "DNS"
-  subject_alternative_names = [module.value.stg_tanaka_education_nextbeat_dev]
-  provider                  = aws.us-east-1
+# resource "aws_acm_certificate" "stg_us_east_1" {
+#   domain_name               = module.value.wildcard_stg_tanaka_education_nextbeat_dev
+#   validation_method         = "DNS"
+#   subject_alternative_names = [module.value.stg_tanaka_education_nextbeat_dev]
+#   provider                  = aws.us-east-1
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 # resource "aws_acm_certificate_validation" "stg_us_east_1" {
 #   certificate_arn         = aws_acm_certificate.stg_us_east_1.arn
@@ -552,7 +553,7 @@ resource "aws_lb_listener" "alb_9000" {
   port              = "9000"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.hashicorp.arn
+  certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
   default_action {
     type = "fixed-response"
 

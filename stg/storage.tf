@@ -1,5 +1,5 @@
 #===================================
-#ECR
+# ECR
 #===================================
 resource "aws_ecr_repository" "common" {
   for_each = toset(var.repo_list)
@@ -31,7 +31,7 @@ resource "aws_ecr_lifecycle_policy" "common" {
 }
 
 #=============================================
-#S3 Bucket
+# S3 Bucket
 #=============================================
 #tfsatate-------------------------------------
 resource "aws_s3_bucket" "tfstate_sekigaku" {

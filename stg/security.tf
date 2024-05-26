@@ -337,8 +337,8 @@ resource "aws_iam_role" "deploy_github_actions" {
         Condition = {
           StringLike = {
             "token.actions.githubusercontent.com:sub" : [
-              "repo:takehiro1111/hcl:*",
-              "repo:takehiro1111/actions:*",
+              "repo:takehiro1111/aws_terraform:*",
+              "repo:takehiro1111/github_terraform:*",
               "repo:takehiro1111/ecs-learning-course:*",
               "repo:takehiro1111/docker:*",
             ]

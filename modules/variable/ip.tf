@@ -18,3 +18,9 @@ output "hashicorp_subnet_ip" {
 output "full_open_ip" {
   value = "0.0.0.0/0"
 }
+
+output "my_ips" {
+  value = {
+    tokyo_home_1 = "1.21.119.35/32"
+  }
+}
