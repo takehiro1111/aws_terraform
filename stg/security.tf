@@ -391,9 +391,17 @@ data "aws_iam_policy_document" "deploy_github_actions" {
     effect    = "Allow"
     actions   = ["iam:PassRole"]
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole",
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/secure-ecs-tasks-stg@common"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/secure-ecs-tasks-stg@common"
       ]
+  }
+  statement {
+  sid       = "ALL"
+  effect    = "Allow"
+  actions   = ["*"]
+  resources = [
+      "*"
+    ]
   }
 }
 
