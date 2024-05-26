@@ -39,9 +39,15 @@ jobs:
           role-session-name: GithubActions_AssumeRole
           #CloudTrailログ等の監査ログでどのセッションがどの操作を行ったのかを追跡するために設定。
             
-      - uses: hashicorp/setup-terraform@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init
+        id: init
+        run: |
+          terraform init
 
       - name: Validate
         run: |
@@ -50,11 +56,6 @@ jobs:
       - name: Fmt
         run: |
           terraform fmt
-        
-      - name: Init
-        id: init
-        run: |
-          terraform init
     
       - name: Plan
         run: |
