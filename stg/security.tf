@@ -206,47 +206,47 @@ resource "aws_vpc_security_group_egress_rule" "vpce_egress" {
 #=========================================
 # vpc-flow-log ---------------------------------------------------------
 # to CloludWatch Logs
-# resource "aws_iam_role" "flow_log" {
-#   name = "vpc-flow-log"
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole",
-#         Effect = "Allow",
-#         Principal = {
-#           Service = "vpc-flow-logs.amazonaws.com"
-#         }
-#       }
-#     ]
-#   })
-# }
+resource "aws_iam_role" "flow_log" {
+  name = "vpc-flow-log"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "vpc-flow-logs.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
 
-# data "aws_iam_policy_document" "flow_log" {
-#   statement {
-#     effect = "Allow"
-#     actions = [
-#       "logs:CreateLogGroup",
-#       "logs:CreateLogStream",
-#       "logs:PutLogEvents",
-#       "logs:DescribeLogGroups",
-#       "logs:DescribeLogStreams"
-#     ]
-#     resources = [
-#       "${aws_cloudwatch_log_group.flow_log.arn}:*",
-#     ]
-#   }
-# }
+data "aws_iam_policy_document" "flow_log" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams"
+    ]
+    resources = [
+      "${aws_cloudwatch_log_group.flow_log.arn}:*",
+    ]
+  }
+}
 
-# resource "aws_iam_policy" "flow_log" {
-#   name   = "cloudwatch-logs-create-put"
-#   policy = data.aws_iam_policy_document.flow_log.json
-# }
+resource "aws_iam_policy" "flow_log" {
+  name   = "cloudwatch-logs-create-put"
+  policy = data.aws_iam_policy_document.flow_log.json
+}
 
-# resource "aws_iam_role_policy_attachment" "flow_log" {
-#   role       = aws_iam_role.flow_log.name
-#   policy_arn = aws_iam_policy.flow_log.arn
-# }
+resource "aws_iam_role_policy_attachment" "flow_log" {
+  role       = aws_iam_role.flow_log.name
+  policy_arn = aws_iam_policy.flow_log.arn
+}
 
 #ECS Task用ロール--------------------------------------------------------
 module "ecs_task_stg" {
