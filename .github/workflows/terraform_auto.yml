@@ -18,6 +18,9 @@ jobs:
   terraform1:
     name: terraform plan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stg/
 
     permissions:
       id-token: write
