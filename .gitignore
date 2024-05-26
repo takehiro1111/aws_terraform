@@ -83,4 +83,4 @@ stg/.envrc
 # 自宅のIPアドレス
 modules/variable/my_ip.tf
 
-policy/*
+#policy/*
