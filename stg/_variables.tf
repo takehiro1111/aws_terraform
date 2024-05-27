@@ -1,3 +1,61 @@
+# =================================
+# データ型
+# =================================
+# my_favorite_sports = var.list[0]
+variable "list" {
+  description = "中身の要素が全て同じ型の配列"
+  type = list(string)
+  default = ["soccer","basseball"]
+} 
+
+# [for i in var.set : upper(i)]
+variable "set" {
+  description = "中身の要素の重複が削除される配列"
+  type = set(string)
+  default = [
+    "orange",
+    "banana",
+    "apple",
+    "banana"
+  ]
+}
+
+# my_age = var.tuple[1]
+variable "tuple" {
+  description = "中身の要素に順序性を持たない配列"
+  type = tuple([
+    string,number
+  ])
+  default = ["age", 29]
+}
+
+# github = var.object.name
+variable "object" {
+  description = "Key,Value形式のデータ型"
+  type = object({
+    name = string
+    age = number
+  })
+  default = {
+    name = "takehiro1111"
+    age = 29
+  }
+}
+
+# github = var.map.user
+variable "map" {
+  description = "Keyが文字列でValueが指定された型になる配列"
+  type = map(string)
+  default = {
+    "user" = "takehiro1111"
+    "age"  = "29"
+  }
+}
+
+# =================================
+# STG環境
+# =================================
+
 # variable "restriction_cloudfront_stg" {
 #   type        = map(string)
 #   description = "ALBへのアクセスを、CloudFront経由に限定するためのカスタムヘッダー"
@@ -175,4 +233,25 @@ variable "blue" {
   description = "ALB Listener Rule"
   type        = bool
   default     = true
+}
+
+variable "user" {
+  default = "takehiro"
+}
+
+
+locals {
+  project       = "test"
+  suffix_number = 1
+}
+
+output "name" {
+  value = format("%s-sample-%03d", local.project, local.suffix_number)
+}
+
+
+locals {
+  distinct_sample = [
+    "a", "a", "b", "b", "c"
+  ]
 }
