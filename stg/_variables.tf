@@ -234,24 +234,3 @@ variable "blue" {
   type        = bool
   default     = true
 }
-
-variable "user" {
-  default = "takehiro"
-}
-
-
-locals {
-  project       = "test"
-  suffix_number = 1
-}
-
-output "name" {
-  value = format("%s-sample-%03d", local.project, local.suffix_number)
-}
-
-
-locals {
-  distinct_sample = [
-    "a", "a", "b", "b", "c"
-  ]
-}
