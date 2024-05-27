@@ -105,8 +105,8 @@ resource "aws_ecs_cluster" "web" {
 
 // 名前空間
 resource "aws_service_discovery_private_dns_namespace" "web" {
-  name        = "web.internal"
-  vpc         = aws_vpc.hashicorp.id
+  name = "web.internal"
+  vpc  = aws_vpc.hashicorp.id
 }
 
 // サービスディスカバリ
@@ -208,7 +208,7 @@ resource "aws_ecs_service" "nginx" {
   health_check_grace_period_seconds = 60
 
   deployment_circuit_breaker {
-    enable = true
+    enable   = true
     rollback = true
   }
 
@@ -222,7 +222,7 @@ resource "aws_ecs_service" "nginx" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.nginx.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
-    container_name   = "ngix-container" // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_name   = "ngix-container"              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
     container_port   = 80
   }
 

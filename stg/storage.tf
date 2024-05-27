@@ -16,18 +16,18 @@ resource "aws_ecr_repository_policy" "common" {
   for_each = toset(var.repo_list)
 
   repository = each.value
-  policy = file("../policy/ecr_repo_policy.json")
+  policy     = file("../policy/ecr_repo_policy.json")
 
-  depends_on = [ aws_ecr_repository.common ]
+  depends_on = [aws_ecr_repository.common]
 }
 
 resource "aws_ecr_lifecycle_policy" "common" {
   for_each = toset(var.repo_list)
 
   repository = each.value
-  policy = file("../policy/ecr_lifecycle_policy.json")
+  policy     = file("../policy/ecr_lifecycle_policy.json")
 
-  depends_on = [ aws_ecr_repository.common ]
+  depends_on = [aws_ecr_repository.common]
 }
 
 #=============================================
@@ -87,7 +87,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate_sekigaku"
   bucket = aws_s3_bucket.tfstate_sekigaku.bucket
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+      sse_algorithm     = "aws:kms"
       kms_master_key_id = aws_kms_key.s3.arn
     }
   }
@@ -163,7 +163,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logging" {
   bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+      sse_algorithm     = "aws:kms"
       kms_master_key_id = aws_kms_key.s3.arn
     }
   }
@@ -212,13 +212,13 @@ resource "aws_s3_bucket_policy" "logging-sekigaku-20231120" {
         ]
       },
       {
-        "Sid": "S3PolicyStmt-DO-NOT-MODIFY-1652337892133",
-        "Effect": "Allow",
-        "Principal": {
-            "Service": "logging.s3.amazonaws.com"
+        "Sid" : "S3PolicyStmt-DO-NOT-MODIFY-1652337892133",
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "logging.s3.amazonaws.com"
         },
-        "Action": "s3:PutObject",
-        "Resource": "${aws_s3_bucket.logging-sekigaku-20231120.arn}/*"
+        "Action" : "s3:PutObject",
+        "Resource" : "${aws_s3_bucket.logging-sekigaku-20231120.arn}/*"
       }
     ]
   })
@@ -272,7 +272,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdn_log" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+      sse_algorithm     = "aws:kms"
       kms_master_key_id = aws_kms_key.s3.arn
     }
   }
@@ -555,7 +555,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena" {
   bucket = aws_s3_bucket.athena.bucket
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+      sse_algorithm     = "aws:kms"
       kms_master_key_id = aws_kms_key.s3.arn
     }
   }

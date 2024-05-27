@@ -134,37 +134,49 @@ resource "aws_vpc_security_group_egress_rule" "ecs_stg_egress" {
 }
 
 #MySQL ------------------------------------- 
-resource "aws_security_group" "mysql" {
-  name        = "mysql"
-  description = "Allow inbound for mysql"
+module "sg_mysql" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.2"
+
+  // SG本体
+  name        = "aurora-mysql"
+  description = "SecurityGroup for Aurora MySQL"
   vpc_id      = aws_vpc.hashicorp.id
+  // ルール
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 3306
+      to_port     = 3306
+      protocol    = "tcp"
+      description = "MySQL access from VPC"
+      cidr_blocks = module.value.hashicorp_subnet_ip.a_private
+    },
+    {
+      from_port   = 3306
+      to_port     = 3306
+      protocol    = "tcp"
+      description = "MySQL access from VPC"
+      cidr_blocks = module.value.hashicorp_subnet_ip.c_private
+    },
+    {
+      from_port   = 3306
+      to_port     = 3306
+      protocol    = "tcp"
+      description = "MySQL access from VPC"
+      cidr_blocks = module.value.hashicorp_subnet_ip.d_private
+    },
+  ]
 
-  tags = {
-    "Name" = "mysql"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "mysql_ingress" {
-  security_group_id            = aws_security_group.mysql.id
-  description                  = "Allow inbound for mysql"
-  from_port                    = 3306
-  to_port                      = 3306
-  ip_protocol                  = "tcp"
-  referenced_security_group_id = aws_security_group.ecs_stg.id
-  tags = {
-    "Name" = "mysql-in"
-  }
-}
-
-resource "aws_vpc_security_group_egress_rule" "mysql_egress" {
-  security_group_id = aws_security_group.mysql.id
-  description       = "Allow outbound rule for all"
-  ip_protocol       = "all"
-  cidr_ipv4         = module.value.full_open_ip
-
-  tags = {
-    "Name" = "mysql-out"
-  }
+  ingress_with_source_security_group_id = [
+    {
+      from_port                = 3306
+      to_port                  = 3306
+      protocol                 = "tcp"
+      description              = "MySQL Inbound from Source SG"
+      source_security_group_id = aws_security_group.ecs_stg.id
+    }
+  ]
+  egress_rules = ["all-all"]
 }
 
 #VPCエンドポイント ------------------------------------- 
@@ -179,11 +191,11 @@ resource "aws_security_group" "vpce" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "vpce_in_443" {
-  security_group_id            = aws_security_group.vpce.id
-  description                  = "Allow inbound for vpce"
-  from_port                    = 443
-  to_port                      = 443
-  ip_protocol                  = "tcp"
+  security_group_id = aws_security_group.vpce.id
+  description       = "Allow inbound for vpce"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
   cidr_ipv4         = aws_vpc.hashicorp.cidr_block
   tags = {
     "Name" = "vpce-in"
@@ -387,21 +399,21 @@ data "aws_iam_policy_document" "deploy_github_actions" {
     resources = ["*"]
   }
   statement {
-    sid       = "PassRole"
-    effect    = "Allow"
-    actions   = ["iam:PassRole"]
+    sid     = "PassRole"
+    effect  = "Allow"
+    actions = ["iam:PassRole"]
     resources = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/secure-ecs-tasks-stg@common"
-      ]
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/secure-ecs-tasks-stg@common"
+    ]
   }
   statement {
-    sid       = "ALL"
-    effect    = "Allow"
-    actions   = ["*"]
+    sid     = "ALL"
+    effect  = "Allow"
+    actions = ["*"]
     resources = [
-        "*"
-      ]
+      "*"
+    ]
   }
 }
 
@@ -593,25 +605,25 @@ resource "aws_kms_key_policy" "s3" {
       {
         "Sid" : "Allow s3 bucket logging",
         "Effect" : "Allow",
-        "Principal" :  {
-            "Service": "logging.s3.amazonaws.com"
+        "Principal" : {
+          "Service" : "logging.s3.amazonaws.com"
         },
-        "Action": [
+        "Action" : [
           "kms:GenerateDataKey",
           "kms:Decrypt",
           "kms:DescribeKey",
           "kms:CreateGrant",
         ],
-        "Resource": "*"
-        "Condition": {
-        "ArnLike": {
-          "aws:SourceArn":[
-            aws_s3_bucket.tfstate_sekigaku.arn,
-            aws_s3_bucket.logging-sekigaku-20231120.arn,
-            aws_s3_bucket.cdn_log.arn,
-          ] 
+        "Resource" : "*"
+        "Condition" : {
+          "ArnLike" : {
+            "aws:SourceArn" : [
+              aws_s3_bucket.tfstate_sekigaku.arn,
+              aws_s3_bucket.logging-sekigaku-20231120.arn,
+              aws_s3_bucket.cdn_log.arn,
+            ]
+          }
         }
-      }
       }
     ]
   })

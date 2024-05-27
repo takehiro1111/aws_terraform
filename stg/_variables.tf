@@ -163,8 +163,8 @@ variable "iam_user_map" {
 # ECR -------------------------------------------------
 variable "repo_list" {
   description = "ECRリポジトリのリスト"
-  type = list(string)
-  default = [ 
+  type        = list(string)
+  default = [
     "nginx",
     "actions-deploy",
   ]
@@ -173,6 +173,6 @@ variable "repo_list" {
 # Listener Rule ---------------------------------------
 variable "blue" {
   description = "ALB Listener Rule"
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }

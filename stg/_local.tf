@@ -19,3 +19,20 @@ locals {
   main = "main-ecs"
   api  = "api-ecs"
 }
+
+// AuroraのSGのInboundRuleで許可するIP群
+locals {
+  private_sb_ips = [
+    module.value.hashicorp_subnet_ip.a_private,
+    module.value.hashicorp_subnet_ip.c_private,
+    module.value.hashicorp_subnet_ip.d_private,
+  ]
+}
+
+locals {
+  private_sb_ips2 = [
+    module.value.hashicorp_subnet_ip.a_public,
+    module.value.hashicorp_subnet_ip.c_public,
+    module.value.hashicorp_subnet_ip.d_public,
+  ]
+}

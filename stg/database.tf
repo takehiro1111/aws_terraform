@@ -59,7 +59,7 @@ resource "aws_db_instance" "mysql_8" {
 
   identifier             = "hcl-mysql8-${count.index}"
   db_subnet_group_name   = aws_db_subnet_group.mysql_8.name
-  vpc_security_group_ids = [aws_security_group.mysql.id]
+  vpc_security_group_ids = [module.sg_mysql.security_group_id]
   engine                 = "mysql"
   engine_version         = "8.0.28"
   instance_class         = "db.t3.micro"
@@ -115,7 +115,7 @@ resource "aws_rds_cluster" "mysql_8" {
   master_username        = "admin"
   master_password        = "hogehoge" // 作成後に変更
   port                   = 3306
-  vpc_security_group_ids = [aws_security_group.mysql.id]
+  vpc_security_group_ids = [module.sg_mysql.security_group_id]
 
   storage_encrypted = true
   #snapshot_identifier = data.aws_db_cluster_snapshot.mysql_8.id // スナップショットを復元する際に使用
@@ -144,7 +144,7 @@ resource "aws_rds_cluster" "mysql_8" {
   }
 
   lifecycle {
-    ignore_changes = ["master_password", "availability_zones"]
+    ignore_changes = [master_password, availability_zones]
   }
 }
 
@@ -165,9 +165,9 @@ resource "aws_rds_cluster_instance" "mysql_8" {
   auto_minor_version_upgrade = false
   db_parameter_group_name    = aws_db_parameter_group.mysql_8_aurora.name
 
-  performance_insights_enabled = true
+  performance_insights_enabled          = true
   performance_insights_retention_period = 7
-  performance_insights_kms_key_id = "arn:aws:kms:ap-northeast-1:${data.aws_caller_identity.current.account_id}:key/6208518c-69f1-460a-9e58-0d3cee35a5f5"
+  performance_insights_kms_key_id       = "arn:aws:kms:ap-northeast-1:${data.aws_caller_identity.current.account_id}:key/6208518c-69f1-460a-9e58-0d3cee35a5f5"
 }
 
 resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {

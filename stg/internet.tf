@@ -340,7 +340,7 @@ resource "aws_acm_certificate" "tanaka_cloud_net_us_east_1" {
 resource "aws_acm_certificate_validation" "tanaka_cloud_net_us_east_1" {
   certificate_arn         = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
   validation_record_fqdns = [for record in aws_route53_record.tanaka_cloud_net_us_east_1 : record.fqdn]
-  provider                  = aws.us-east-1
+  provider                = aws.us-east-1
 }
 
 #===================================
@@ -513,12 +513,12 @@ resource "aws_lb" "this" {
   name               = "ecs"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [
-    aws_security_group.alb_stg.id, 
-    aws_security_group.alb_9000.id, 
+  security_groups = [
+    aws_security_group.alb_stg.id,
+    aws_security_group.alb_9000.id,
     aws_vpc.hashicorp.default_security_group_id
   ]
-  subnets            = [aws_subnet.public_a.id, aws_subnet.public_c.id]
+  subnets = [aws_subnet.public_a.id, aws_subnet.public_c.id]
 
   enable_deletion_protection = false
   drop_invalid_header_fields = true
