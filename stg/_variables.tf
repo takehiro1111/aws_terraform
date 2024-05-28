@@ -234,3 +234,14 @@ variable "blue" {
   type        = bool
   default     = true
 }
+
+
+variable "revert" {
+  type        = map(string)
+  description = "ALBへのアクセスを、CloudFront経由に限定するためのカスタムヘッダー"
+
+  default = {
+    key   = "X-From-Restriction-Cloudfront"
+    value = "TczzzPXeBsCsz3ksaaag"
+  }
+}
