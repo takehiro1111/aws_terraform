@@ -234,3 +234,7 @@ variable "blue" {
   type        = bool
   default     = true
 }
+
+variable "revert_add" {
+  default = ""
+}
