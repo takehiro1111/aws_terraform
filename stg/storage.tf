@@ -330,7 +330,7 @@ resource "aws_s3_bucket_policy" "cdn_log" {
 
 # Static -----------------------------
 resource "aws_s3_bucket" "test" {
-  bucket = "test-sekigaku-s3-20231130"
+  bucket = "test-static-s3-20231130"
 }
 
 resource "aws_s3_object" "test" {

@@ -358,6 +358,10 @@ data "aws_cloudfront_origin_request_policy" "managed_allviewer" {
   name = "Managed-AllViewer"
 }
 
+data "aws_cloudfront_response_headers_policy" "security_headers" {
+  name = "SecurityHeadersPolicy"
+}
+
 resource "aws_cloudfront_function" "test" {
   name    = "test-sg"
   runtime = "cloudfront-js-2.0"
@@ -503,6 +507,81 @@ resource "aws_cloudfront_distribution" "stg" {
 
   tags = {
     "Name" : "hashicorp"
+  }
+}
+
+# reference: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
+module "main_stg" {
+  source  = "terraform-aws-modules/cloudfront/aws"
+  version = "3.4.0"
+
+  create_origin_access_control = true
+
+  origin_access_control = {
+    main-stg-oac = {
+      description      = "Official Module Used CDN"
+      origin_type      = "s3"
+      signing_behavior = "always"
+      signing_protocol = "sigv4"
+    }
+  }
+
+  aliases          = [module.value.cdn_tanaka_cloud_net]
+  comment          = "Official Module Used for Test"
+  enabled          = true
+  http_version     = ["http1.1", "http2", "http3"] //stringが指定されているので配列使用できないかも。
+  is_ipv6_enabled  = true
+  price_class      = "PriceClass_All"
+  retain_on_delete = false
+  # web_acl_id =  WAF作成時にコメントイン予定
+
+  //S3bucket作成してからコメントイン予定
+  # logging_config = {
+  #   bucket = 
+  #   prefix = "official_module_stg"
+  #   include_cookies = false
+  # }
+
+  // ALB
+  origin = {
+    domain_name = aws_lb.this.this.dns_name
+    origin_id   = aws_lb.this.this.dns_name
+
+    custom_origin_config = {
+      http_port                = 80
+      https_port               = 443
+      origin_protocol_policy   = "https-only"
+      origin_ssl_protocols     = []
+      origin_keepalive_timeout = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      origin_read_timeout      = 20
+    }
+
+    custom_header = {
+      name  = var.restriction_cloudfront_stg.key
+      value = var.restriction_cloudfront_stg.value
+    }
+
+    origin_shield = {
+      enabled              = true
+      origin_shield_region = data.aws_region.current.name
+    }
+  }
+
+  default_cache_behavior = {
+    target_origin_id       = aws_lb.this.this.dns_name
+    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
+    cached_methods         = ["GET", "HEAD"]
+    compress               = true
+
+    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
+
   }
 }
 

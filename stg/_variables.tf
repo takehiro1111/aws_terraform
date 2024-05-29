@@ -31,7 +31,7 @@ variable "tuple" {
 
 # github = var.object.name
 variable "object" {
-  description = "Key,Value形式のデータ型"
+  description = "Key,Value形式のデータ型で最初にobject関数でキー、バリューの型を定義する"
   type = object({
     name = string
     age = number
@@ -56,15 +56,15 @@ variable "map" {
 # STG環境
 # =================================
 
-# variable "restriction_cloudfront_stg" {
-#   type        = map(string)
-#   description = "ALBへのアクセスを、CloudFront経由に限定するためのカスタムヘッダー"
+variable "restriction_cloudfront_stg" {
+  type        = map(string)
+  description = "ALBへのアクセスを、CloudFront経由に限定するためのカスタムヘッダー"
 
-#   default = {
-#     key   = "X-From-Restriction-Cloudfront"
-#     value = "TczzzPXeBsCsz3ksaaag"
-#   }
-# }
+  default = {
+    key   = "X-From-Restriction-Cloudfront"
+    value = "TczzzPXeBsCsz3ksaaag"
+  }
+}
 
 variable "prometheus_sg_inbound_rule" {
   description = "SGのインバウンドルールのポート"
