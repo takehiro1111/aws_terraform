@@ -583,7 +583,7 @@ resource "aws_kms_key_policy" "s3" {
         "Resource" : "*",
         "Condition" : {
           "StringEquals" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.stg.id}"
+            "AWS:SourceArn" : module.main_stg.cloudfront_distribution_arn
           }
         }
       },

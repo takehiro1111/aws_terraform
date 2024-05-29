@@ -36,3 +36,43 @@ locals {
     module.value.hashicorp_subnet_ip.d_public,
   ]
 }
+
+// CloudFrontのカスタムエラーレスポンス
+locals {
+  custom_error_responses = [
+    {
+      error_caching_min_ttl = 10
+      error_code            = 500
+      response_code         = 500
+      response_page_path    = "/maintenance/maintenance.html"
+    },
+    {
+      error_caching_min_ttl = 10
+      error_code            = 501
+      response_code         = 501
+      response_page_path    = "/maintenance/maintenance.html"
+    },
+    {
+      error_caching_min_ttl = 10
+      error_code            = 502
+      response_code         = 502
+      response_page_path    = "/maintenance/maintenance.html"
+    },
+    {
+      error_caching_min_ttl = 10
+      error_code            = 504
+      response_code         = 504
+      response_page_path    = "/maintenance/maintenance.html"
+    }
+  ]
+
+  // メンテモードをtrueにする場合は503エラーのカスタムエラーレスポンスを作成する。
+  conditional_custom_error_responses = var.full_maintenance || var.half_maintenance ? [
+    {
+      error_caching_min_ttl = 10
+      error_code            = 503
+      response_code         = 503
+      response_page_path    = "/maintenance/maintenance.html"
+    }
+  ] : []
+}
