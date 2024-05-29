@@ -451,7 +451,7 @@ resource "aws_s3_bucket_policy" "test" {
         ],
         "Condition" : {
           "StringEquals" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.id}:distribution/${aws_cloudfront_distribution.stg.id}"
+            "AWS:SourceArn" : module.main_stg.cloudfront_distribution_arn
           }
         }
       }
