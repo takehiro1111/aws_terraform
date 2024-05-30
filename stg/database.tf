@@ -249,7 +249,7 @@ module "official_module_aurora" {
   engine_version = "8.0.mysql_aurora.3.05.2"
 
   master_username                 = "hoge"
-  master_password                 = "fuga"
+  master_password                 = "fugafuga"
   backup_retention_period         = 35
   preferred_backup_window         = "16:10-16:40"
   preferred_maintenance_window    = "sun:17:10-sun:17:40"
@@ -297,6 +297,9 @@ module "official_module_aurora" {
         module.value.hashicorp_subnet_ip.a_private,
         module.value.hashicorp_subnet_ip.c_private,
         module.value.hashicorp_subnet_ip.d_private,
+        module.value.hashicorp_subnet_ip.a_public,
+        module.value.hashicorp_subnet_ip.c_public,
+        module.value.hashicorp_subnet_ip.d_public
       ]
       description = "MySQL/Aurora"
     },
