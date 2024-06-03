@@ -68,11 +68,11 @@ jobs:
           echo 'EOF' >> $GITHUB_ENV
 
       - if: always()
-      name: Slack Notification
-      uses: rtCamp/action-slack-notify@v2.2.0
-      env:
-        SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
-        SLACK_COLOR: ${{ job.status }}
-        SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
-        SLACK_TITLE: Message
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
+          SLACK_TITLE: Message
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
