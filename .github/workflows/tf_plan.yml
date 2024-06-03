@@ -73,6 +73,6 @@ jobs:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
-          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_ICON: terraform_logo.png
           SLACK_TITLE: Execute Plan Result🚀
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
