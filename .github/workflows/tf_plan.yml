@@ -67,5 +67,5 @@ jobs:
         with:
           plan-job: plan
           plan-step: Run terraform plan
-          channel: C06QJT8L5TJ
+          channel: github_actions_notification
           slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}

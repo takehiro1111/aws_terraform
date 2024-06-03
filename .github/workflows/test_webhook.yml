@@ -23,7 +23,7 @@ jobs:
       uses: rtCamp/action-slack-notify@v2
       if: ${{ success() }}
       env:
-        SLACK_TITLE: Deploy / Success
+        SLACK_TITLE: plan
         SLACK_COLOR: good
         SLACK_MESSAGE: デプロイ完了しました🚀
 
