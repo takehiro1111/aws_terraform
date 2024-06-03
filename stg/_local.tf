@@ -20,7 +20,7 @@ locals {
   api  = "api-ecs"
 }
 
-// AuroraのSGのInboundRuleで許可するIP群
+# AuroraのSGのInboundRuleで許可するIP群
 locals {
   private_sb_ips = [
     module.value.hashicorp_subnet_ip.a_private,
@@ -37,7 +37,7 @@ locals {
   ]
 }
 
-// CloudFrontのカスタムエラーレスポンス
+# CloudFrontのカスタムエラーレスポンス
 locals {
   custom_error_responses = [
     {
@@ -66,7 +66,7 @@ locals {
     }
   ]
 
-  // メンテモードをtrueにする場合は503エラーのカスタムエラーレスポンスを作成する。
+  # メンテモードをtrueにする場合は503エラーのカスタムエラーレスポンスを作成する。
   conditional_custom_error_responses = var.full_maintenance || var.half_maintenance ? [
     {
       error_caching_min_ttl = 10
