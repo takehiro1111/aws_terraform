@@ -12,6 +12,10 @@ env:
   AWS_REGION: ap-northeast-1
   TF_VERSION: 1.7.5
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   plan:
     name: terraform plan
@@ -19,12 +23,6 @@ jobs:
     defaults:
       run:
         working-directory: stg/
-
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write 
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
