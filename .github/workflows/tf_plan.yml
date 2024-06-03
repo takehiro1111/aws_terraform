@@ -63,9 +63,7 @@ jobs:
       # planの結果を環境変数に格納
       - name: truncate terraform plan result
         run: |
-          echo 'PLAN_RESULT<> $GITHUB_ENV
-          echo '${{ steps.plan.outputs.stdout }}' | grep -e "No changes." -e "Plan:" >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
+          echo 'PLAN_RESULT=${{ steps.plan.outputs.stdout }}' | grep -e "No changes." -e "Plan:" >> $GITHUB_ENV
 
       - if: always()
         name: Slack Notification
