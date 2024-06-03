@@ -58,12 +58,13 @@ jobs:
       - name: Plan
         id: plan
         run: |
-          terraform plan
+          terraform plan | tee plan_output.txt
 
       # planの結果を環境変数に格納
-      - name: truncate terraform plan result
+      - name: Extract terraform plan result
         run: |
-          echo 'PLAN_RESULT=${{ steps.plan.outputs.stdout }}' | grep -e "No changes." -e "Plan:" >> $GITHUB_ENV
+          PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt)
+          echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
 
       - if: always()
         name: Slack Notification
@@ -72,5 +73,6 @@ jobs:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
-          SLACK_TITLE: Message
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Execute Plan Result
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
