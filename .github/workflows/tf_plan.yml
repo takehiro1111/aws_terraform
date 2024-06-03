@@ -75,6 +75,6 @@ jobs:
           SLACK_COLOR: ${{ job.status }}
           SLACK_USERNAME: Plan
           SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
-          SLACK_ICON: ${{ secrets.SLACK_ICON }}
+          SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_TITLE: Execute Plan Result🚀
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
