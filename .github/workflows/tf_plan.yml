@@ -74,5 +74,5 @@ jobs:
           SLACK_COLOR: ${{ job.status }}
           SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-          SLACK_TITLE: Execute Plan Result
+          SLACK_TITLE: Execute Plan Result🚀
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
