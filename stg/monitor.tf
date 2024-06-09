@@ -3,13 +3,13 @@
 #=========================================
 # ECS -----------------------------------------
 resource "aws_cloudwatch_log_group" "stg" {
-  retention_in_days = 30
+  retention_in_days = 7
   name              = "/ecslogs/stg"
   kms_key_id        = aws_kms_key.cloudwatch_logs.arn
 }
 
 resource "aws_cloudwatch_log_group" "stg_2" {
-  retention_in_days = 30
+  retention_in_days = 7
   name              = "/ecslogs/stg-2"
   kms_key_id        = aws_kms_key.cloudwatch_logs.arn
 }
@@ -35,6 +35,17 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 #   name              = "ecs/fluent-bit/test"
 #   retention_in_days = 30
 # }
+
+# Lambda関数 -----------------------------------
+resource "aws_cloudwatch_log_group" "lambda_hello_world" {
+  name = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "sns_mail" {
+  name = "/aws/lambda/${aws_lambda_function.sns_mail.function_name}"
+  retention_in_days = 7
+}
 
 #=========================================
 # Parameter Group
@@ -91,3 +102,50 @@ resource "aws_athena_database" "flow_log" {
 #   query       = data.template_file.flow_log.rendered
 # }
 
+#=========================================
+# SNS
+#=========================================
+resource "aws_sns_topic" "lambda_mail" {
+  name = "lambda-mail-sns-topic"
+}
+
+resource "aws_sns_topic_subscription" "lambda_mail" {
+  topic_arn = aws_sns_topic.lambda_mail.arn
+  protocol  = "email"
+  endpoint  = module.value.my_gmail_address
+}
+
+#=========================================
+# Lambda Function
+#=========================================
+resource "aws_lambda_function" "hello_world" {
+  function_name    = "hello-world"
+  handler          = "hello_world.handler" # ファイル名.関数名
+  runtime          = "python3.12"
+  memory_size = 128 # デフォルト
+  filename         = data.archive_file.hello_world.output_path
+  source_code_hash = filebase64sha256(data.archive_file.hello_world.output_path)
+  role = aws_iam_role.lambda_execute.arn
+}
+
+data "archive_file" "hello_world" {
+  type        = "zip"
+  source_file = "../function/hello_world.py"
+  output_path = "../function/archive_zip/lambda_hello_world.zip"
+}
+
+resource "aws_lambda_function" "sns_mail" {
+  function_name    = "sns-mail"
+  handler          = "sns_mail.handler" # ファイル名.関数名
+  runtime          = "python3.12"
+  memory_size = 128 # デフォルト
+  filename         = data.archive_file.sns_mail.output_path
+  source_code_hash = filebase64sha256(data.archive_file.sns_mail.output_path)
+  role = aws_iam_role.lambda_execute.arn
+}
+
+data "archive_file" "sns_mail" {
+  type        = "zip"
+  source_file = "../function/sns_mail.py"
+  output_path = "../function/archive_zip/sns_mail.zip"
+}

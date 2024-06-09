@@ -490,6 +490,58 @@ data "aws_iam_policy_document" "ecs_task_execution_policy_doc" {
   }
 }
 
+# Lamnda ------------------------------------------------
+resource "aws_iam_role" "lambda_execute" {
+  name = "lambda-execute-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal =  {
+          Service = "lambda.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "s3_full_access" {
+  role       = aws_iam_role.lambda_execute.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "dynamodb_full_access" {
+  role       = aws_iam_role.lambda_execute.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+}
+
+data "aws_iam_policy_document" "lambda_execute" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:*:*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sns:Publish"
+    ]
+    resources = ["arn:aws:sns:*:${data.aws_caller_identity.current.account_id}:*"]
+  }
+}
+
+resource "aws_iam_role_policy" "lambda_execute" {
+  name = aws_iam_role.lambda_execute.name
+  role = aws_iam_role.lambda_execute.name
+  policy = data.aws_iam_policy_document.lambda_execute.json
+}
+
 #===========================================
 #KMS
 #===========================================
