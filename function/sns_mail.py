@@ -8,5 +8,5 @@ def handler(event, context):
     'Subject': 'Subject Lambda(python) -> SNSでメール送ったよ',
     'Message': 'Message\n\nLambda -> SNSでメール送信できた事を確認。'
     }
-    
+
     client.publish(**params)

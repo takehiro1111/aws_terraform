@@ -65,7 +65,7 @@ resource "aws_ssm_parameter" "aurora_mysql" {
 #=========================================
 # Athena
 #=========================================
-resource "aws_athena_workgroup" "flow_log" {
+resource "aws_athena_workgroup" "test" {
   name = aws_s3_bucket.athena.id
 
   configuration {
@@ -80,8 +80,8 @@ resource "aws_athena_workgroup" "flow_log" {
   }
 }
 
-resource "aws_athena_database" "flow_log" {
-  name   = "flow_log_result"
+resource "aws_athena_database" "test" {
+  name   = "test_employee_list"
   bucket = aws_s3_bucket.athena.id
 }
 
