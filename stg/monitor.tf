@@ -149,3 +149,19 @@ data "archive_file" "sns_mail" {
   source_file = "../function/sns_mail.py"
   output_path = "../function/archive_zip/sns_mail.zip"
 }
+
+resource "aws_lambda_function" "sns_mail" {
+  function_name    = "s3-cp-default"
+  handler          = "s3_cp_default.handler" # ファイル名.関数名
+  runtime          = "python3.12"
+  memory_size = 128 # デフォルト
+  filename         = data.archive_file.sns_mail.output_path
+  source_code_hash = filebase64sha256(data.archive_file.sns_mail.output_path)
+  role = aws_iam_role.lambda_execute.arn
+}
+
+data "archive_file" "sns_mail" {
+  type        = "zip"
+  source_file = "../function/s3_cp_default.py"
+  output_path = "../function/archive_zip/s3_cp_default.zip"
+}
