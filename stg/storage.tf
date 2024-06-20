@@ -1,6 +1,8 @@
 #===================================
 # ECR
 #===================================
+# KMSでの暗号化は行わない。
+#trivy:ignore:AVD-AWS-0033
 resource "aws_ecr_repository" "common" {
   for_each = toset(var.repo_list)
 

@@ -176,7 +176,32 @@ module "sg_mysql" {
       source_security_group_id = aws_security_group.ecs_stg.id
     }
   ]
+
+  # ingress_with_self = [
+  #   {
+  #     from_port       = 443
+  #     to_port         = 443
+  #     protocol        = "tcp"
+  #     description     = "Allow Inbound From CloludFront"
+  #     # prefix_list_ids= "pl-58a04531"
+  #     ingress_prefix_list_ids = data.aws_ec2_managed_prefix_list.cdn.id
+  #   }
+  # ]
+
   egress_rules = ["all-all"]
+}
+
+resource "aws_vpc_security_group_ingress_rule" "mysql_stg_cdn" {
+  security_group_id = module.sg_mysql.security_group_id
+  description       = "Allow inbound rule for https"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  prefix_list_id    = data.aws_ec2_managed_prefix_list.cdn.id
+
+  tags = {
+    Name = "mysql-stg-cdn"
+  }
 }
 
 #VPCエンドポイント ------------------------------------- 
@@ -202,6 +227,7 @@ resource "aws_vpc_security_group_ingress_rule" "vpce_in_443" {
   }
 }
 
+#triviy"ignore:Security group rule allows egress to multiple public internet addresses.
 resource "aws_vpc_security_group_egress_rule" "vpce_egress" {
   security_group_id = aws_security_group.vpce.id
   description       = "Allow outbound rule for all"

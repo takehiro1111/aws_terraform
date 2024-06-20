@@ -149,3 +149,7 @@ data "archive_file" "sns_mail" {
   source_file = "../function/sns_mail.py"
   output_path = "../function/archive_zip/sns_mail.zip"
 }
+
+#=========================================
+# SES
+#=========================================
