@@ -38,12 +38,12 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 
 # Lambda関数 -----------------------------------
 resource "aws_cloudwatch_log_group" "lambda_hello_world" {
-  name = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
   retention_in_days = 7
 }
 
 resource "aws_cloudwatch_log_group" "sns_mail" {
-  name = "/aws/lambda/${aws_lambda_function.sns_mail.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.sns_mail.function_name}"
   retention_in_days = 7
 }
 
@@ -122,10 +122,10 @@ resource "aws_lambda_function" "hello_world" {
   function_name    = "hello-world"
   handler          = "hello_world.handler" # ファイル名.関数名
   runtime          = "python3.12"
-  memory_size = 128 # デフォルト
+  memory_size      = 128 # デフォルト
   filename         = data.archive_file.hello_world.output_path
   source_code_hash = filebase64sha256(data.archive_file.hello_world.output_path)
-  role = aws_iam_role.lambda_execute.arn
+  role             = aws_iam_role.lambda_execute.arn
 }
 
 data "archive_file" "hello_world" {
@@ -138,10 +138,10 @@ resource "aws_lambda_function" "sns_mail" {
   function_name    = "sns-mail"
   handler          = "sns_mail.handler" # ファイル名.関数名
   runtime          = "python3.12"
-  memory_size = 128 # デフォルト
+  memory_size      = 128 # デフォルト
   filename         = data.archive_file.sns_mail.output_path
   source_code_hash = filebase64sha256(data.archive_file.sns_mail.output_path)
-  role = aws_iam_role.lambda_execute.arn
+  role             = aws_iam_role.lambda_execute.arn
 }
 
 data "archive_file" "sns_mail" {
@@ -154,10 +154,10 @@ resource "aws_lambda_function" "s3_cp" {
   function_name    = "s3-cp-default"
   handler          = "s3_cp_default.handler" # ファイル名.関数名
   runtime          = "python3.12"
-  memory_size = 128 # デフォルト
+  memory_size      = 128 # デフォルト
   filename         = data.archive_file.sns_mail.output_path
   source_code_hash = filebase64sha256(data.archive_file.sns_mail.output_path)
-  role = aws_iam_role.lambda_execute.arn
+  role             = aws_iam_role.lambda_execute.arn
 }
 
 data "archive_file" "s3_cp" {
