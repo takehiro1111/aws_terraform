@@ -25,7 +25,7 @@ jobs:
       env:
         SLACK_TITLE: plan
         SLACK_COLOR: good
-        SLACK_MESSAGE: デプロイ完了しました🚀
+        SLACK_MESSAGE: デプロイ完了しました🚀(test_webhook.yml)
 
     # 失敗
     - name: Slack Notification on Failure
@@ -34,4 +34,4 @@ jobs:
       env:
         SLACK_TITLE: Deploy / Failure
         SLACK_COLOR: danger
-        SLACK_MESSAGE: デプロイ失敗しました😢
+        SLACK_MESSAGE: デプロイ失敗しました😢(test_webhook.yml)
