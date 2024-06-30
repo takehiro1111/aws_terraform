@@ -249,7 +249,7 @@ module "vpc_endpoint" {
   // SG
   name        = "stats-fluentd"
   description = "SG for log routing"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.hashicorp.id
   // Rule
   ingress_with_source_security_group_id = [
     {
@@ -257,7 +257,7 @@ module "vpc_endpoint" {
       to_port                  = 24224
       protocol                 = "tcp"
       description              = "Log Routing"
-      source_security_group_id = module.ecs.security_group_id
+      source_security_group_id = aws_security_group.ecs_stg.id
     }
   ]
 

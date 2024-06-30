@@ -75,8 +75,8 @@ data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
 
-data "aws_region" "current" {
-  name = "ap-northeast-1"
+data "aws_region" "default" {
+  name =  "ap-northeast-1"
 }
 
 data "http" "myip" {

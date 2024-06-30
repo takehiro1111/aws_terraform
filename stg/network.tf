@@ -50,14 +50,14 @@ resource "aws_internet_gateway" "hashicorp" {
   }
 }
 
-# resource "aws_nat_gateway" "hashicorp" {
-#   allocation_id = aws_eip.nat.id
-#   subnet_id     = aws_subnet.public_a.id
+resource "aws_nat_gateway" "hashicorp" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public_a.id
 
-#   tags = {
-#     "Name" = "hashicorp-nat"
-#   }
-# }
+  tags = {
+    "Name" = "hashicorp-nat"
+  }
+}
 
 #=========================================
 # EIP
@@ -110,7 +110,7 @@ resource "aws_eip_association" "node_exporter" {
 #Public-----------------------------------
 resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.hashicorp.id
-  cidr_block              = module.value.hashicorp_subnet_ip["a_public"]
+  cidr_block              = module.value.hashicorp_subnet_ip.a_public
   availability_zone       = "ap-northeast-1a"
   map_public_ip_on_launch = false
 
@@ -121,7 +121,7 @@ resource "aws_subnet" "public_a" {
 
 resource "aws_subnet" "public_c" {
   vpc_id                  = aws_vpc.hashicorp.id
-  cidr_block              = module.value.hashicorp_subnet_ip["c_public"]
+  cidr_block              = module.value.hashicorp_subnet_ip.c_public
   availability_zone       = "ap-northeast-1c"
   map_public_ip_on_launch = false
 
@@ -132,7 +132,7 @@ resource "aws_subnet" "public_c" {
 
 resource "aws_subnet" "public_d" {
   vpc_id                  = aws_vpc.hashicorp.id
-  cidr_block              = module.value.hashicorp_subnet_ip["d_public"]
+  cidr_block              = module.value.hashicorp_subnet_ip.d_public
   availability_zone       = "ap-northeast-1d"
   map_public_ip_on_launch = false
 
@@ -144,7 +144,7 @@ resource "aws_subnet" "public_d" {
 #Private-----------------------------------
 resource "aws_subnet" "private_a" {
   vpc_id                  = aws_vpc.hashicorp.id
-  cidr_block              = module.value.hashicorp_subnet_ip["a_private"]
+  cidr_block              = module.value.hashicorp_subnet_ip.a_private
   availability_zone       = "ap-northeast-1a"
   map_public_ip_on_launch = false
 
@@ -155,7 +155,7 @@ resource "aws_subnet" "private_a" {
 
 resource "aws_subnet" "private_c" {
   vpc_id                  = aws_vpc.hashicorp.id
-  cidr_block              = module.value.hashicorp_subnet_ip["c_private"]
+  cidr_block              = module.value.hashicorp_subnet_ip.c_private
   availability_zone       = "ap-northeast-1c"
   map_public_ip_on_launch = false
 
@@ -166,7 +166,7 @@ resource "aws_subnet" "private_c" {
 
 resource "aws_subnet" "private_d" {
   vpc_id                  = aws_vpc.hashicorp.id
-  cidr_block              = module.value.hashicorp_subnet_ip["d_private"]
+  cidr_block              = module.value.hashicorp_subnet_ip.d_private
   availability_zone       = "ap-northeast-1d"
   map_public_ip_on_launch = false
 
@@ -220,11 +220,11 @@ resource "aws_route_table" "private_rtb" {
   depends_on = [aws_vpc.hashicorp]
 }
 
-# resource "aws_route" "private_rtb_nat" {
-#   route_table_id         = aws_route_table.private_rtb.id
-#   destination_cidr_block = module.value.full_open_ip
-#   nat_gateway_id         = aws_nat_gateway.hashicorp.id
-# }
+resource "aws_route" "private_rtb_nat" {
+  route_table_id         = aws_route_table.private_rtb.id
+  destination_cidr_block = module.value.full_open_ip
+  nat_gateway_id         = aws_nat_gateway.hashicorp.id
+}
 
 resource "aws_route_table_association" "private_a" {
   subnet_id      = aws_subnet.private_a.id
@@ -244,72 +244,72 @@ resource "aws_route_table_association" "private_d" {
 #=========================================
 # VPC Endpoint
 #=========================================
-# resource "aws_vpc_endpoint" "s3" {
-#   vpc_id            = aws_vpc.hashicorp.id
-#   service_name      = "com.amazonaws.ap-northeast-1.s3"
-#   vpc_endpoint_type = "Gateway"
-#   route_table_ids   = [aws_route_table.private_rtb.id]
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.hashicorp.id
+  service_name      = "com.amazonaws.ap-northeast-1.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.private_rtb.id]
 
-#   tags = {
-#     "Name" = "${local.env}-s3"
-#   }
-# }
+  tags = {
+    "Name" = "${local.env}-s3"
+  }
+}
 
-# resource "aws_vpc_endpoint_route_table_association" "s3" {
-#   route_table_id  = aws_route_table.private_rtb.id
-#   vpc_endpoint_id = aws_vpc_endpoint.s3.id
-# }
+resource "aws_vpc_endpoint_route_table_association" "s3" {
+  route_table_id  = aws_route_table.private_rtb.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3.id
+}
 
-# resource "aws_vpc_endpoint" "ecr_dkr" {
-#   vpc_id            = aws_vpc.hashicorp.id
-#   subnet_ids = [aws_subnet.private_c.id]
-#   service_name      = "com.amazonaws.ap-northeast-1.ecr.dkr"
-#   vpc_endpoint_type = "Interface"
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id            = aws_vpc.hashicorp.id
+  subnet_ids = [aws_subnet.private_c.id]
+  service_name      = "com.amazonaws.ap-northeast-1.ecr.dkr"
+  vpc_endpoint_type = "Interface"
 
-#   security_group_ids = [
-#     aws_security_group.vpce.id,
-#   ]
+  security_group_ids = [
+    aws_security_group.vpce.id,
+  ]
 
-#   private_dns_enabled = true
+  private_dns_enabled = true
 
-#   tags = {
-#     "Name" = "${local.env}-ecr-dkr"
-#   }
-# }
+  tags = {
+    "Name" = "${local.env}-ecr-dkr"
+  }
+}
 
-# resource "aws_vpc_endpoint" "ecr_api" {
-#   vpc_id            = aws_vpc.hashicorp.id
-#   subnet_ids = [aws_subnet.private_c.id]
-#   service_name      = "com.amazonaws.ap-northeast-1.ecr.api"
-#   vpc_endpoint_type = "Interface"
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id            = aws_vpc.hashicorp.id
+  subnet_ids = [aws_subnet.private_c.id]
+  service_name      = "com.amazonaws.ap-northeast-1.ecr.api"
+  vpc_endpoint_type = "Interface"
 
-#   security_group_ids = [
-#     aws_security_group.vpce.id,
-#   ]
+  security_group_ids = [
+    aws_security_group.vpce.id,
+  ]
 
-#   private_dns_enabled = true
+  private_dns_enabled = true
 
-#   tags = {
-#     "Name" = "${local.env}-ecr-api"
-#   }
-# }
+  tags = {
+    "Name" = "${local.env}-ecr-api"
+  }
+}
 
-# resource "aws_vpc_endpoint" "logs" {
-#   vpc_id            = aws_vpc.hashicorp.id
-#   subnet_ids = [aws_subnet.private_c.id]
-#   service_name      = "com.amazonaws.ap-northeast-1.logs"
-#   vpc_endpoint_type = "Interface"
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id            = aws_vpc.hashicorp.id
+  subnet_ids = [aws_subnet.private_c.id]
+  service_name      = "com.amazonaws.ap-northeast-1.logs"
+  vpc_endpoint_type = "Interface"
 
-#   security_group_ids = [
-#     aws_security_group.vpce.id,
-#   ]
+  security_group_ids = [
+    aws_security_group.vpce.id,
+  ]
 
-#   private_dns_enabled = true
+  private_dns_enabled = true
 
-#   tags = {
-#     "Name" = "${local.env}-ecr-logs"
-#   }
-# }
+  tags = {
+    "Name" = "${local.env}-ecr-logs"
+  }
+}
 
 resource "aws_vpc_endpoint" "to_td_egent" {
   count = var.activation_vpc_endpoint ? 1 : 0

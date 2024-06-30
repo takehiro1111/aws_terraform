@@ -128,6 +128,40 @@ resource "aws_service_discovery_service" "web" {
   }
 }
 
+// ECSサービス
+resource "aws_ecs_service" "nginx" {
+  name                              = "nginx-service-stg"
+  cluster                           = aws_ecs_cluster.web.arn
+  task_definition                   = "nginx-task-define"
+  desired_count                     = 1
+  launch_type                       = "FARGATE"
+  platform_version                  = "1.4.0"
+  health_check_grace_period_seconds = 60
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  network_configuration {
+    subnets = [aws_subnet.private_c.id]
+    security_groups = [
+      aws_security_group.ecs_stg.id,
+    ]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.nginx.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
+    container_name   = "ngix-container"              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_port   = 80
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}
+
 // タスク定義
 resource "aws_ecs_task_definition" "nginx" {
   family                   = "nginx-task-define"
@@ -147,7 +181,7 @@ resource "aws_ecs_task_definition" "nginx" {
   container_definitions = jsonencode([
     {
       name      = "ngix-container"
-      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-1.amazonaws.com/nginx:latest"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:latest"
       cpu       = 256
       memory    = 512
       essential = true
@@ -195,38 +229,4 @@ resource "aws_ecs_task_definition" "nginx" {
   # lifecycle {
   #   ignore_changes = [container_definitions]
   # }
-}
-
-// ECSサービス
-resource "aws_ecs_service" "nginx" {
-  name                              = "nginx-service-stg"
-  cluster                           = aws_ecs_cluster.web.arn
-  task_definition                   = "nginx-task-define"
-  desired_count                     = 1
-  launch_type                       = "FARGATE"
-  platform_version                  = "1.4.0"
-  health_check_grace_period_seconds = 60
-
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
-  }
-
-  network_configuration {
-    subnets = [aws_subnet.private_c.id]
-    security_groups = [
-      aws_security_group.ecs_stg.id,
-    ]
-    assign_public_ip = false
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.nginx.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
-    container_name   = "ngix-container"              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
-    container_port   = 80
-  }
-
-  lifecycle {
-    ignore_changes = [task_definition]
-  }
 }
