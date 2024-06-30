@@ -48,7 +48,7 @@ jobs:
 
       - name: Fmt
         run: |
-          terraform fmt
+          terraform fmt -check
     
       - name: Plan
         run: |
@@ -58,3 +58,20 @@ jobs:
         run: |
           terraform apply -auto-approve
 
+      # planの結果を環境変数に格納
+      - name: Extract terraform apply result
+        run: |
+          APPLY_RESULT=$(grep -e "No changes." -e "Apply complete! Resources:" -e "Outputs:" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
+          echo "APPLY_RESULT=${APPLY_RESULT}" >> $GITHUB_ENV
+
+      - if: always()
+        name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_USERNAME: Deploy
+          SLACK_MESSAGE: '${{ job.status }}: ${{ env.APPLY_RESULT }}'
+          SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_TITLE: Execute Apply Result🚀
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
