@@ -62,7 +62,7 @@ jobs:
       # applyの結果を環境変数に格納
       - name: Extract terraform apply result
         run: |
-          APPLY_RESULT=$(cat apply_output.txt | grep -e "No changes." -e "Apply" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
+          APPLY_RESULT=$(cat apply_output.txt | grep -e "No changes." -e "Apply" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g' | tr -d '\n')
           echo $APPLY_RESULT >> $GITHUB_ENV
 
       - if: always()
