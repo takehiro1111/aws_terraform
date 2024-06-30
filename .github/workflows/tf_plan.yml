@@ -6,6 +6,7 @@ on:
       - 'main'
     paths:
       - 'stg/**'
+      - '.github/**'
   workflow_dispatch:
 
 env:
@@ -64,7 +65,7 @@ jobs:
       # planの結果を環境変数に格納
       - name: Extract terraform plan result
         run: |
-          PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt)
+          PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
           echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
 
       - if: always()
