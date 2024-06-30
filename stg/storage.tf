@@ -89,7 +89,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate_sekigaku"
   bucket = aws_s3_bucket.tfstate_sekigaku.bucket
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "AES256"  # "aws:kms"
+      sse_algorithm = "AES256" # "aws:kms"
       #kms_master_key_id = aws_kms_key.s3.arn
     }
   }

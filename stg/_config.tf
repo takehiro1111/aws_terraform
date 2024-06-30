@@ -76,7 +76,7 @@ data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 
 data "aws_region" "default" {
-  name =  "ap-northeast-1"
+  name = "ap-northeast-1"
 }
 
 data "http" "myip" {
@@ -110,7 +110,7 @@ data "aws_ec2_managed_prefix_list" "s3" {
 
 data "terraform_remote_state" "stats_stg" {
   backend = "s3"
-  config ={
+  config = {
     bucket         = "terraform-state-hashicorp"
     key            = "stats"
     region         = "ap-northeast-1"

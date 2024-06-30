@@ -175,6 +175,17 @@ resource "aws_subnet" "private_d" {
   }
 }
 
+# resource "aws_subnet" "private_d" {
+#   vpc_id                  = aws_vpc.hashicorp.id
+#   cidr_block              = module.value.hashicorp_subnet_ip.d_private
+#   availability_zone       = "ap-northeast-1d"
+#   map_public_ip_on_launch = false
+
+#   tags = {
+#     "Name" = "private-d"
+#   }
+# }
+
 #=========================================
 # RouteTable
 #=========================================

@@ -337,10 +337,10 @@ module "main_stg" {
         origin_read_timeout      = 20
       }
     }
-    
+
     origin-s3 = {
-      domain_name = aws_s3_bucket.test.bucket_regional_domain_name
-      origin_id   = aws_s3_bucket.test.bucket_regional_domain_name
+      domain_name           = aws_s3_bucket.test.bucket_regional_domain_name
+      origin_id             = aws_s3_bucket.test.bucket_regional_domain_name
       origin_access_control = "main-stg-oac"
 
 
@@ -357,9 +357,9 @@ module "main_stg" {
     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
     cached_methods         = ["GET", "HEAD"]
     compress               = true
-    use_forwarded_values = false
+    use_forwarded_values   = false
 
-    cache_policy_id           = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
     response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
 
@@ -370,13 +370,13 @@ module "main_stg" {
 
   ordered_cache_behavior = [
     {
-      target_origin_id = aws_s3_bucket.test.bucket_regional_domain_name
+      target_origin_id       = aws_s3_bucket.test.bucket_regional_domain_name
       path_pattern           = "/maintenance/*"
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
       compress               = false
       viewer_protocol_policy = "redirect-to-https"
-      use_forwarded_values = false
+      use_forwarded_values   = false
       cache_policy_id        = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
     }
   ]
@@ -388,7 +388,7 @@ module "main_stg" {
     ssl_support_method             = "sni-only"
   }
 
-  custom_error_response = concat(local.custom_error_responses, local.conditional_custom_error_responses) 
+  custom_error_response = concat(local.custom_error_responses, local.conditional_custom_error_responses)
 
   geo_restriction = {
     restriction_type = "none"
