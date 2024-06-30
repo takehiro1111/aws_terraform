@@ -6,7 +6,6 @@ on:
       - 'main'
     paths:
       - 'stg/**'
-      - '.github/**'
   workflow_dispatch:
 
 env:
