@@ -55,13 +55,14 @@ jobs:
           terraform plan
       
       - name: Apply
+        id: apply
         run: |
           terraform apply -auto-approve  | tee apply_output.txt
 
       # applyの結果を環境変数に格納
       - name: Extract terraform apply result
         run: |
-          APPLY_RESULT=$(cat apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
+          APPLY_RESULT=$(grep -e "No changes." -e "Apply" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
           echo "APPLY_RESULT=${APPLY_RESULT}" >> $GITHUB_ENV
 
       - if: always()

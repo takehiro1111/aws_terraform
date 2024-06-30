@@ -1,0 +1,260 @@
+[0m[1mdata.terraform_remote_state.stats_stg: Reading...[0m[0m
+[0m[1mrandom_string.mysql_8: Refreshing state... [id=tAngbKtjyCPbrnKS][0m
+[0m[1mdata.http.myip: Reading...[0m[0m
+[0m[1mdata.archive_file.s3_cp: Reading...[0m[0m
+[0m[1mdata.archive_file.sns_mail: Reading...[0m[0m
+[0m[1mdata.archive_file.hello_world: Reading...[0m[0m
+[0m[1mdata.archive_file.s3_cp: Read complete after 0s [id=983313a8c3812c206029f5cdb30cb2d33926d889][0m
+[0m[1mdata.archive_file.hello_world: Read complete after 0s [id=35b2e53a5756d9245541ff85798ae2c1f93b18b7][0m
+[0m[1mdata.archive_file.sns_mail: Read complete after 0s [id=a0613e2a30a501a6674455edd2feffffd07b9c23][0m
+[0m[1mdata.aws_db_cluster_snapshot.mysql_8: Reading...[0m[0m
+[0m[1mdata.aws_cloudfront_cache_policy.managed_caching_disabled: Reading...[0m[0m
+[0m[1maws_iam_role.flow_log: Refreshing state... [id=vpc-flow-log][0m
+[0m[1maws_dynamodb_table.tfstate_locks: Refreshing state... [id=tfstate-locks][0m
+[0m[1maws_s3_bucket.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_s3_bucket.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1maws_rds_cluster_parameter_group.mysql_8_aurora: Refreshing state... [id=aurora-cluster][0m
+[0m[1maws_route53_zone.tanaka_cloud_net: Refreshing state... [id=Z0176701R2QTIWR4NN42][0m
+[0m[1mdata.terraform_remote_state.stats_stg: Read complete after 0s[0m
+[0m[1maws_db_parameter_group.mysql_8: Refreshing state... [id=mysql-8][0m
+[0m[1mdata.aws_db_cluster_snapshot.mysql_8: Read complete after 0s [id=test-snapshot-20240218][0m
+[0m[1mdata.aws_iam_policy.ecs_task_execution_role_policy_source: Reading...[0m[0m
+[0m[1mdata.http.myip: Read complete after 0s [id=http://ifconfig.me/][0m
+[0m[1mdata.aws_cloudfront_cache_policy.managed_caching_optimized: Reading...[0m[0m
+[0m[1maws_kms_key.cloudwatch_logs: Refreshing state... [id=6b6cb1d2-ba5f-4739-9e65-10f04250901c][0m
+[0m[1maws_ssm_parameter.aurora_mysql: Refreshing state... [id=/aurora/MYSQL_PASSWORD][0m
+[0m[1maws_db_parameter_group.mysql_8_aurora: Refreshing state... [id=aurora-cluster][0m
+[0m[1mdata.aws_region.default: Reading...[0m[0m
+[0m[1mdata.aws_region.default: Read complete after 0s [id=ap-northeast-1][0m
+[0m[1mmodule.codedeploy_for_ecs_role.aws_iam_role.bulue_green_deploy_for_ECS: Refreshing state... [id=bulue-green-deploy-for-ECS][0m
+[0m[1maws_key_pair.public_instance: Refreshing state... [id=hcl][0m
+[0m[1mdata.aws_partition.current: Reading...[0m[0m
+[0m[1mdata.aws_partition.current: Read complete after 0s [id=aws][0m
+[0m[1mdata.aws_iam_role.ecs_task_execute: Reading...[0m[0m
+[0m[1maws_s3_bucket.athena: Refreshing state... [id=athena-result-20240407][0m
+[0m[1maws_cloudwatch_log_group.flow_log: Refreshing state... [id=/vpc/flow-log][0m
+[0m[1maws_acm_certificate.tanaka_cloud_net: Refreshing state... [id=arn:aws:acm:ap-northeast-1:421643133281:certificate/6d0409b1-d1a0-4693-9169-60a3472e77a5][0m
+[0m[1maws_ecr_repository.common["actions-deploy"]: Refreshing state... [id=actions-deploy][0m
+[0m[1maws_ecr_repository.common["nginx"]: Refreshing state... [id=nginx][0m
+[0m[1maws_s3_bucket.logging-sekigaku-20231120: Refreshing state... [id=logging-sekigaku-20231120][0m
+[0m[1mdata.aws_cloudfront_cache_policy.managed_caching_disabled: Read complete after 1s [id=4135ea2d-6df8-44a3-9df3-4b5a84be39ad][0m
+[0m[1mdata.aws_ec2_managed_prefix_list.cdn: Reading...[0m[0m
+[0m[1maws_iam_role.lambda_execute: Refreshing state... [id=lambda-execute-role][0m
+[0m[1maws_vpc.hashicorp: Refreshing state... [id=vpc-09db83dcc912895d2][0m
+[0m[1mdata.aws_iam_role.ecs_task_execute: Read complete after 0s [id=ecsTaskExecutionRole][0m
+[0m[1mdata.aws_iam_policy_document.session_manager: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.session_manager: Read complete after 0s [id=2851119427][0m
+[0m[1mdata.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mdata.aws_caller_identity.current: Read complete after 0s [id=421643133281][0m
+[0m[1mdata.aws_cloudfront_response_headers_policy.security_headers: Reading...[0m[0m
+[0m[1mmodule.config_log.data.aws_caller_identity.current: Reading...[0m[0m
+[0m[1mmodule.config_log.data.aws_caller_identity.current: Read complete after 0s [id=421643133281][0m
+[0m[1mdata.aws_ec2_managed_prefix_list.s3: Reading...[0m[0m
+[0m[1mdata.aws_ec2_managed_prefix_list.cdn: Read complete after 0s [id=pl-58a04531][0m
+[0m[1maws_ecs_cluster.web: Refreshing state... [id=arn:aws:ecs:ap-northeast-1:421643133281:cluster/cluster-web][0m
+[0m[1mdata.aws_cloudfront_cache_policy.managed_caching_optimized: Read complete after 1s [id=658327ea-f89d-4fab-a63d-7e88639e58f6][0m
+[0m[1maws_sns_topic.lambda_mail: Refreshing state... [id=arn:aws:sns:ap-northeast-1:421643133281:lambda-mail-sns-topic][0m
+[0m[1mdata.aws_iam_policy.ecs_task_execution_role_policy_source: Read complete after 2s [id=arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy][0m
+[0m[1mdata.aws_iam_policy.ecs_task_execution: Reading...[0m[0m
+[0m[1maws_db_cluster_snapshot.mysql_8: Refreshing state... [id=test-snapshot-20240218][0m
+[0m[1mdata.aws_cloudfront_origin_request_policy.managed_allviewer: Reading...[0m[0m
+[0m[1mmodule.node_exporter.data.aws_iam_policy_document.this: Reading...[0m[0m
+[0m[1mmodule.node_exporter.data.aws_iam_policy_document.this: Read complete after 0s [id=2851119427][0m
+[0m[1mdata.aws_ami.amazon_linux: Reading...[0m[0m
+[0m[1mdata.aws_ec2_managed_prefix_list.s3: Read complete after 1s [id=pl-61a54008][0m
+[0m[1mmodule.main_stg.aws_cloudfront_origin_access_control.this["main-stg-oac"]: Refreshing state... [id=E3AVTFIGBHCP4][0m
+[0m[1maws_cloudwatch_log_group.public_instance: Refreshing state... [id=/compute/ec2/public][0m
+[0m[1mmodule.ecs_task_stg.aws_iam_role.default: Refreshing state... [id=secure-ecs-tasks-stg@common][0m
+[0m[1maws_s3_bucket.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket][0m
+[0m[1mdata.aws_cloudfront_response_headers_policy.security_headers: Read complete after 1s [id=67f7725c-6f97-4210-82d7-5512b31e9d03][0m
+[0m[1maws_db_option_group.mysql_8: Refreshing state... [id=mysql-8][0m
+[0m[1mdata.aws_ami.amazon_linux: Read complete after 0s [id=ami-04098447374373198][0m
+[0m[1mmodule.oidc.aws_iam_openid_connect_provider.default: Refreshing state... [id=arn:aws:iam::421643133281:oidc-provider/token.actions.githubusercontent.com][0m
+[0m[1maws_kms_key.s3: Refreshing state... [id=3b8a8f9f-2651-48a9-b084-fe6647c6ea4f][0m
+[0m[1mmodule.codedeploy_for_ecs_role.data.aws_iam_policy.bulue_green_deploy_for_ECS: Reading...[0m[0m
+[0m[1mmodule.prometheus_server.data.aws_iam_policy_document.this: Reading...[0m[0m
+[0m[1mmodule.prometheus_server.data.aws_iam_policy_document.this: Read complete after 0s [id=2851119427][0m
+[0m[1mdata.aws_iam_policy.ecs_task_execute: Reading...[0m[0m
+[0m[1maws_kms_key_policy.cloudwatch_logs: Refreshing state... [id=6b6cb1d2-ba5f-4739-9e65-10f04250901c][0m
+[0m[1maws_cloudwatch_log_group.stg_2: Refreshing state... [id=/ecslogs/stg-2][0m
+[0m[1maws_cloudwatch_log_group.stg: Refreshing state... [id=/ecslogs/stg][0m
+[0m[1mdata.aws_cloudfront_origin_request_policy.managed_allviewer: Read complete after 0s [id=216adef6-5c7f-47e4-b989-5492eafa07d3][0m
+[0m[1maws_kms_alias.cloudwatch_logs: Refreshing state... [id=alias/cloudwatch_logs][0m
+[0m[1maws_s3_bucket_acl.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp,private][0m
+[0m[1maws_s3_bucket_ownership_controls.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1maws_s3_bucket_versioning.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1maws_s3_bucket_server_side_encryption_configuration.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1maws_s3_bucket_public_access_block.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1mdata.aws_iam_policy.ecs_task_execution: Read complete after 0s [id=arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy][0m
+[0m[1maws_s3_bucket_ownership_controls.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_s3_bucket_public_access_block.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_s3_object.error: Refreshing state... [id=error/][0m
+[0m[1maws_s3_bucket_versioning.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_s3_object.maintenance: Refreshing state... [id=maintenance/][0m
+[0m[1maws_s3_object.image: Refreshing state... [id=image/][0m
+[0m[1maws_s3_object.test: Refreshing state... [id=static/sitemap/][0m
+[0m[1mdata.aws_iam_policy_document.flow_log: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.flow_log: Read complete after 0s [id=3523435320][0m
+[0m[1maws_ecr_repository_policy.common["nginx"]: Refreshing state... [id=nginx][0m
+[0m[1maws_acm_certificate.tanaka_cloud_net_us_east_1: Refreshing state... [id=arn:aws:acm:us-east-1:421643133281:certificate/94cd7b79-1309-4f0b-bb52-7e16cf7271c6][0m
+[0m[1maws_s3_bucket.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_ecr_repository_policy.common["actions-deploy"]: Refreshing state... [id=actions-deploy][0m
+[0m[1maws_ecr_lifecycle_policy.common["nginx"]: Refreshing state... [id=nginx][0m
+[0m[1maws_ecr_lifecycle_policy.common["actions-deploy"]: Refreshing state... [id=actions-deploy][0m
+[0m[1maws_athena_database.test: Refreshing state... [id=test_employee_list][0m
+[0m[1maws_s3_bucket_ownership_controls.athena: Refreshing state... [id=athena-result-20240407][0m
+[0m[1maws_athena_workgroup.test: Refreshing state... [id=athena-result-20240407][0m
+[0m[1mmodule.codedeploy_for_ecs_role.data.aws_iam_policy.bulue_green_deploy_for_ECS: Read complete after 0s [id=arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS][0m
+[0m[1maws_s3_bucket_public_access_block.athena: Refreshing state... [id=athena-result-20240407][0m
+[0m[1maws_s3_bucket_versioning.athena: Refreshing state... [id=athena-result-20240407][0m
+[0m[1mdata.aws_iam_policy.ecs_task_execute: Read complete after 0s [id=arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly][0m
+[0m[1maws_iam_role.session_manager: Refreshing state... [id=batstion-ssm][0m
+[0m[1maws_s3_bucket_policy.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1mdata.aws_iam_policy_document.lambda_execute: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.lambda_execute: Read complete after 0s [id=4087304511][0m
+[0m[1mdata.aws_iam_policy_document.deploy_github_actions: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.deploy_github_actions: Read complete after 0s [id=1142619295][0m
+[0m[1maws_route53_record.tanaka_cloud_net_default_ns: Refreshing state... [id=Z0176701R2QTIWR4NN42_tanaka-cloud.net_NS][0m
+[0m[1maws_route53_record.tanaka_cloud_net_default_soa: Refreshing state... [id=Z0176701R2QTIWR4NN42_tanaka-cloud.net_SOA][0m
+[0m[1maws_route53_record.tanaka_cloud_net_ap_northeast_1["*.tanaka-cloud.net"]: Refreshing state... [id=Z0176701R2QTIWR4NN42__f7d7e32a6a30fee2a44999cab04b9550.tanaka-cloud.net._CNAME][0m
+[0m[1maws_route53_record.tanaka_cloud_net_ap_northeast_1["tanaka-cloud.net"]: Refreshing state... [id=Z0176701R2QTIWR4NN42__f7d7e32a6a30fee2a44999cab04b9550.tanaka-cloud.net._CNAME][0m
+[0m[1mdata.aws_iam_policy_document.ecs_task: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.ecs_task: Read complete after 0s [id=3246869653][0m
+[0m[1maws_sns_topic_subscription.lambda_mail: Refreshing state... [id=arn:aws:sns:ap-northeast-1:421643133281:lambda-mail-sns-topic:31f1c324-0997-400e-8c61-ab6af2f5fccc][0m
+[0m[1maws_s3_bucket_logging.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_s3_bucket_policy.logging-sekigaku-20231120: Refreshing state... [id=logging-sekigaku-20231120][0m
+[0m[1maws_s3_bucket_logging.athena: Refreshing state... [id=athena-result-20240407][0m
+[0m[1maws_s3_bucket_versioning.logging: Refreshing state... [id=logging-sekigaku-20231120][0m
+[0m[1maws_s3_bucket_ownership_controls.logging: Refreshing state... [id=logging-sekigaku-20231120][0m
+[0m[1maws_s3_bucket_public_access_block.logging: Refreshing state... [id=logging-sekigaku-20231120][0m
+[0m[1maws_s3_bucket_logging.tfstate_sekigaku: Refreshing state... [id=terraform-state-hashicorp][0m
+[0m[1maws_s3_bucket_acl.logging: Refreshing state... [id=logging-sekigaku-20231120,private][0m
+[0m[1maws_ssm_document.session_manager: Refreshing state... [id=session-manager][0m
+[0m[1maws_kms_alias.s3: Refreshing state... [id=alias/s3][0m
+[0m[1maws_s3_bucket_server_side_encryption_configuration.athena: Refreshing state... [id=athena-result-20240407][0m
+[0m[1maws_s3_object.bug: Refreshing state... [id=static/maintenance/][0m
+[0m[1maws_s3_bucket_server_side_encryption_configuration.logging: Refreshing state... [id=logging-sekigaku-20231120][0m
+[0m[1maws_s3_bucket_server_side_encryption_configuration.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_lb_target_group.nginx: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-northeast-1:421643133281:targetgroup/nginx/9b6ac5477786e788][0m
+[0m[1maws_subnet.private_c: Refreshing state... [id=subnet-02a410160fbbd4645][0m
+[0m[1maws_lb_target_group.ec2: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-northeast-1:421643133281:targetgroup/ec2/7d5df185be1274e7][0m
+[0m[1maws_subnet.private_a: Refreshing state... [id=subnet-0f5c45e069fdb5e34][0m
+[0m[1maws_internet_gateway.hashicorp: Refreshing state... [id=igw-081987a54e822f1ff][0m
+[0m[1maws_route_table.private_rtb: Refreshing state... [id=rtb-0e1e6fe5f0a2a0711][0m
+[0m[1maws_security_group.ecs_stg: Refreshing state... [id=sg-0cbfd395bbf703bbd][0m
+[0m[1maws_subnet.public_d: Refreshing state... [id=subnet-046022ca0256b5026][0m
+[0m[1maws_service_discovery_private_dns_namespace.web: Refreshing state... [id=ns-nwmo3ak3x2uk5t7n][0m
+[0m[1maws_subnet.private_d: Refreshing state... [id=subnet-057a56031eac832a6][0m
+[0m[1maws_subnet.public_a: Refreshing state... [id=subnet-04ac604a9efff2fe7][0m
+[0m[1maws_security_group.alb_stg: Refreshing state... [id=sg-030ca0b8d020c3b08][0m
+[0m[1maws_security_group.alb_9000: Refreshing state... [id=sg-09d1d6c48c4c5bfad][0m
+[0m[1maws_subnet.public_c: Refreshing state... [id=subnet-0998af7c69d525262][0m
+[0m[1mdata.aws_iam_policy_document.ecs_task_execution_policy_doc: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.ecs_task_execution_policy_doc: Read complete after 0s [id=3520033068][0m
+[0m[1maws_s3_bucket_acl.test: Refreshing state... [id=test-static-s3-20231130,private][0m
+[0m[1maws_iam_policy.flow_log: Refreshing state... [id=arn:aws:iam::421643133281:policy/cloudwatch-logs-create-put][0m
+[0m[1maws_iam_role_policy_attachment.s3_full_access: Refreshing state... [id=lambda-execute-role-20240609082634888600000002][0m
+[0m[1maws_lambda_function.s3_cp: Refreshing state... [id=s3-cp-default][0m
+[0m[1maws_iam_role_policy_attachment.dynamodb_full_access: Refreshing state... [id=lambda-execute-role-20240609082634655300000001][0m
+[0m[1maws_lambda_function.sns_mail: Refreshing state... [id=sns-mail][0m
+[0m[1maws_s3_bucket_public_access_block.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket][0m
+[0m[1maws_lambda_function.hello_world: Refreshing state... [id=hello-world][0m
+[0m[1maws_s3_bucket_logging.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket][0m
+[0m[1maws_s3_bucket_versioning.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket][0m
+[0m[1maws_s3_bucket_ownership_controls.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket][0m
+[0m[1maws_s3_bucket_server_side_encryption_configuration.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket][0m
+[0m[1mmodule.codedeploy_for_ecs_role.aws_iam_role_policy.bulue_green_deploy_for_ECS: Refreshing state... [id=bulue-green-deploy-for-ECS:bulue-green-deploy-for-ECS][0m
+[0m[1mdata.aws_iam_policy_document.ecs_task_execute: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.ecs_task_execute: Read complete after 0s [id=2003046777][0m
+[0m[1mmodule.config_log.aws_s3_bucket.this: Refreshing state... [id=config-421643133281][0m
+[0m[1maws_s3_bucket_acl.athena: Refreshing state... [id=athena-result-20240407,private][0m
+[0m[1maws_iam_role_policy.lambda_execute: Refreshing state... [id=lambda-execute-role:lambda-execute-role][0m
+[0m[1maws_iam_role_policy_attachment.cloudWatch_agent_serverpolicy: Refreshing state... [id=batstion-ssm-20240224085242168500000002][0m
+[0m[1maws_iam_instance_profile.session_manager: Refreshing state... [id=batstion-ssm][0m
+[0m[1maws_iam_role_policy_attachment.amazon_ssm_managed_instancecore: Refreshing state... [id=batstion-ssm-20240224085242134700000001][0m
+[0m[1maws_route53_record.tanaka_cloud_net_us_east_1["tanaka-cloud.net"]: Refreshing state... [id=Z0176701R2QTIWR4NN42__f7d7e32a6a30fee2a44999cab04b9550.tanaka-cloud.net._CNAME][0m
+[0m[1maws_route53_record.tanaka_cloud_net_us_east_1["*.tanaka-cloud.net"]: Refreshing state... [id=Z0176701R2QTIWR4NN42__f7d7e32a6a30fee2a44999cab04b9550.tanaka-cloud.net._CNAME][0m
+[0m[1mmodule.prometheus_server.aws_security_group.this: Refreshing state... [id=sg-02fb766e34a6453da][0m
+[0m[1mmodule.node_exporter.aws_security_group.this: Refreshing state... [id=sg-030bf1e2e7fd7a712][0m
+[0m[1mmodule.sg_mysql.aws_security_group.this_name_prefix[0]: Refreshing state... [id=sg-0aac0ebf5f05cb36b][0m
+[0m[1mmodule.vpc_endpoint.aws_security_group.this_name_prefix[0]: Refreshing state... [id=sg-09bde2857de6149b9][0m
+[0m[1maws_db_subnet_group.mysql_8: Refreshing state... [id=mysql-8][0m
+[0m[1maws_route_table_association.private_c: Refreshing state... [id=rtbassoc-0104e8dc5f3e2effe][0m
+[0m[1maws_route_table_association.private_a: Refreshing state... [id=rtbassoc-0d57a69cce4de68c1][0m
+[0m[1maws_eip.public_instance: Refreshing state... [id=eipalloc-09da88d3258b10860][0m
+[0m[1maws_eip.node_exporter: Refreshing state... [id=eipalloc-03322f1fd25431949][0m
+[0m[1maws_route_table.public_rtb: Refreshing state... [id=rtb-0c6895d6bcaf322f9][0m
+[0m[1maws_vpc_security_group_egress_rule.ecs_stg_egress: Refreshing state... [id=sgr-0229ae48d30214b32][0m
+[0m[1maws_vpc_security_group_ingress_rule.between_ecs: Refreshing state... [id=sgr-069c4c154e772f0d5][0m
+[0m[1maws_iam_role.deploy_github_actions: Refreshing state... [id=deploy-github-actions][0m
+[0m[1maws_vpc_security_group_ingress_rule.alb_stg_443: Refreshing state... [id=sgr-0e6902fc7d33ec29c][0m
+[0m[1maws_vpc_security_group_egress_rule.alb_stg_eggress: Refreshing state... [id=sgr-0a65152a956e555f8][0m
+[0m[1maws_vpc_security_group_ingress_rule.ecs_stg_for_alb: Refreshing state... [id=sgr-00aba0e9fc8df20d1][0m
+[0m[1maws_route_table_association.private_d: Refreshing state... [id=rtbassoc-0c436a96d8d6e8518][0m
+[0m[1maws_ecs_service.nginx: Refreshing state... [id=arn:aws:ecs:ap-northeast-1:421643133281:service/cluster-web/nginx-service-stg][0m
+[0m[1maws_vpc_security_group_egress_rule.alb_9000_eggress: Refreshing state... [id=sgr-0082cb02059dbd517][0m
+[0m[1maws_service_discovery_service.web: Refreshing state... [id=srv-i4v4vnijtbuik4fy][0m
+[0m[1maws_lb.this: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-northeast-1:421643133281:loadbalancer/app/ecs/842d2e9c2dd80936][0m
+[0m[1maws_vpc_security_group_ingress_rule.alb_stg_9000_cdn: Refreshing state... [id=sgr-0d3e454a353701965][0m
+[0m[1maws_vpc_security_group_ingress_rule.alb_stg_9000_myip["tokyo_home_1"]: Refreshing state... [id=sgr-09f80eba15aff25a5][0m
+[0m[1maws_cloudwatch_log_group.sns_mail: Refreshing state... [id=/aws/lambda/sns-mail][0m
+[0m[1maws_s3_bucket_acl.flow_log: Refreshing state... [id=vpc-flow-log-put-bucket,private][0m
+[0m[1maws_ecs_task_definition.nginx: Refreshing state... [id=nginx-task-define][0m
+[0m[1maws_iam_role_policy.ecs_task_execute: Refreshing state... [id=ecsTaskExecutionRole:ecsTaskExecutionRole][0m
+[0m[1maws_cloudwatch_log_group.lambda_hello_world: Refreshing state... [id=/aws/lambda/hello-world][0m
+[0m[1mmodule.ecs_task_stg.aws_iam_policy.default: Refreshing state... [id=arn:aws:iam::421643133281:policy/secure-ecs-tasks-stg@common][0m
+[0m[1maws_iam_role_policy_attachment.flow_log: Refreshing state... [id=vpc-flow-log-20240526161351406100000001][0m
+[0m[1mmodule.config_log.aws_s3_bucket_public_access_block.this: Refreshing state... [id=config-421643133281][0m
+[0m[1mmodule.config_log.data.aws_iam_policy_document.this: Reading...[0m[0m
+[0m[1mmodule.config_log.data.aws_iam_policy_document.this: Read complete after 0s [id=2414418115][0m
+[0m[1mmodule.node_exporter.aws_security_group_rule.egress: Refreshing state... [id=sgrule-3508592399][0m
+[0m[1mmodule.prometheus_server.aws_security_group_rule.egress: Refreshing state... [id=sgrule-307514661][0m
+[0m[1maws_route_table_association.public_d: Refreshing state... [id=rtbassoc-02a49ab2c9765d4c2][0m
+[0m[1maws_route_table_association.public_c: Refreshing state... [id=rtbassoc-019b61ac04dd7f4d7][0m
+[0m[1maws_route_table_association.public_a: Refreshing state... [id=rtbassoc-007b344ab44be6916][0m
+[0m[1maws_acm_certificate_validation.tanaka_cloud_net_us_east_1: Refreshing state... [id=2024-05-12 14:10:59.907 +0000 UTC][0m
+[0m[1mmodule.config_log.aws_s3_bucket_policy.this: Refreshing state... [id=config-421643133281][0m
+[0m[1mmodule.vpc_endpoint.aws_security_group_rule.egress_rules[0]: Refreshing state... [id=sgrule-566675368][0m
+[0m[1mmodule.vpc_endpoint.aws_security_group_rule.ingress_with_source_security_group_id[0]: Refreshing state... [id=sgrule-521961944][0m
+[0m[1maws_vpc_security_group_ingress_rule.mysql_stg_cdn: Refreshing state... [id=sgr-058099c62724fd43f][0m
+[0m[1mmodule.sg_mysql.aws_security_group_rule.ingress_with_cidr_blocks[1]: Refreshing state... [id=sgrule-3525500027][0m
+[0m[1mmodule.sg_mysql.aws_security_group_rule.ingress_with_cidr_blocks[2]: Refreshing state... [id=sgrule-3821717222][0m
+[0m[1mmodule.sg_mysql.aws_security_group_rule.ingress_with_cidr_blocks[0]: Refreshing state... [id=sgrule-1951782863][0m
+[0m[1mmodule.sg_mysql.aws_security_group_rule.egress_rules[0]: Refreshing state... [id=sgrule-205645976][0m
+[0m[1mmodule.sg_mysql.aws_security_group_rule.ingress_with_source_security_group_id[0]: Refreshing state... [id=sgrule-3657470335][0m
+[0m[1mmodule.prometheus_server.aws_instance.this: Refreshing state... [id=i-05828669c15225e5f][0m
+[0m[1mmodule.node_exporter.aws_instance.this: Refreshing state... [id=i-04dbdfcb3ef241b4d][0m
+[0m[1maws_lb_listener.alb_443: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-northeast-1:421643133281:listener/app/ecs/842d2e9c2dd80936/77f4b3a2363d8c40][0m
+[0m[1maws_route53_record.lb_tanaka_cloud_net: Refreshing state... [id=Z0176701R2QTIWR4NN42_lb.tanaka-cloud.net_A][0m
+[0m[1mmodule.ecs_task_stg.aws_iam_role_policy_attachment.default: Refreshing state... [id=secure-ecs-tasks-stg@common-20240121091307222700000003][0m
+[0m[1mmodule.main_stg.aws_cloudfront_distribution.this[0]: Refreshing state... [id=E3GTKFG8645FA0][0m
+[0m[1maws_alb_listener_rule.nginx: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-northeast-1:421643133281:listener-rule/app/ecs/842d2e9c2dd80936/77f4b3a2363d8c40/884aca424711a86c][0m
+[0m[1maws_iam_role_policy.deploy_github_actions: Refreshing state... [id=deploy-github-actions:deploy-github-actions][0m
+[0m[1maws_s3_bucket_ownership_controls.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_s3_bucket_logging.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_s3_bucket_server_side_encryption_configuration.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_s3_bucket_versioning.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_s3_bucket_acl.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203,private][0m
+[0m[1maws_s3_bucket_policy.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_s3_bucket_public_access_block.cdn_log: Refreshing state... [id=cdn-log-hashicorp-20231203][0m
+[0m[1maws_route53_record.cdn_tanaka_cloud_net: Refreshing state... [id=Z0176701R2QTIWR4NN42_cdn.tanaka-cloud.net_A][0m
+[0m[1maws_s3_bucket_policy.test: Refreshing state... [id=test-static-s3-20231130][0m
+[0m[1maws_kms_key_policy.s3: Refreshing state... [id=3b8a8f9f-2651-48a9-b084-fe6647c6ea4f][0m
+[0m[1maws_eip_association.public_instance: Refreshing state... [id=eipassoc-0c59da81d15f33678][0m
+[0m[1maws_lb_target_group_attachment.ec2: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-northeast-1:421643133281:targetgroup/ec2/7d5df185be1274e7-20240303063811371900000002][0m
+[0m[1maws_eip_association.node_exporter: Refreshing state... [id=eipassoc-00bd9d75ce44c8d1b][0m
+
+[0m[1m[32mNo changes.[0m[1m Your infrastructure matches the configuration.[0m
+
+[0mTerraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+[0m[1m[32m
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+[0m[0m[1m[32m
+Outputs:
+
+[0maccount_id = "421643133281"
+aws_ec2_managed_prefix_list_cdn = "pl-58a04531"
+tfstate_locks_name = "tfstate-locks"
+tfstate_sekigaku_arn = "arn:aws:s3:::terraform-state-hashicorp"
+variables_name = " (0) neo,  (1) trinity,  (2) move, "
