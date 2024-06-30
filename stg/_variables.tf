@@ -4,14 +4,14 @@
 # my_favorite_sports = var.list[0]
 variable "list" {
   description = "中身の要素が全て同じ型の配列"
-  type = list(string)
-  default = ["soccer","basseball"]
-} 
+  type        = list(string)
+  default     = ["soccer", "basseball"]
+}
 
 # [for i in var.set : upper(i)]
 variable "set" {
   description = "中身の要素の重複が削除される配列"
-  type = set(string)
+  type        = set(string)
   default = [
     "orange",
     "banana",
@@ -24,7 +24,7 @@ variable "set" {
 variable "tuple" {
   description = "中身の要素に順序性を持たない配列"
   type = tuple([
-    string,number
+    string, number
   ])
   default = ["age", 29]
 }
@@ -34,18 +34,18 @@ variable "object" {
   description = "Key,Value形式のデータ型で最初にobject関数でキー、バリューの型を定義する"
   type = object({
     name = string
-    age = number
+    age  = number
   })
   default = {
     name = "takehiro1111"
-    age = 29
+    age  = 29
   }
 }
 
 # github = var.map.user
 variable "map" {
   description = "Keyが文字列でValueが指定された型になる配列"
-  type = map(string)
+  type        = map(string)
   default = {
     "user" = "takehiro1111"
     "age"  = "29"
@@ -186,8 +186,8 @@ variable "vpc_endpoint_gw" {
 
 variable "activation_vpc_endpoint" {
   description = "Enabling a VPC endpoint for use with log forwarding"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 

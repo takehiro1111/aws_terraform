@@ -549,7 +549,7 @@ resource "aws_iam_role" "lambda_execute" {
     Statement = [
       {
         Effect = "Allow",
-        Principal =  {
+        Principal = {
           Service = "lambda.amazonaws.com"
         },
         Action = "sts:AssumeRole"
@@ -588,8 +588,8 @@ data "aws_iam_policy_document" "lambda_execute" {
 }
 
 resource "aws_iam_role_policy" "lambda_execute" {
-  name = aws_iam_role.lambda_execute.name
-  role = aws_iam_role.lambda_execute.name
+  name   = aws_iam_role.lambda_execute.name
+  role   = aws_iam_role.lambda_execute.name
   policy = data.aws_iam_policy_document.lambda_execute.json
 }
 
