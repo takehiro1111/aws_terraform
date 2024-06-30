@@ -204,41 +204,6 @@ resource "aws_vpc_security_group_ingress_rule" "mysql_stg_cdn" {
   }
 }
 
-#VPCエンドポイント ------------------------------------- 
-resource "aws_security_group" "vpce" {
-  name        = "vpce"
-  description = "Allow inbound for VPC Endpoint"
-  vpc_id      = aws_vpc.hashicorp.id
-
-  tags = {
-    "Name" = "vpce"
-  }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "vpce_in_443" {
-  security_group_id = aws_security_group.vpce.id
-  description       = "Allow inbound for vpce"
-  from_port         = 443
-  to_port           = 443
-  ip_protocol       = "tcp"
-  cidr_ipv4         = aws_vpc.hashicorp.cidr_block
-  tags = {
-    "Name" = "vpce-in"
-  }
-}
-
-#triviy"ignore:Security group rule allows egress to multiple public internet addresses.
-resource "aws_vpc_security_group_egress_rule" "vpce_egress" {
-  security_group_id = aws_security_group.vpce.id
-  description       = "Allow outbound rule for all"
-  ip_protocol       = "all"
-  cidr_ipv4         = module.value.full_open_ip
-
-  tags = {
-    "Name" = "mysql-out"
-  }
-}
-
 #################################################
 # Security Group from official modules
 #################################################
