@@ -58,7 +58,7 @@ jobs:
         run: |
           terraform apply -auto-approve
 
-      # planの結果を環境変数に格納
+      # applyの結果を環境変数に格納
       - name: Extract terraform apply result
         run: |
           APPLY_RESULT=$(grep -e "No changes." -e "Apply complete! Resources:" -e "Outputs:" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
