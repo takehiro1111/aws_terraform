@@ -6,7 +6,7 @@ on:
 env:
   AWS_REGION: ap-northeast-1
   TF_VERSION: 1.7.5
-
+  SLACK_ICON: terraform_logo.png
 jobs:
   terraform1:
     name: terraform apply
@@ -56,12 +56,12 @@ jobs:
       
       - name: Apply
         run: |
-          terraform apply -auto-approve
+          terraform apply -auto-approve  | tee apply_output.txt
 
       # applyの結果を環境変数に格納
       - name: Extract terraform apply result
         run: |
-          APPLY_RESULT=$(grep -e "No changes." -e "Apply complete! Resources:" -e "Outputs:" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
+          APPLY_RESULT=$(cat apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
           echo "APPLY_RESULT=${APPLY_RESULT}" >> $GITHUB_ENV
 
       - if: always()
