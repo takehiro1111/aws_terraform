@@ -74,3 +74,12 @@ module "vpc" {
   // Created when a NAT GW is created.
 }
 
+resource "aws_vpc_endpoint_service" "td_agent" {
+  acceptance_required        = true
+  network_load_balancer_arns = [aws_lb.example.arn]
+  supported_ip_address_types = "ipv4"
+
+  allowed_principals = [
+    "arn:aws:iam::${data.aws_caller_identity.self.id}:root"
+  ]
+}

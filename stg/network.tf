@@ -310,3 +310,25 @@ resource "aws_route_table_association" "private_d" {
 #     "Name" = "${local.env}-ecr-logs"
 #   }
 # }
+
+resource "aws_vpc_endpoint" "to_td_egent" {
+  count = var.activation_vpc_endpoint ? 1 : 0
+
+  vpc_id            = aws_vpc.hashicorp.id
+  subnet_ids = [
+    aws_subnet.private_a.id,
+    aws_subnet.private_c.id
+  ]
+  service_name      = data.terraform_remote_state.stats_stg.outputs.td_vpc_endpoint_service_service_name
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = [
+    module.vpc_endpoint.security_group_id
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    "Name" = "${local.env}-td-agent"
+  }
+}

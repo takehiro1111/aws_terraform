@@ -239,6 +239,31 @@ resource "aws_vpc_security_group_egress_rule" "vpce_egress" {
   }
 }
 
+#################################################
+# Security Group from official modules
+#################################################
+module "vpc_endpoint" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.1.2"
+
+  // SG
+  name        = "stats-fluentd"
+  description = "SG for log routing"
+  vpc_id      = module.vpc.vpc_id
+  // Rule
+  ingress_with_source_security_group_id = [
+    {
+      from_port                = 24224
+      to_port                  = 24224
+      protocol                 = "tcp"
+      description              = "Log Routing"
+      source_security_group_id = module.ecs.security_group_id
+    }
+  ]
+
+  egress_rules = ["all-all"]
+}
+
 #=========================================
 # IAM
 #=========================================

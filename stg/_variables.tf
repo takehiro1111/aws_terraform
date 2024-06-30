@@ -184,6 +184,12 @@ variable "vpc_endpoint_gw" {
   default     = false
 }
 
+variable "activation_vpc_endpoint" {
+  description = "Enabling a VPC endpoint for use with log forwarding"
+  type = bool
+  default = false
+}
+
 
 
 # variable "dynamic_sg" {
