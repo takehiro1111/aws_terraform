@@ -92,6 +92,17 @@ resource "aws_route53_record" "lb_tanaka_cloud_net" {
   }
 }
 
+resource "aws_route53_record" "tanaka_cloud_net_txt_gcp" {
+  allow_overwrite = true
+  name            = module.value.tanaka_cloud_net
+  type            = "TXT"
+  zone_id         = aws_route53_zone.tanaka_cloud_net.id
+  ttl             = 300
+
+  records = ["google-site-verification=gfAp7ueH0JVRULSD2fAntiLev7jv-c7L3dARlDT7r3A"]
+}
+
+
 #===================================
 #ACM
 #===================================

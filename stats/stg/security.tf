@@ -50,7 +50,7 @@ module "ecs" {
       to_port                  = 65535
       protocol                 = "tcp"
       description              = "From NLB"
-      source_security_group_id = module.vpc_endpoint.security_group_id
+      source_security_group_id = module.nlb.security_group_id
     }
   ]
 
