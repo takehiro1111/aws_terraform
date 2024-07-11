@@ -5,9 +5,24 @@ resource "aws_iam_service_linked_role" "this" {
 resource "aws_config_configuration_recorder" "this" {
   name     = var.name
   role_arn = aws_iam_service_linked_role.this.arn
+
   recording_group {
-    all_supported                 = "true"
-    include_global_resource_types = "true"
+    all_supported                 = var.use_exclude_specific_resource_types == false ? var.all_supported : false
+    include_global_resource_types = var.use_exclude_specific_resource_types == false ? var.include_global_resource_types : false
+
+      dynamic "exclusion_by_resource_types" {
+        for_each = length(var.configuration_recorder_exclusion_by_resource_types) > 0 ? var.configuration_recorder_exclusion_by_resource_types : null
+        content {
+          resource_types = var.configuration_recorder_exclusion_by_resource_types
+        }
+      }
+
+      dynamic "recording_strategy" {
+        for_each = length(var.configuration_recorder_exclusion_by_resource_types) > 1  ? var.configuration_recorder_exclusion_by_resource_types: null
+        content {
+          use_only = var.use_exclude_specific_resource_types == false ? "ALL_SUPPORTED_RESOURCE_TYPES" : var.configuration_recorder_configuration_recorder_recording_strategy
+        }
+      }
   }
 
   recording_mode {
