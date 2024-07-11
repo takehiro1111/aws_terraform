@@ -165,3 +165,7 @@ data "archive_file" "s3_cp" {
   source_file = "../function/s3_cp_default.py"
   output_path = "../function/archive_zip/s3_cp_default.zip"
 }
+
+######################################################################
+# Config
+######################################################################

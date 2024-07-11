@@ -71,20 +71,6 @@ resource "aws_s3_bucket_versioning" "tfstate_sekigaku" {
   }
 }
 
-#機能的には不要だが、試してみたいためコメントアウトで保存している。(2023/11/18時点)
-/* resource "aws_s3_bucket_lifecycle_configuration" "tfstate_sekigaku" {
-    bucket = aws_s3_bucket.tfstate_sekigaku.id
-
-    rule {
-        id     = "test_rule"
-        status = "Enabled"
-
-        filter {
-            prefix = "terraform-state-sekigaku-:${data.aws_caller_identity.current.id}/${local.env}"
-        }
-    }
-} */
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate_sekigaku" {
   bucket = aws_s3_bucket.tfstate_sekigaku.bucket
   rule {
@@ -573,5 +559,6 @@ resource "aws_s3_bucket_logging" "athena" {
 module "config_log" {
   source = "../modules/s3/config"
 
-  s3_bucket = "config-${data.aws_caller_identity.current.account_id}"
+  bucket_name = "config-${data.aws_caller_identity.current.account_id}"
+  bucket_logging = aws_s3_bucket.logging-sekigaku-20231120.bucket
 }

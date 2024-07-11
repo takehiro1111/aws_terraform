@@ -470,30 +470,6 @@ resource "aws_lb_listener" "alb_443" {
 #   }
 # }
 
-#ListenerRule--------------------------------
-# resource "aws_lb_listener_rule" "redirect" {
-#   listener_arn = aws_lb_listener.alb_443.arn
-#   priority     = 1
-
-#   action {
-#     type = "redirect"
-
-#     redirect {
-#       port        = "443"
-#       protocol    = "HTTPS"
-#       status_code = "HTTP_301"
-#       host        = module.value.cloudfront_domain
-#       path        = "/input.html"
-#     }
-#   }
-
-#   condition {
-#     host_header {
-#       values = [module.value.cdn_function]
-#     }
-#   }
-# }
-
 resource "aws_alb_listener_rule" "nginx" {
   listener_arn = aws_lb_listener.alb_443.arn
   priority     = 2
@@ -515,71 +491,6 @@ resource "aws_alb_listener_rule" "nginx" {
     }
   }
 }
-
-# resource "aws_lb_listener_rule" "alb_443_rule" {
-#   listener_arn = aws_lb_listener.alb_443.arn
-#   priority     = 20
-
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.ec2.arn
-#   }
-
-#   condition {
-#     host_header {
-#       values = [module.value.cloudfront_domain]
-#     }
-#   }
-
-#   condition {
-#     path_pattern {
-#       values = ["*"]
-#     }
-#   }
-# }
-
-#TargetGroup---------------------------------
-# resource "aws_lb_target_group" "web" {
-#   name                 = "web"
-#   port                 = 80
-#   protocol             = "HTTP"
-#   deregistration_delay = "60"
-#   proxy_protocol_v2    = false
-#   vpc_id               = aws_vpc.hashicorp.id
-#   target_type          = "ip"
-
-#   health_check {
-#     healthy_threshold   = 5
-#     interval            = 30
-#     matcher             = "200"
-#     path                = "/"
-#     port                = "traffic-port"
-#     protocol            = "HTTP"
-#     timeout             = 5
-#     unhealthy_threshold = 2
-#   }
-# }
-
-# resource "aws_lb_target_group" "api" {
-#   name                 = "api"
-#   port                 = 80
-#   protocol             = "HTTP"
-#   deregistration_delay = "60"
-#   proxy_protocol_v2    = false
-#   vpc_id               = aws_vpc.hashicorp.id
-#   target_type          = "ip"
-
-#   health_check {
-#     healthy_threshold   = 5
-#     interval            = 60
-#     matcher             = "200"
-#     path                = "/"
-#     port                = "traffic-port"
-#     protocol            = "HTTP"
-#     timeout             = 30
-#     unhealthy_threshold = 2
-#   }
-# }
 
 resource "aws_lb_target_group" "nginx" {
   name                 = "nginx"
