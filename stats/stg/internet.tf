@@ -18,7 +18,7 @@ resource "aws_lb" "td" {
   drop_invalid_header_fields = false
 
   /*  access_logs {
-    bucket  = aws_s3_bucket.logging-sekigaku-20231120.bucket
+    bucket  = aws_s3_bucket.logging.bucket
     enabled = true
   } */
 }

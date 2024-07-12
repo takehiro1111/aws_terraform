@@ -1,6 +1,6 @@
-#==========================================
+#####################################################
 # DynamoDB
-#==========================================
+#####################################################
 resource "aws_dynamodb_table" "tfstate_locks" {
   name         = "tfstate-locks"
   billing_mode = "PAY_PER_REQUEST"
@@ -12,9 +12,9 @@ resource "aws_dynamodb_table" "tfstate_locks" {
   }
 }
 
-#==========================================
-# RDS for MYSQL
-#==========================================
+#####################################################
+# RDS
+#####################################################
 # Random String -------------------------------
 resource "random_string" "mysql_8" {
   length  = 16
@@ -95,7 +95,9 @@ resource "aws_db_instance" "mysql_8" {
   }
 }
 
-# Aurora -----------------------------------------
+#####################################################
+# Aurora
+#####################################################
 resource "aws_db_cluster_snapshot" "mysql_8" {
   db_cluster_identifier          = "aurora-cluster" // aws_rds_clusterを削除した際でも参照先を失わないよう意図的にハードコードしている。
   db_cluster_snapshot_identifier = "test-snapshot-20240218"

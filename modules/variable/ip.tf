@@ -17,7 +17,7 @@ output "vpc_ip_stg" {
 ############################################################
 # Subnet
 ############################################################
-output "hashicorp_subnet_ip" {
+output "subnet_ip_common" {
   value = {
     a_public  = "10.1.1.0/24"
     c_public  = "10.1.2.0/24"

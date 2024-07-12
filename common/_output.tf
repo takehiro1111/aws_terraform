@@ -2,8 +2,8 @@ output "account_id" {
   value = data.aws_caller_identity.current.account_id
 }
 
-output "tfstate_sekigaku_arn" {
-  value = aws_s3_bucket.tfstate_sekigaku.arn
+output "tfstate_arn" {
+  value = aws_s3_bucket.tfstate.arn
 }
 
 output "tfstate_locks_name" {

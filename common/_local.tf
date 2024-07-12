@@ -23,17 +23,17 @@ locals {
 # AuroraのSGのInboundRuleで許可するIP群
 locals {
   private_sb_ips = [
-    module.value.hashicorp_subnet_ip.a_private,
-    module.value.hashicorp_subnet_ip.c_private,
-    module.value.hashicorp_subnet_ip.d_private,
+    module.value.subnet_ip_common.a_private,
+    module.value.subnet_ip_common.c_private,
+    module.value.subnet_ip_common.d_private,
   ]
 }
 
 locals {
   private_sb_ips2 = [
-    module.value.hashicorp_subnet_ip.a_public,
-    module.value.hashicorp_subnet_ip.c_public,
-    module.value.hashicorp_subnet_ip.d_public,
+    module.value.subnet_ip_common.a_public,
+    module.value.subnet_ip_common.c_public,
+    module.value.subnet_ip_common.d_public,
   ]
 }
 

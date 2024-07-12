@@ -1,6 +1,6 @@
-#===================================
+#####################################################
 # Route53
-#===================================
+#####################################################
 /* 
  * tanaka-cloud.net
  */
@@ -103,9 +103,9 @@ resource "aws_route53_record" "tanaka_cloud_net_txt_gcp" {
 }
 
 
-#===================================
-#ACM
-#===================================
+#####################################################
+# ACM
+#####################################################
 #for ALB
 resource "aws_acm_certificate" "tanaka_cloud_net" {
   domain_name               = module.value.wildcard_tanaka_cloud_net
@@ -136,9 +136,9 @@ resource "aws_acm_certificate_validation" "tanaka_cloud_net_us_east_1" {
   provider                = aws.us-east-1
 }
 
-#===================================
-#CloudFront
-#===================================
+#####################################################
+# CloudFront
+#####################################################
 data "aws_cloudfront_cache_policy" "managed_caching_optimized" {
   name = "Managed-CachingOptimized"
 }
@@ -164,8 +164,8 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
 # }
 
 # resource "aws_cloudfront_origin_access_control" "oac_stg" {
-#   description                       = "${aws_s3_bucket.test.id}-oac"
-#   name                              = "${aws_s3_bucket.test.id}-oac"
+#   description                       = "${aws_s3_bucket.static.id}-oac"
+#   name                              = "${aws_s3_bucket.static.id}-oac"
 #   origin_access_control_origin_type = "s3"
 #   signing_behavior                  = "always"
 #   signing_protocol                  = "sigv4"
@@ -198,8 +198,8 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
 
 #   // S3
 #   origin {
-#     domain_name              = aws_s3_bucket.test.bucket_regional_domain_name
-#     origin_id                = aws_s3_bucket.test.bucket_regional_domain_name
+#     domain_name              = aws_s3_bucket.static.bucket_regional_domain_name
+#     origin_id                = aws_s3_bucket.static.bucket_regional_domain_name
 #     origin_access_control_id = aws_cloudfront_origin_access_control.oac_stg.id
 #   }
 
@@ -207,7 +207,7 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
 #     path_pattern           = "/maintenance/*"
 #     allowed_methods        = ["GET", "HEAD"]
 #     cached_methods         = ["GET", "HEAD"]
-#     target_origin_id       = aws_s3_bucket.test.bucket_regional_domain_name
+#     target_origin_id       = aws_s3_bucket.static.bucket_regional_domain_name
 #     compress               = false
 #     viewer_protocol_policy = "redirect-to-https"
 #     cache_policy_id        = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
@@ -299,7 +299,7 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
 #   }
 
 #   tags = {
-#     "Name" : "hashicorp"
+#     "Name" : "common"
 #   }
 # }
 
@@ -350,8 +350,8 @@ module "main_stg" {
     }
 
     origin-s3 = {
-      domain_name           = aws_s3_bucket.test.bucket_regional_domain_name
-      origin_id             = aws_s3_bucket.test.bucket_regional_domain_name
+      domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
+      origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
       origin_access_control = "main-stg-oac"
 
 
@@ -381,7 +381,7 @@ module "main_stg" {
 
   ordered_cache_behavior = [
     {
-      target_origin_id       = aws_s3_bucket.test.bucket_regional_domain_name
+      target_origin_id       = aws_s3_bucket.static.bucket_regional_domain_name
       path_pattern           = "/maintenance/*"
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
@@ -410,9 +410,9 @@ module "main_stg" {
   }
 }
 
-#===================================
-#ALB
-#===================================
+#####################################################
+# ALB
+#####################################################
 resource "aws_lb" "this" {
   name               = "ecs"
   internal           = false
@@ -420,16 +420,16 @@ resource "aws_lb" "this" {
   security_groups = [
     aws_security_group.alb_stg.id,
     aws_security_group.alb_9000.id,
-    aws_vpc.hashicorp.default_security_group_id
+    aws_vpc.common.default_security_group_id
   ]
   subnets = [aws_subnet.public_a.id, aws_subnet.public_c.id]
 
   enable_deletion_protection = false
   drop_invalid_header_fields = true
-  depends_on                 = [aws_vpc.hashicorp]
+  depends_on                 = [aws_vpc.common]
 
   /*  access_logs {
-    bucket  = aws_s3_bucket.logging-sekigaku-20231120.bucket
+    bucket  = aws_s3_bucket.logging.bucket
     enabled = true
   } */
 }
@@ -476,7 +476,7 @@ resource "aws_alb_listener_rule" "nginx" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.nginx.arn
+    target_group_arn = aws_lb_target_group.ecs_nginx.arn
   }
 
   condition {
@@ -492,13 +492,13 @@ resource "aws_alb_listener_rule" "nginx" {
   }
 }
 
-resource "aws_lb_target_group" "nginx" {
+resource "aws_lb_target_group" "ecs_nginx" {
   name                 = "nginx"
   port                 = 80
   protocol             = "HTTP"
   deregistration_delay = "60"
   proxy_protocol_v2    = false
-  vpc_id               = aws_vpc.hashicorp.id
+  vpc_id               = aws_vpc.common.id
   target_type          = "ip"
 
   health_check {
@@ -513,29 +513,29 @@ resource "aws_lb_target_group" "nginx" {
   }
 }
 
-resource "aws_lb_target_group" "ec2" {
-  name                 = "ec2"
-  port                 = 80
-  protocol             = "HTTP"
-  deregistration_delay = "60"
-  proxy_protocol_v2    = false
-  vpc_id               = aws_vpc.hashicorp.id
-  target_type          = "instance"
+# resource "aws_lb_target_group" "ec2" {
+#   name                 = "ec2"
+#   port                 = 80
+#   protocol             = "HTTP"
+#   deregistration_delay = "60"
+#   proxy_protocol_v2    = false
+#   vpc_id               = aws_vpc.common.id
+#   target_type          = "instance"
 
-  health_check {
-    healthy_threshold   = 5
-    interval            = 60
-    matcher             = "200"
-    path                = "/"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = 30
-    unhealthy_threshold = 3
-  }
-}
+#   health_check {
+#     healthy_threshold   = 5
+#     interval            = 60
+#     matcher             = "200"
+#     path                = "/"
+#     port                = "traffic-port"
+#     protocol            = "HTTP"
+#     timeout             = 30
+#     unhealthy_threshold = 3
+#   }
+# }
 
-resource "aws_lb_target_group_attachment" "ec2" {
-  target_group_arn = aws_lb_target_group.ec2.arn
-  target_id        = module.prometheus_server.instance_id
-  port             = 80
-}
+# resource "aws_lb_target_group_attachment" "ec2" {
+#   target_group_arn = aws_lb_target_group.ec2.arn
+#   target_id        = module.prometheus_server.instance_id
+#   port             = 80
+# }

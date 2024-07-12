@@ -1,6 +1,6 @@
-#=========================================
-# CloudWatch Logs
-#=========================================
+#####################################################
+# Cloudwatch Logs
+#####################################################
 # ECS -----------------------------------------
 resource "aws_cloudwatch_log_group" "stg" {
   retention_in_days = 7
@@ -47,9 +47,9 @@ resource "aws_cloudwatch_log_group" "sns_mail" {
   retention_in_days = 7
 }
 
-#=========================================
+#####################################################
 # Parameter Group
-#=========================================
+#####################################################
 # Aurora ---------------------------------
 resource "aws_ssm_parameter" "aurora_mysql" {
   name        = "/aurora/MYSQL_PASSWORD"
@@ -62,9 +62,9 @@ resource "aws_ssm_parameter" "aurora_mysql" {
   }
 }
 
-#=========================================
+#####################################################
 # Athena
-#=========================================
+#####################################################
 resource "aws_athena_workgroup" "test" {
   name = aws_s3_bucket.athena.id
 
@@ -102,9 +102,9 @@ resource "aws_athena_database" "test" {
 #   query       = data.template_file.flow_log.rendered
 # }
 
-#=========================================
+#####################################################
 # SNS
-#=========================================
+#####################################################
 resource "aws_sns_topic" "lambda_mail" {
   name = "lambda-mail-sns-topic"
 }
@@ -115,9 +115,9 @@ resource "aws_sns_topic_subscription" "lambda_mail" {
   endpoint  = module.value.my_gmail_address
 }
 
-#=========================================
-# Lambda Function
-#=========================================
+#####################################################
+# Lambda
+#####################################################
 resource "aws_lambda_function" "hello_world" {
   function_name    = "hello-world"
   handler          = "hello_world.handler" # ファイル名.関数名

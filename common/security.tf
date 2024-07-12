@@ -1,11 +1,11 @@
-#=========================================
+#####################################################
 # Security Group
-#=========================================
+#####################################################
 # ALB--------------------------------------
 resource "aws_security_group" "alb_stg" {
   name        = "alb-stg"
   description = "Allow inbound alb"
-  vpc_id      = aws_vpc.hashicorp.id
+  vpc_id      = aws_vpc.common.id
 
   tags = {
     "Name" = "alb-stg"
@@ -39,7 +39,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_stg_eggress" {
 resource "aws_security_group" "alb_9000" {
   name        = "alb-9000"
   description = "Allow inbound alb"
-  vpc_id      = aws_vpc.hashicorp.id
+  vpc_id      = aws_vpc.common.id
 
   tags = {
     "Name" = "alb-9000"
@@ -89,7 +89,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_9000_eggress" {
 resource "aws_security_group" "ecs_stg" {
   name        = "ecs-stg"
   description = "Allow inbound alb"
-  vpc_id      = aws_vpc.hashicorp.id
+  vpc_id      = aws_vpc.common.id
 
   tags = {
     "Name" = "ecs-stg"
@@ -141,7 +141,7 @@ module "sg_mysql" {
   // SG本体
   name        = "aurora-mysql"
   description = "SecurityGroup for Aurora MySQL"
-  vpc_id      = aws_vpc.hashicorp.id
+  vpc_id      = aws_vpc.common.id
   // ルール
   ingress_with_cidr_blocks = [
     {
@@ -149,21 +149,21 @@ module "sg_mysql" {
       to_port     = 3306
       protocol    = "tcp"
       description = "MySQL access from VPC"
-      cidr_blocks = module.value.hashicorp_subnet_ip.a_private
+      cidr_blocks = module.value.subnet_ip_common.a_private
     },
     {
       from_port   = 3306
       to_port     = 3306
       protocol    = "tcp"
       description = "MySQL access from VPC"
-      cidr_blocks = module.value.hashicorp_subnet_ip.c_private
+      cidr_blocks = module.value.subnet_ip_common.c_private
     },
     {
       from_port   = 3306
       to_port     = 3306
       protocol    = "tcp"
       description = "MySQL access from VPC"
-      cidr_blocks = module.value.hashicorp_subnet_ip.d_private
+      cidr_blocks = module.value.subnet_ip_common.d_private
     },
   ]
 
@@ -204,9 +204,7 @@ resource "aws_vpc_security_group_ingress_rule" "mysql_stg_cdn" {
   }
 }
 
-#################################################
-# Security Group from official modules
-#################################################
+
 module "vpc_endpoint" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.2"
@@ -214,7 +212,7 @@ module "vpc_endpoint" {
   // SG
   name        = "stats-fluentd"
   description = "SG for log routing"
-  vpc_id      = aws_vpc.hashicorp.id
+  vpc_id      = aws_vpc.common.id
   // Rule
   ingress_with_source_security_group_id = [
     {
@@ -229,9 +227,9 @@ module "vpc_endpoint" {
   egress_rules = ["all-all"]
 }
 
-#=========================================
+#####################################################
 # IAM
-#=========================================
+#####################################################
 # vpc-flow-log ---------------------------------------------------------
 # to CloludWatch Logs
 resource "aws_iam_role" "flow_log" {
@@ -558,9 +556,9 @@ resource "aws_iam_role_policy" "lambda_execute" {
   policy = data.aws_iam_policy_document.lambda_execute.json
 }
 
-#===========================================
-#KMS
-#===========================================
+#####################################################
+# KMS
+#####################################################
 #CloudWatch Logs-------------------------------------------
 resource "aws_kms_key" "cloudwatch_logs" {
   description             = "CMK for CloudWatch Logs"
@@ -569,7 +567,7 @@ resource "aws_kms_key" "cloudwatch_logs" {
 }
 
 resource "aws_kms_alias" "cloudwatch_logs" {
-  name          = "alias/cloudwatch_logs"
+  name          = "alias/cloudwatch_logs_second"
   target_key_id = aws_kms_key.cloudwatch_logs.key_id
 }
 
@@ -618,7 +616,7 @@ resource "aws_kms_key" "s3" {
 }
 
 resource "aws_kms_alias" "s3" {
-  name          = "alias/s3"
+  name          = "alias/s3_second"
   target_key_id = aws_kms_key.s3.key_id
 }
 
@@ -686,8 +684,8 @@ resource "aws_kms_key_policy" "s3" {
         "Condition" : {
           "ArnLike" : {
             "aws:SourceArn" : [
-              aws_s3_bucket.tfstate_sekigaku.arn,
-              aws_s3_bucket.logging-sekigaku-20231120.arn,
+              aws_s3_bucket.tfstate.arn,
+              aws_s3_bucket.logging.arn,
               aws_s3_bucket.cdn_log.arn,
             ]
           }
@@ -697,9 +695,9 @@ resource "aws_kms_key_policy" "s3" {
   })
 }
 
-#==================================================
+#####################################################
 # WAF
-#==================================================
+#####################################################
 resource "aws_wafv2_web_acl" "region_count" {
   count = var.waf_region_count ? 1 : 0
 

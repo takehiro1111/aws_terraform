@@ -18,10 +18,6 @@ variable "sg_name" {
 #   type        = list(string)
 # }
 
-variable "key_pair" {
-  description = "SSH用のキーペア"
-}
-
 variable "inastance_name" {
   description = "EC2インスタンスの識別子"
 }

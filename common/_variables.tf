@@ -55,7 +55,6 @@ variable "map" {
 # =================================
 # STG環境
 # =================================
-
 variable "restriction_cloudfront_stg" {
   type        = map(string)
   description = "ALBへのアクセスを、CloudFront経由に限定するためのカスタムヘッダー"
@@ -189,19 +188,6 @@ variable "activation_vpc_endpoint" {
   type        = bool
   default     = false
 }
-
-
-
-# variable "dynamic_sg" {
-#   description = "for_eachでの繰り返し用"
-#   type = map(object(
-#         {
-#          port        = number
-#          cidr_blocks = list(string)
-#         }
-#       )
-#     )
-#   }
 
 # IAM --------------------------------------------------
 variable "iam_user" {

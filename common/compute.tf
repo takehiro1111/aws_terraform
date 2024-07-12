@@ -1,103 +1,93 @@
-#=========================================
-#キーペア
-#=========================================
-resource "aws_key_pair" "public_instance" {
-  key_name   = "hcl"
-  public_key = file("../key_pair/hcl.pub")
-}
-
-#===================================
-#EC2 Instance
-#===================================
+#####################################################
+# EC2
+#####################################################
 // WEBサーバ用のインスタンス
-resource "aws_instance" "web_instance" {
-  count = var.create_web_instance ? 1 : 0
+# resource "aws_instance" "web_instance" {
+#   count = var.create_web_instance ? 1 : 0
 
-  ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
-  subnet_id                   = aws_subnet.public_a.id
-  instance_type               = "t2.micro"
-  vpc_security_group_ids      = [aws_security_group.ecs_stg.id]
-  associate_public_ip_address = false // グローバルIPの有効化
-  iam_instance_profile        = aws_iam_instance_profile.session_manager.name
+#   ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
+#   subnet_id                   = aws_subnet.public_a.id
+#   instance_type               = "t2.micro"
+#   vpc_security_group_ids      = [aws_security_group.ecs_stg.id]
+#   associate_public_ip_address = false // グローバルIPの有効化
+#   iam_instance_profile        = aws_iam_instance_profile.session_manager.name
 
-  // Apacheのインストールまで実施
-  user_data = <<-EOF
-                #!/bin/bash
-                yum update -y
-                yum install -y httpd
-                systemctl start httpd
-                systemctl enable httpd
-                EOF
+#   // Apacheのインストールまで実施
+#   user_data = <<-EOF
+#                 #!/bin/bash
+#                 yum update -y
+#                 yum install -y httpd
+#                 systemctl start httpd
+#                 systemctl enable httpd
+#                 EOF
 
-  root_block_device {
-    volume_type           = "gp3"
-    volume_size           = 30
-    delete_on_termination = false
-    encrypted             = true
+#   root_block_device {
+#     volume_type           = "gp3"
+#     volume_size           = 30
+#     delete_on_termination = false
+#     encrypted             = true
 
-    tags = {
-      Name = "web-root-volume-${count.index}"
-    }
-  }
+#     tags = {
+#       Name = "web-root-volume-${count.index}"
+#     }
+#   }
 
-  tags = {
-    Name = "web-instance"
-  }
-}
+#   tags = {
+#     Name = "web-instance"
+#   }
+# }
 
 /*
  * Prometheus,Grafana用 
  */
 
-module "prometheus_server" {
-  source = "../modules/ec2/general_instance"
+# module "prometheus_server" {
+#   source = "../modules/ec2/general_instance"
 
-  env                  = "stg"
-  vpc_id               = aws_vpc.hashicorp.id
-  subnet_id            = aws_subnet.public_a.id
-  iam_instance_profile = aws_iam_instance_profile.session_manager.name
-  key_pair             = aws_key_pair.public_instance.key_name
+#   env                  = "stg"
+#   vpc_id               = aws_vpc.hashicorp.id
+#   subnet_id            = aws_subnet.public_a.id
+#   iam_instance_profile = aws_iam_instance_profile.session_manager.name
 
-  root_volume_name = "prometheus-server"
-  inastance_name   = "prometheus-server"
+#   root_volume_name = "prometheus-server"
+#   inastance_name   = "prometheus-server"
 
-  ## SessionManagerの設定は既に作成済みのためfalse
-  create_common_resource = false
+#   ## SessionManagerの設定は既に作成済みのためfalse
+#   create_common_resource = false
 
-  ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
-  create_tmp_ebs_resource = false
+#   ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
+#   create_tmp_ebs_resource = false
 
-  sg_name = "security-bastion"
-}
+#   sg_name = "security-bastion"
+# }
 
 /*
  * Node Exporter用 
  */
 
-module "node_exporter" {
-  source = "../modules/ec2/general_instance"
+# module "node_exporter" {
+#   source = "../modules/ec2/general_instance"
 
-  env                  = "stg"
-  vpc_id               = aws_vpc.hashicorp.id
-  subnet_id            = aws_subnet.public_a.id
-  iam_instance_profile = aws_iam_instance_profile.session_manager.name
-  key_pair             = aws_key_pair.public_instance.key_name
+#   env                  = "stg"
+#   vpc_id               = aws_vpc.hashicorp.id
+#   subnet_id            = aws_subnet.public_a.id
+#   iam_instance_profile = aws_iam_instance_profile.session_manager.name
 
-  root_volume_name = "node-exporter"
-  inastance_name   = "node-exporter"
+#   root_volume_name = "node-exporter"
+#   inastance_name   = "node-exporter"
 
-  ## SessionManagerの設定は既に作成済みのためfalse
-  create_common_resource = false
+#   ## SessionManagerの設定は既に作成済みのためfalse
+#   create_common_resource = false
 
-  ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
-  create_tmp_ebs_resource = false
+#   ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
+#   create_tmp_ebs_resource = false
 
-  sg_name = "prometheus-node-exporter"
-}
+#   sg_name = "prometheus-node-exporter"
+# }
 
-#===================================
-#ECS
-#===================================
+#####################################################
+# ECS
+#####################################################
 // cluster
 resource "aws_ecs_cluster" "web" {
   name = "cluster-web"
@@ -106,7 +96,7 @@ resource "aws_ecs_cluster" "web" {
 // 名前空間
 resource "aws_service_discovery_private_dns_namespace" "web" {
   name = "web.internal"
-  vpc  = aws_vpc.hashicorp.id
+  vpc  = aws_vpc.common.id
 }
 
 // サービスディスカバリ
@@ -152,7 +142,7 @@ resource "aws_ecs_service" "nginx" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.nginx.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
+    target_group_arn = aws_lb_target_group.ecs_nginx.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
     container_name   = "ngix-container"              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
     container_port   = 80
   }

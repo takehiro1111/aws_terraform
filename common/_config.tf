@@ -1,8 +1,8 @@
-#=============================================
-#Terraform Block
-#=============================================
-terraform {
-  required_version = "1.7.5"
+#####################################################
+# Terraform Block
+#####################################################
+terraform{
+  required_version = "1.9.1"
 
   required_providers {
     aws = {
@@ -19,19 +19,20 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket         = "terraform-state-hashicorp"
-    key            = "hcl"
-    region         = "ap-northeast-1"
-    acl            = "private"
-    encrypt        = true
-    dynamodb_table = "tfstate-locks"
+  backend "local" {
+    path = "local/tfstate"
+    # bucket         = "terraform-state-421643133281"
+    # key            = "hcl"
+    # region         = "ap-northeast-1"
+    # acl            = "private"
+    # encrypt        = true
+    # dynamodb_table = "tfstate-locks"
   }
 }
 
-#=============================================
-#Provider Block
-#=============================================
+#####################################################
+# Provider Block
+#####################################################
 provider "aws" {
   region = "ap-northeast-1"
   default_tags {
@@ -61,16 +62,16 @@ provider "aws" {
   }
 }
 
-#=============================================
-#Module Block
-#=============================================
+#####################################################
+# PMOdule Block
+#####################################################
 module "value" {
   source = "../modules/variable"
 }
 
-#=============================================
-#Data Block
-#=============================================
+#####################################################
+# Data Block
+#####################################################
 data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
@@ -108,14 +109,14 @@ data "aws_ec2_managed_prefix_list" "s3" {
   name = "com.amazonaws.ap-northeast-1.s3"
 }
 
-data "terraform_remote_state" "stats_stg" {
-  backend = "s3"
-  config = {
-    bucket         = "terraform-state-hashicorp"
-    key            = "stats"
-    region         = "ap-northeast-1"
-    acl            = "private"
-    encrypt        = true
-    dynamodb_table = "tfstate-locks"
-  }
-}
+# data "terraform_remote_state" "stats_stg" {
+#   backend = "s3"
+#   config = {
+#     bucket         = "terraform-state-hashicorp"
+#     key            = "stats"
+#     region         = "ap-northeast-1"
+#     acl            = "private"
+#     encrypt        = true
+#     dynamodb_table = "tfstate-locks"
+#   }
+# }
