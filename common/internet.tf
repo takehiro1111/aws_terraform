@@ -429,7 +429,7 @@ resource "aws_lb" "this" {
   depends_on                 = [aws_vpc.hashicorp]
 
   /*  access_logs {
-    bucket  = aws_s3_bucket.logging-sekigaku-20231120.bucket
+    bucket  = aws_s3_bucket.logging.bucket
     enabled = true
   } */
 }

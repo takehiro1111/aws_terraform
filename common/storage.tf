@@ -1,6 +1,6 @@
-#===================================
+############################################################################
 # ECR
-#===================================
+############################################################################
 # KMSでの暗号化は行わない。
 #trivy:ignore:AVD-AWS-0033
 resource "aws_ecr_repository" "common" {
@@ -32,10 +32,12 @@ resource "aws_ecr_lifecycle_policy" "common" {
   depends_on = [aws_ecr_repository.common]
 }
 
-#=============================================
-# S3 Bucket
-#=============================================
-#tfsatate-------------------------------------
+######################################################################
+# S3
+######################################################################
+/* 
+ * tfstate
+ */
 resource "aws_s3_bucket" "tfstate_sekigaku" {
   bucket = "terraform-state-hashicorp"
 }
@@ -107,31 +109,33 @@ resource "aws_s3_bucket_policy" "tfstate_sekigaku" {
 
 resource "aws_s3_bucket_logging" "tfstate_sekigaku" {
   bucket        = aws_s3_bucket.tfstate_sekigaku.id
-  target_bucket = aws_s3_bucket.logging-sekigaku-20231120.id
+  target_bucket = aws_s3_bucket.logging.id
   target_prefix = "${aws_s3_bucket.tfstate_sekigaku.id}/log/"
 }
 
-#logging------------------------------------------------------
-resource "aws_s3_bucket" "logging-sekigaku-20231120" {
+/* 
+ * logging
+ */
+resource "aws_s3_bucket" "logging" {
   bucket = "logging-sekigaku-20231120"
 }
 
 resource "aws_s3_bucket_ownership_controls" "logging" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.id
+  bucket = aws_s3_bucket.logging.id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
 }
 
 resource "aws_s3_bucket_acl" "logging" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.id
+  bucket = aws_s3_bucket.logging.id
   acl    = "private"
 
-  depends_on = [aws_s3_bucket.logging-sekigaku-20231120]
+  depends_on = [aws_s3_bucket.logging]
 }
 
 resource "aws_s3_bucket_public_access_block" "logging" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.id
+  bucket = aws_s3_bucket.logging.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -140,7 +144,7 @@ resource "aws_s3_bucket_public_access_block" "logging" {
 }
 
 resource "aws_s3_bucket_versioning" "logging" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.id
+  bucket = aws_s3_bucket.logging.id
 
   versioning_configuration {
     status = "Enabled"
@@ -148,7 +152,7 @@ resource "aws_s3_bucket_versioning" "logging" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "logging" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+  bucket = aws_s3_bucket.logging.bucket
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm     = "aws:kms"
@@ -157,8 +161,28 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logging" {
   }
 }
 
-resource "aws_s3_bucket_policy" "logging-sekigaku-20231120" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+resource "aws_s3_bucket_inventory" "logging" {
+  bucket = aws_s3_bucket.logging.id
+  name   = "inventory-logging"
+  included_object_versions = "Current" // 現在のバージョンのみを対象。
+  schedule {
+    frequency = "Daily" // 日次でのレポート送信
+  }
+  destination {
+    bucket {
+      format     = "CSV"
+      bucket_arn = "arn:aws:s3:::s3-inventory-dist"
+      prefix     = "inventory"
+      // インベントリで出力されるレポートファイルの暗号化設定
+      encryption {
+        sse_s3 {}
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "logging" {
+  bucket = aws_s3_bucket.logging.bucket
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -174,8 +198,8 @@ resource "aws_s3_bucket_policy" "logging-sekigaku-20231120" {
           "s3:PutObject"
         ],
         "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.logging-sekigaku-20231120.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.logging-sekigaku-20231120.bucket}/*"
+          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}/*"
         ]
       },
       {
@@ -195,8 +219,8 @@ resource "aws_s3_bucket_policy" "logging-sekigaku-20231120" {
           "s3:PutObject"
         ],
         "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.logging-sekigaku-20231120.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.logging-sekigaku-20231120.bucket}/*"
+          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}/*"
         ]
       },
       {
@@ -206,14 +230,15 @@ resource "aws_s3_bucket_policy" "logging-sekigaku-20231120" {
           "Service" : "logging.s3.amazonaws.com"
         },
         "Action" : "s3:PutObject",
-        "Resource" : "${aws_s3_bucket.logging-sekigaku-20231120.arn}/*"
+        "Resource" : "${aws_s3_bucket.logging.arn}/*"
       }
     ]
   })
 }
 
-
-#cdn-log----------------------------
+/* 
+ * cdn_log
+ */
 resource "aws_s3_bucket" "cdn_log" {
   bucket   = "cdn-log-hashicorp-20231203"
   provider = aws.us-east-1
@@ -315,8 +340,9 @@ resource "aws_s3_bucket_policy" "cdn_log" {
   })
 }
 
-
-# Static -----------------------------
+/* 
+ * static
+ */
 resource "aws_s3_bucket" "test" {
   bucket = "test-static-s3-20231130"
 }
@@ -398,7 +424,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "test" {
 
 resource "aws_s3_bucket_logging" "test" {
   bucket        = aws_s3_bucket.test.bucket
-  target_bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+  target_bucket = aws_s3_bucket.logging.bucket
   target_prefix = "${local.env}/${local.repository}"
 }
 
@@ -447,7 +473,9 @@ resource "aws_s3_bucket_policy" "test" {
   })
 }
 
-# vpc-flow-log -----------------------------
+/* 
+ * vpc-flow-log
+ */
 #::memo::
 # #フローログのバケットポリシーはデフォルトで動的に作成されるため、ユーザー側での作成は不要。
 resource "aws_s3_bucket" "flow_log" {
@@ -498,11 +526,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "flow_log" {
 
 resource "aws_s3_bucket_logging" "flow_log" {
   bucket        = aws_s3_bucket.flow_log.bucket
-  target_bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+  target_bucket = aws_s3_bucket.logging.bucket
   target_prefix = "${local.env}/${local.repository}"
 }
 
-# Athena -----------------------------------------------
+/* 
+ * Athena
+ */
 resource "aws_s3_bucket" "athena" {
   bucket = "athena-result-20240407"
 }
@@ -551,14 +581,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena" {
 
 resource "aws_s3_bucket_logging" "athena" {
   bucket        = aws_s3_bucket.athena.bucket
-  target_bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+  target_bucket = aws_s3_bucket.logging.bucket
   target_prefix = "${local.env}/${local.repository}"
 }
 
-# config log --------------------------------------------------
+/* 
+ * config_log
+ */
 module "config_log" {
   source = "../modules/s3/config"
 
   bucket_name = "config-${data.aws_caller_identity.current.account_id}"
-  bucket_logging = aws_s3_bucket.logging-sekigaku-20231120.bucket
+  bucket_logging = aws_s3_bucket.logging.bucket
 }

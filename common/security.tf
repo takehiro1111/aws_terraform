@@ -687,7 +687,7 @@ resource "aws_kms_key_policy" "s3" {
           "ArnLike" : {
             "aws:SourceArn" : [
               aws_s3_bucket.tfstate_sekigaku.arn,
-              aws_s3_bucket.logging-sekigaku-20231120.arn,
+              aws_s3_bucket.logging.arn,
               aws_s3_bucket.cdn_log.arn,
             ]
           }
