@@ -529,6 +529,6 @@ resource "aws_s3_bucket_logging" "athena" {
 module "config_log" {
   source = "../modules/s3/config"
 
-  bucket_name = "config-${data.aws_caller_identity.current.account_id}"
+  bucket_name    = "config-${data.aws_caller_identity.current.account_id}"
   bucket_logging = aws_s3_bucket.logging.bucket
 }
