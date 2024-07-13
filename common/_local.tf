@@ -83,22 +83,22 @@ locals {
 locals {
   flow_logs = {
     cloudwatch_logs = {
-      create = false
-      iam_role_arn = aws_iam_role.flow_log.arn
+      create               = false
+      iam_role_arn         = aws_iam_role.flow_log.arn
       log_destination_type = "cloud-watch-logs"
-      log_destination = aws_cloudwatch_log_group.flow_log.arn
-      traffic_type = "ACCEPT"
+      log_destination      = aws_cloudwatch_log_group.flow_log.arn
+      traffic_type         = "ACCEPT"
       // デフォルトのログフォーマット
-      log_format ="$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status}"
+      log_format = "$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status}"
 
       max_aggregation_interval = 600
     }
     s3 = {
-      create = false
-      log_destination_type = "s3"
-      log_destination = aws_s3_bucket.flow_log.arn
-      traffic_type = "ACCEPT"
-      log_format = "$${account-id} $${region} $${interface-id} $${srcaddr} $${dstaddr} $${pkt-srcaddr} $${pkt-dstaddr} $${protocol} $${action} $${log-status}" 
+      create                   = false
+      log_destination_type     = "s3"
+      log_destination          = aws_s3_bucket.flow_log.arn
+      traffic_type             = "ACCEPT"
+      log_format               = "$${account-id} $${region} $${interface-id} $${srcaddr} $${dstaddr} $${pkt-srcaddr} $${pkt-dstaddr} $${protocol} $${action} $${log-status}"
       max_aggregation_interval = 60
     }
   }
@@ -111,19 +111,19 @@ locals {
   subnets = {
     public_a = {
       cidr_block = module.value.subnet_ip_common.a_public
-      az = module.value.az.ap_northeast_1.a
+      az         = module.value.az.ap_northeast_1.a
     }
     public_c = {
       cidr_block = module.value.subnet_ip_common.c_public
-      az = module.value.az.ap_northeast_1.c
+      az         = module.value.az.ap_northeast_1.c
     }
     private_a = {
       cidr_block = module.value.subnet_ip_common.a_private
-      az = module.value.az.ap_northeast_1.a
+      az         = module.value.az.ap_northeast_1.a
     }
     private_c = {
       cidr_block = module.value.subnet_ip_common.c_private
-      az = module.value.az.ap_northeast_1.c
+      az         = module.value.az.ap_northeast_1.c
     }
   }
 }
@@ -132,17 +132,17 @@ locals {
  * Route Tables Parameter
  */
 locals {
-  rtb = ["public","private"]
+  rtb = ["public", "private"]
 
   route = {
     igw = {
-      create = true
-      route_table_id = aws_route_table.common["public"].id
+      create                 = true
+      route_table_id         = aws_route_table.common["public"].id
       destination_cidr_block = module.value.full_open_ip
-      gateway_id = aws_internet_gateway.common.id
+      gateway_id             = aws_internet_gateway.common.id
     }
     nat = {
-      create = false
+      create                 = false
       route_table_id         = aws_route_table.common["private"].id
       destination_cidr_block = module.value.full_open_ip
       nat_gateway_id         = aws_nat_gateway.common[*].id
@@ -175,21 +175,21 @@ locals {
 locals {
   vpce_interface = {
     ecr_dkr = {
-      create = false
-      subnet_ids = [aws_subnet.common["private_c"].id]
-      service_name      = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
+      create             = false
+      subnet_ids         = [aws_subnet.common["private_c"].id]
+      service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
       security_group_ids = [module.vpc_endpoint.security_group_id]
     }
     ecr_api = {
-      create = false
-      subnet_ids = [aws_subnet.common["private_c"].id]
-      service_name      = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
+      create             = false
+      subnet_ids         = [aws_subnet.common["private_c"].id]
+      service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
       security_group_ids = [module.vpc_endpoint.security_group_id]
     }
     logs = {
-      create = false
-      subnet_ids = [aws_subnet.common["private_c"].id]
-      service_name      = "com.amazonaws.${data.aws_region.default.id}.logs"
+      create             = false
+      subnet_ids         = [aws_subnet.common["private_c"].id]
+      service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
       security_group_ids = [module.vpc_endpoint.security_group_id]
     }
     # td_agent = {

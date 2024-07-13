@@ -143,7 +143,7 @@ resource "aws_ecs_service" "nginx" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_nginx.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
-    container_name   = "ngix-container"              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_name   = "ngix-container"                  // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
     container_port   = 80
   }
 
