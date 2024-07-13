@@ -105,15 +105,15 @@ resource "aws_s3_bucket_policy" "tfstate" {
   })
 }
 
-resource "aws_s3_bucket_logging" "tfstate_sekigaku" {
-  bucket        = aws_s3_bucket.tfstate_sekigaku.id
-  target_bucket = aws_s3_bucket.logging-sekigaku-20231120.id
-  target_prefix = "${aws_s3_bucket.tfstate_sekigaku.id}/log/"
+resource "aws_s3_bucket_logging" "tfstate" {
+  bucket        = aws_s3_bucket.tfstate.id
+  target_bucket = aws_s3_bucket.logging.id
+  target_prefix = "${aws_s3_bucket.tfstate.id}/log/"
 }
 
 #logging------------------------------------------------------
-resource "aws_s3_bucket" "logging-sekigaku-20231120" {
-  bucket = "logging-sekigaku-20231120"
+resource "aws_s3_bucket" "logging" {
+  bucket = "logging-${data.aws_caller_identity.current.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "logging" {
@@ -157,8 +157,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logging" {
   }
 }
 
-resource "aws_s3_bucket_policy" "logging-sekigaku-20231120" {
-  bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+resource "aws_s3_bucket_policy" "logging" {
+  bucket = aws_s3_bucket.logging.bucket
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -318,41 +318,8 @@ resource "aws_s3_bucket_policy" "cdn_log" {
 
 
 # Static -----------------------------
-resource "aws_s3_bucket" "test" {
-  bucket = "test-static-s3-20231130"
-}
-
-resource "aws_s3_object" "test" {
-  bucket = aws_s3_bucket.test.id
-  #S3へアップロードするときのkey値
-  key = "static/sitemap/"
-  acl = "private"
-}
-
-resource "aws_s3_object" "error" {
-  bucket = aws_s3_bucket.test.bucket
-  key    = "error/"
-  acl    = "private"
-}
-
-resource "aws_s3_object" "maintenance" {
-  bucket = aws_s3_bucket.test.bucket
-  key    = "maintenance/"
-  acl    = "private"
-}
-
-resource "aws_s3_object" "image" {
-  bucket = aws_s3_bucket.test.bucket
-  key    = "image/"
-  acl    = "private"
-}
-
-resource "aws_s3_object" "bug" {
-  bucket                 = aws_s3_bucket.test.bucket
-  key                    = "static/maintenance/"
-  acl                    = "private"
-  server_side_encryption = "aws:kms"
-  kms_key_id             = aws_kms_key.s3.arn
+resource "aws_s3_bucket" "static" {
+  bucket = "static-${data.aws_caller_identity.current.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "static" {
@@ -397,9 +364,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "static" {
   }
 }
 
-resource "aws_s3_bucket_logging" "test" {
-  bucket        = aws_s3_bucket.test.bucket
-  target_bucket = aws_s3_bucket.logging-sekigaku-20231120.bucket
+resource "aws_s3_bucket_logging" "static" {
+  bucket        = aws_s3_bucket.static.bucket
+  target_bucket = aws_s3_bucket.logging.bucket
   target_prefix = "${local.env}/${local.repository}"
 }
 
@@ -563,5 +530,5 @@ module "config_log" {
   source = "../modules/s3/config"
 
   bucket_name = "config-${data.aws_caller_identity.current.account_id}"
-  bucket_logging = aws_s3_bucket.logging-sekigaku-20231120.bucket
+  bucket_logging = aws_s3_bucket.logging.bucket
 }
