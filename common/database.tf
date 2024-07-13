@@ -48,8 +48,8 @@ resource "aws_db_option_group" "mysql_8" {
 resource "aws_db_subnet_group" "mysql_8" {
   name = "mysql-8"
   subnet_ids = [
-    aws_subnet.private_a.id,
-    aws_subnet.private_c.id
+    aws_subnet.common["private_a"].id,
+    aws_subnet.common["private_c"].id
   ]
 }
 
@@ -98,15 +98,10 @@ resource "aws_db_instance" "mysql_8" {
 #####################################################
 # Aurora
 #####################################################
-resource "aws_db_cluster_snapshot" "mysql_8" {
-  db_cluster_identifier          = "aurora-cluster" // aws_rds_clusterを削除した際でも参照先を失わないよう意図的にハードコードしている。
-  db_cluster_snapshot_identifier = "test-snapshot-20240218"
-}
-
-data "aws_db_cluster_snapshot" "mysql_8" {
-  most_recent           = true
-  db_cluster_identifier = "aurora-cluster"
-}
+# resource "aws_db_cluster_snapshot" "mysql_8" {
+#   db_cluster_identifier          = "aurora-cluster" // aws_rds_clusterを削除した際でも参照先を失わないよう意図的にハードコードしている。
+#   db_cluster_snapshot_identifier = "test-snapshot-20240218"
+# }
 
 resource "aws_rds_cluster" "mysql_8" {
   count = var.start_aurora ? 1 : 0

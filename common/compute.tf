@@ -2,40 +2,40 @@
 # EC2
 #####################################################
 // WEBサーバ用のインスタンス
-# resource "aws_instance" "web_instance" {
-#   count = var.create_web_instance ? 1 : 0
+resource "aws_instance" "web_instance" {
+  count = var.create_web_instance ? 1 : 0
 
-#   ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
-#   subnet_id                   = aws_subnet.public_a.id
-#   instance_type               = "t2.micro"
-#   vpc_security_group_ids      = [aws_security_group.ecs_stg.id]
-#   associate_public_ip_address = false // グローバルIPの有効化
-#   iam_instance_profile        = aws_iam_instance_profile.session_manager.name
+  ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
+  subnet_id                   = aws_subnet.common["public_a"].id
+  instance_type               = "t2.micro"
+  vpc_security_group_ids      = [aws_security_group.ecs_stg.id]
+  associate_public_ip_address = false // グローバルIPの有効化
+  iam_instance_profile        = aws_iam_instance_profile.session_manager.name
 
-#   // Apacheのインストールまで実施
-#   user_data = <<-EOF
-#                 #!/bin/bash
-#                 yum update -y
-#                 yum install -y httpd
-#                 systemctl start httpd
-#                 systemctl enable httpd
-#                 EOF
+  // Apacheのインストールまで実施
+  user_data = <<-EOF
+                #!/bin/bash
+                yum update -y
+                yum install -y httpd
+                systemctl start httpd
+                systemctl enable httpd
+                EOF
 
-#   root_block_device {
-#     volume_type           = "gp3"
-#     volume_size           = 30
-#     delete_on_termination = false
-#     encrypted             = true
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = 30
+    delete_on_termination = false
+    encrypted             = true
 
-#     tags = {
-#       Name = "web-root-volume-${count.index}"
-#     }
-#   }
+    tags = {
+      Name = "web-root-volume-${count.index}"
+    }
+  }
 
-#   tags = {
-#     Name = "web-instance"
-#   }
-# }
+  tags = {
+    Name = "web-instance"
+  }
+}
 
 /*
  * Prometheus,Grafana用 
@@ -134,7 +134,7 @@ resource "aws_ecs_service" "nginx" {
   }
 
   network_configuration {
-    subnets = [aws_subnet.private_c.id]
+    subnets = [aws_subnet.common["private_c"].id]
     security_groups = [
       aws_security_group.ecs_stg.id,
     ]
@@ -171,7 +171,7 @@ resource "aws_ecs_task_definition" "nginx" {
   container_definitions = jsonencode([
     {
       name      = "ngix-container"
-      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:latest"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:c69bbb31a7db79bad4dfd9c87e2e7070ddd1ad94"
       cpu       = 256
       memory    = 512
       essential = true

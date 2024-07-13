@@ -79,30 +79,6 @@ resource "aws_route53_record" "cdn_tanaka_cloud_net" {
   }
 }
 
-// ALBへのエイリアスレコード
-resource "aws_route53_record" "lb_tanaka_cloud_net" {
-  zone_id = aws_route53_zone.tanaka_cloud_net.zone_id
-  name    = module.value.lb_tanaka_cloud_net
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.this.dns_name
-    zone_id                = aws_lb.this.zone_id
-    evaluate_target_health = false
-  }
-}
-
-resource "aws_route53_record" "tanaka_cloud_net_txt_gcp" {
-  allow_overwrite = true
-  name            = module.value.tanaka_cloud_net
-  type            = "TXT"
-  zone_id         = aws_route53_zone.tanaka_cloud_net.id
-  ttl             = 300
-
-  records = ["google-site-verification=gfAp7ueH0JVRULSD2fAntiLev7jv-c7L3dARlDT7r3A"]
-}
-
-
 #####################################################
 # ACM
 #####################################################
@@ -129,7 +105,7 @@ resource "aws_acm_certificate" "tanaka_cloud_net_us_east_1" {
   }
 }
 
-# Dual Use
+# Common Use
 resource "aws_acm_certificate_validation" "tanaka_cloud_net_us_east_1" {
   certificate_arn         = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
   validation_record_fqdns = [for record in aws_route53_record.tanaka_cloud_net_us_east_1 : record.fqdn]
@@ -422,7 +398,7 @@ resource "aws_lb" "this" {
     aws_security_group.alb_9000.id,
     aws_vpc.common.default_security_group_id
   ]
-  subnets = [aws_subnet.public_a.id, aws_subnet.public_c.id]
+  subnets = [aws_subnet.common["public_a"].id, aws_subnet.common["public_c"].id]
 
   enable_deletion_protection = false
   drop_invalid_header_fields = true

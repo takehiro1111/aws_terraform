@@ -76,3 +76,128 @@ locals {
     }
   ] : []
 }
+
+/* 
+ * VPC Flow Logs Parameter
+ */
+locals {
+  flow_logs = {
+    cloudwatch_logs = {
+      create = false
+      iam_role_arn = aws_iam_role.flow_log.arn
+      log_destination_type = "cloud-watch-logs"
+      log_destination = aws_cloudwatch_log_group.flow_log.arn
+      traffic_type = "ACCEPT"
+      // デフォルトのログフォーマット
+      log_format ="$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status}"
+
+      max_aggregation_interval = 600
+    }
+    s3 = {
+      create = false
+      log_destination_type = "s3"
+      log_destination = aws_s3_bucket.flow_log.arn
+      traffic_type = "ACCEPT"
+      log_format = "$${account-id} $${region} $${interface-id} $${srcaddr} $${dstaddr} $${pkt-srcaddr} $${pkt-dstaddr} $${protocol} $${action} $${log-status}" 
+      max_aggregation_interval = 60
+    }
+  }
+}
+
+/* 
+ * Subnets Parameter
+ */
+locals {
+  subnets = {
+    public_a = {
+      cidr_block = module.value.subnet_ip_common.a_public
+      az = module.value.az.ap_northeast_1.a
+    }
+    public_c = {
+      cidr_block = module.value.subnet_ip_common.c_public
+      az = module.value.az.ap_northeast_1.c
+    }
+    private_a = {
+      cidr_block = module.value.subnet_ip_common.a_private
+      az = module.value.az.ap_northeast_1.a
+    }
+    private_c = {
+      cidr_block = module.value.subnet_ip_common.c_private
+      az = module.value.az.ap_northeast_1.c
+    }
+  }
+}
+
+/* 
+ * Route Tables Parameter
+ */
+locals {
+  rtb = ["public","private"]
+
+  route = {
+    igw = {
+      create = true
+      route_table_id = aws_route_table.common["public"].id
+      destination_cidr_block = module.value.full_open_ip
+      gateway_id = aws_internet_gateway.common.id
+    }
+    nat = {
+      create = false
+      route_table_id         = aws_route_table.common["private"].id
+      destination_cidr_block = module.value.full_open_ip
+      nat_gateway_id         = aws_nat_gateway.common[*].id
+    }
+  }
+
+  rtb_association = {
+    public_a = {
+      subnet_id      = aws_subnet.common["public_a"].id
+      route_table_id = aws_route_table.common["public"].id
+    }
+    public_c = {
+      subnet_id      = aws_subnet.common["public_c"].id
+      route_table_id = aws_route_table.common["public"].id
+    }
+    private_a = {
+      subnet_id      = aws_subnet.common["private_a"].id
+      route_table_id = aws_route_table.common["private"].id
+    }
+    private_a = {
+      subnet_id      = aws_subnet.common["private_c"].id
+      route_table_id = aws_route_table.common["private"].id
+    }
+  }
+}
+
+/* 
+ * Interface VPC Endpoint Parameter
+ */
+locals {
+  vpce_interface = {
+    ecr_dkr = {
+      create = false
+      subnet_ids = [aws_subnet.common["private_c"].id]
+      service_name      = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
+      security_group_ids = [module.vpc_endpoint.security_group_id]
+    }
+    ecr_api = {
+      create = false
+      subnet_ids = [aws_subnet.common["private_c"].id]
+      service_name      = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
+      security_group_ids = [module.vpc_endpoint.security_group_id]
+    }
+    logs = {
+      create = false
+      subnet_ids = [aws_subnet.common["private_c"].id]
+      service_name      = "com.amazonaws.${data.aws_region.default.id}.logs"
+      security_group_ids = [module.vpc_endpoint.security_group_id]
+    }
+    # td_agent = {
+    #   create = false
+    #   subnet_ids = [aws_subnet.common["private_a"].id,aws_subnet.common["private_c"].id]
+    #   service_name      = data.terraform_remote_state.stats_stg.outputs.td_vpc_endpoint_service_service_name
+    #   security_group_ids = [module.vpc_endpoint.security_group_id]
+    # }
+  }
+}
+

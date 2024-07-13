@@ -13,32 +13,22 @@ resource "aws_vpc" "common" {
 }
 
 # VPCフローログ ----------------------------
-# resource "aws_flow_log" "cloudwatch_logs" {
-#   iam_role_arn         = aws_iam_role.flow_log.arn
-#   log_destination_type = "cloud-watch-logs"
-#   log_destination      = aws_cloudwatch_log_group.flow_log.arn
-#   traffic_type         = "ACCEPT"
-#   vpc_id               = aws_vpc.common.id
+resource "aws_flow_log" "common" {
+  for_each = { for k,v in local.flow_logs : k => v if v.create == true}
 
-#   tags = {
-#     Name = "cloudwatch-logs"
-#   }
-# }
+  iam_role_arn         = aws_iam_role.flow_log.arn
+  log_destination_type = each.value.log_destination_type
+  log_destination      = each.value.log_destination
+  log_format           = each.value.log_format
+  traffic_type         = each.value.traffic_type
+  vpc_id               = aws_vpc.common.id
 
-#::memo::
-# フローログを直接S3に流す場合は、IAMロールのアタッチは不要。
-# resource "aws_flow_log" "flow_log_s3" {
-#   log_destination_type = "s3"
-#   log_destination      = aws_s3_bucket.flow_log.arn
-#   traffic_type         = "ACCEPT"
-#   log_format = "$${account-id} $${region} $${interface-id} $${srcaddr} $${dstaddr} $${pkt-srcaddr} $${pkt-dstaddr} $${protocol} $${action} $${log-status}" 
-#   vpc_id                   = aws_vpc.common.id
-#   max_aggregation_interval = 60
+  tags = {
+    Name = each.key
+  }
 
-#   tags = {
-#     Name = "s3"
-#   }
-# }
+  depends_on = [aws_vpc.common]
+}
 
 #####################################################
 # IGW
@@ -53,23 +43,27 @@ resource "aws_internet_gateway" "common" {
 #####################################################
 # NAT GW
 #####################################################
-# resource "aws_nat_gateway" "common" {
-#   allocation_id = aws_eip.nat.id
-#   subnet_id     = aws_subnet.public_a.id
+resource "aws_nat_gateway" "common" {
+  count = var.create_nat_gw ? 1 : 0
 
-#   tags = {
-#     "Name" = "common-nat"
-#   }
-# }
+  allocation_id = aws_eip.nat[0].id
+  subnet_id     = aws_subnet.common["public_a"].id
+
+  tags = {
+    "Name" = "common-nat"
+  }
+}
 
 #####################################################
 # EIP
 #####################################################
-# resource "aws_eip" "nat" {
-#   tags = {
-#     Name = "nat"
-#   }
-# }
+resource "aws_eip" "nat" {
+  count = var.create_nat_gw ? 1 : 0
+
+  tags = {
+    Name = "nat"
+  }
+}
 
 // Prometheusサーバ用
 # resource "aws_eip" "public_instance" {
@@ -110,60 +104,15 @@ resource "aws_internet_gateway" "common" {
 #####################################################
 # Subnet
 #####################################################
-#Public-----------------------------------
-resource "aws_subnet" "public_a" {
+resource "aws_subnet" "common" {
+  for_each = { for k,v in local.subnets : k => v }
   vpc_id                  = aws_vpc.common.id
-  cidr_block              = module.value.subnet_ip_common.a_public
-  availability_zone       = "ap-northeast-1a"
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.az
   map_public_ip_on_launch = false
 
   tags = {
-    "Name" = "public-sn-1"
-  }
-}
-
-resource "aws_subnet" "public_c" {
-  vpc_id                  = aws_vpc.common.id
-  cidr_block              = module.value.subnet_ip_common.c_public
-  availability_zone       = "ap-northeast-1c"
-  map_public_ip_on_launch = false
-
-  tags = {
-    "Name" = "public-sn-2"
-  }
-}
-
-#Private-----------------------------------
-resource "aws_subnet" "private_a" {
-  vpc_id                  = aws_vpc.common.id
-  cidr_block              = module.value.subnet_ip_common.a_private
-  availability_zone       = "ap-northeast-1a"
-  map_public_ip_on_launch = false
-
-  tags = {
-    "Name" = "private-a"
-  }
-}
-
-resource "aws_subnet" "private_c" {
-  vpc_id                  = aws_vpc.common.id
-  cidr_block              = module.value.subnet_ip_common.c_private
-  availability_zone       = "ap-northeast-1c"
-  map_public_ip_on_launch = false
-
-  tags = {
-    "Name" = "private-c"
-  }
-}
-
-resource "aws_subnet" "private_d" {
-  vpc_id                  = aws_vpc.common.id
-  cidr_block              = module.value.subnet_ip_common.d_private
-  availability_zone       = "ap-northeast-1d"
-  map_public_ip_on_launch = false
-
-  tags = {
-    "Name" = "private-d"
+    "Name" = each.key
   }
 }
 
@@ -171,156 +120,66 @@ resource "aws_subnet" "private_d" {
 # Route Table
 #####################################################
 #Public-----------------------------------
-resource "aws_route_table" "public_rtb" {
+resource "aws_route_table" "common" {
+  for_each = toset(local.rtb)
+
   vpc_id = aws_vpc.common.id
 
-  route {
-    cidr_block = module.value.full_open_ip
-    gateway_id = aws_internet_gateway.common.id
-  }
-
   tags = {
-    "Name" = "public-rtb"
+    "Name" = each.value
   }
 
   depends_on = [aws_vpc.common]
 }
 
-resource "aws_route_table_association" "public_a" {
-  subnet_id      = aws_subnet.public_a.id
-  route_table_id = aws_route_table.public_rtb.id
+resource "aws_route" "common" {
+  for_each = {for k,v in local.route : k => v if v.create}
+
+  route_table_id         = each.value.route_table_id
+  destination_cidr_block = each.value.destination_cidr_block
+  gateway_id = each.value.gateway_id
+  # nat_gateway_id = each.value.nat_gateway_id
 }
 
-resource "aws_route_table_association" "public_c" {
-  subnet_id      = aws_subnet.public_c.id
-  route_table_id = aws_route_table.public_rtb.id
+resource "aws_route_table_association" "common" {
+  for_each = {for k,v in local.rtb_association : k => v}
+  subnet_id      = each.value.subnet_id
+  route_table_id = each.value.route_table_id
 }
-
-# resource "aws_route_table_association" "public_d" {
-#   subnet_id      = aws_subnet.public_d.id
-#   route_table_id = aws_route_table.public_rtb.id
-# }
-
-#Private-----------------------------------
-resource "aws_route_table" "private_rtb" {
-  vpc_id = aws_vpc.common.id
-
-  tags = {
-    "Name" = "private-rtb"
-  }
-
-  depends_on = [aws_vpc.common]
-}
-
-# resource "aws_route" "private_rtb_nat" {
-#   route_table_id         = aws_route_table.private_rtb.id
-#   destination_cidr_block = module.value.full_open_ip
-#   nat_gateway_id         = aws_nat_gateway.common.id
-# }
-
-resource "aws_route_table_association" "private_a" {
-  subnet_id      = aws_subnet.private_a.id
-  route_table_id = aws_route_table.private_rtb.id
-}
-
-resource "aws_route_table_association" "private_c" {
-  subnet_id      = aws_subnet.private_c.id
-  route_table_id = aws_route_table.private_rtb.id
-}
-
-# resource "aws_route_table_association" "private_d" {
-#   subnet_id      = aws_subnet.private_d.id
-#   route_table_id = aws_route_table.private_rtb.id
-# }
 
 #####################################################
 # VPC Endpoint
 #####################################################
-# resource "aws_vpc_endpoint" "s3" {
-#   vpc_id            = aws_vpc.common.id
-#   service_name      = "com.amazonaws.ap-northeast-1.s3"
-#   vpc_endpoint_type = "Gateway"
-#   route_table_ids   = [aws_route_table.private_rtb.id]
+// S3だけではなく、他のDynamoDBも想定した書き方にする。
+resource "aws_vpc_endpoint" "s3_gateway" {
+  count = var.s3_gateway ? 1 : 0
+  vpc_id            = aws_vpc.common.id
+  service_name      = "com.amazonaws.${data.aws_region.default.name}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.common["private"].id]
 
-#   tags = {
-#     "Name" = "${local.env}-s3"
-#   }
-# }
+  tags = {
+    "Name" = "common-s3"
+  }
+}
 
-# resource "aws_vpc_endpoint_route_table_association" "s3" {
-#   route_table_id  = aws_route_table.private_rtb.id
-#   vpc_endpoint_id = aws_vpc_endpoint.s3.id
-# }
+resource "aws_vpc_endpoint_route_table_association" "s3" {
+  count = var.s3_gateway ? 1 : 0
+  route_table_id  = aws_route_table.common["private"].id
+  vpc_endpoint_id = aws_vpc_endpoint.s3_gateway[*].id
+}
 
-# resource "aws_vpc_endpoint" "ecr_dkr" {
-#   vpc_id            = aws_vpc.common.id
-#   subnet_ids = [aws_subnet.private_c.id]
-#   service_name      = "com.amazonaws.ap-northeast-1.ecr.dkr"
-#   vpc_endpoint_type = "Interface"
+resource "aws_vpc_endpoint" "interface" {
+  for_each = {for k,v in local.vpce_interface : k => v if v.create}
+  vpc_id            = aws_vpc.common.id
+  subnet_ids = each.value.subnet_ids
+  service_name      = each.value.service_name
+  vpc_endpoint_type = "Interface"
+  security_group_ids = each.value.security_group_ids
 
-#   security_group_ids = [
-#     aws_security_group.vpce.id,
-#   ]
+  private_dns_enabled = true
 
-#   private_dns_enabled = true
-
-#   tags = {
-#     "Name" = "${local.env}-ecr-dkr"
-#   }
-# }
-
-# resource "aws_vpc_endpoint" "ecr_api" {
-#   vpc_id            = aws_vpc.common.id
-#   subnet_ids = [aws_subnet.private_c.id]
-#   service_name      = "com.amazonaws.ap-northeast-1.ecr.api"
-#   vpc_endpoint_type = "Interface"
-
-#   security_group_ids = [
-#     aws_security_group.vpce.id,
-#   ]
-
-#   private_dns_enabled = true
-
-#   tags = {
-#     "Name" = "${local.env}-ecr-api"
-#   }
-# }
-
-# resource "aws_vpc_endpoint" "logs" {
-#   vpc_id            = aws_vpc.common.id
-#   subnet_ids = [aws_subnet.private_c.id]
-#   service_name      = "com.amazonaws.ap-northeast-1.logs"
-#   vpc_endpoint_type = "Interface"
-
-#   security_group_ids = [
-#     aws_security_group.vpce.id,
-#   ]
-
-#   private_dns_enabled = true
-
-#   tags = {
-#     "Name" = "${local.env}-ecr-logs"
-#   }
-# }
-
-# resource "aws_vpc_endpoint" "to_td_egent" {
-#   count = var.activation_vpc_endpoint ? 1 : 0
-
-#   vpc_id            = aws_vpc.common.id
-#   subnet_ids = [
-#     aws_subnet.private_a.id,
-#     aws_subnet.private_c.id
-#   ]
-#   service_name      = data.terraform_remote_state.stats_stg.outputs.td_vpc_endpoint_service_service_name
-#   vpc_endpoint_type = "Interface"
-
-#   security_group_ids = [
-#     module.vpc_endpoint.security_group_id
-#   ]
-
-#   private_dns_enabled = true
-
-#   tags = {
-#     "Name" = "${local.env}-td-agent"
-#   }
-# }
+  tags = {
+    "Name" = each.key
+  }
+}

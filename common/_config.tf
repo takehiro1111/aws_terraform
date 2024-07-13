@@ -19,14 +19,13 @@ terraform{
     }
   }
 
-  backend "local" {
-    path = "local/tfstate"
-    # bucket         = "terraform-state-421643133281"
-    # key            = "hcl"
-    # region         = "ap-northeast-1"
-    # acl            = "private"
-    # encrypt        = true
-    # dynamodb_table = "tfstate-locks"
+  backend "s3" {
+    bucket         = "terraform-state-421643133281"
+    key            = "common/state_common"
+    region         = "ap-northeast-1"
+    acl            = "private"
+    encrypt        = true
+    dynamodb_table = "tfstate-locks"
   }
 }
 
@@ -100,7 +99,6 @@ data "aws_ami" "amazon_linux" {
   owners = [local.aws_owner] # Amazonの所有者ID
 }
 
-// ALBへのアクセスをCloudFront経由のみに制限するためマネージドプレフィスクスを取得
 data "aws_ec2_managed_prefix_list" "cdn" {
   name = "com.amazonaws.global.cloudfront.origin-facing"
 }

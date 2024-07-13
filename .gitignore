@@ -61,6 +61,8 @@ terraform.rc
 **/.terraform/*
 *.tfstate
 *.tfstate.*
+**/tfstate
+**/tfstate.backup
 
 .idea
 terraform-state
