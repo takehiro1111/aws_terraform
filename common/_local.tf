@@ -170,7 +170,7 @@ locals {
 }
 
 /* 
- * Interface VPC Endpoint Parameter
+ * VPC Endpoint Parameter
  */
 locals {
   vpce_interface = {

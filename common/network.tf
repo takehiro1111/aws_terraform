@@ -153,20 +153,22 @@ resource "aws_route_table_association" "common" {
 // S3だけではなく、他のDynamoDBも想定した書き方にする。
 resource "aws_vpc_endpoint" "s3_gateway" {
   count = var.s3_gateway ? 1 : 0
+
   vpc_id            = aws_vpc.common.id
-  service_name      = "com.amazonaws.${data.aws_region.default.name}.s3"
-  vpc_endpoint_type = "Gateway"
+  service_name = "com.amazonaws.${data.aws_region.default.name}.s3"
   route_table_ids   = [aws_route_table.common["private"].id]
+  vpc_endpoint_type = "Gateway"
 
   tags = {
-    "Name" = "common-s3"
+    "Name" = "s3-common"
   }
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3" {
+resource "aws_vpc_endpoint_route_table_association" "s3_gateway" {
   count = var.s3_gateway ? 1 : 0
+
   route_table_id  = aws_route_table.common["private"].id
-  vpc_endpoint_id = aws_vpc_endpoint.s3_gateway[*].id
+  vpc_endpoint_id = aws_vpc_endpoint.s3_gateway["s3"].id
 }
 
 resource "aws_vpc_endpoint" "interface" {
