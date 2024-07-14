@@ -177,16 +177,15 @@ module "sg_mysql" {
     }
   ]
 
-  # ingress_with_self = [
-  #   {
-  #     from_port       = 443
-  #     to_port         = 443
-  #     protocol        = "tcp"
-  #     description     = "Allow Inbound From CloludFront"
-  #     # prefix_list_ids= "pl-58a04531"
-  #     ingress_prefix_list_ids = data.aws_ec2_managed_prefix_list.cdn.id
-  #   }
-  # ]
+  ingress_with_self = [
+    {
+      from_port       = 443
+      to_port         = 443
+      protocol        = "tcp"
+      description     = "Allow Inbound From CloludFront"
+      ingress_prefix_list_ids = data.aws_ec2_managed_prefix_list.cdn.id
+    }
+  ]
 
   egress_rules = ["all-all"]
 }

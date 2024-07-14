@@ -223,182 +223,181 @@ resource "aws_db_parameter_group" "mysql_8_aurora" {
 
 # Officeial Module -----------------------------------------
 # refarence: https://registry.terraform.io/modules/terraform-aws-modules/rds-aurora/aws/latest
-# module "official_module_aurora" {
-#   source  = "terraform-aws-modules/rds-aurora/aws"
-#   version = "9.4.0"
+module "official_module_aurora" {
+  source  = "terraform-aws-modules/rds-aurora/aws"
+  version = "9.4.0"
 
-#   ## Common Parameter
-#   name = "aurora-cluster-${local.env}"
+  create = false
 
-#   ## DB Subnet Group
-#   create_db_subnet_group = true
-#   db_subnet_group_name   = "aurora-${local.env}"
-#   subnets = [
-#     aws_subnet.private_a.id,
-#     aws_subnet.private_c.id,
-#     aws_subnet.private_d.id,
-#   ]
+  ## Common Parameter
+  name = "aurora-cluster-${local.env}"
 
-#   ## Cluster
-#   cluster_use_name_prefix = false
+  ## DB Subnet Group
+  create_db_subnet_group = true
+  db_subnet_group_name   = "aurora-${local.env}"
+  subnets = [
+    aws_subnet.common["private_a"].id,
+    aws_subnet.common["private_c"].id,
+  ]
 
-#   engine         = "aurora-mysql"
-#   engine_version = "8.0.mysql_aurora.3.05.2"
+  ## Cluster
+  cluster_use_name_prefix = false
 
-#   master_username                 = "hoge"
-#   master_password                 = "fugafuga"
-#   backup_retention_period         = 35
-#   preferred_backup_window         = "16:10-16:40"
-#   preferred_maintenance_window    = "sun:17:10-sun:17:40"
-#   storage_encrypted               = true
-#   enabled_cloudwatch_logs_exports = ["audit", "error", "slowquery"]
-#   deletion_protection             = true
-#   backtrack_window                = 86400
-#   manage_master_user_password     = false
-#   db_parameter_group_name         = "db-parameter-${local.env}"
+  engine         = "aurora-mysql"
+  engine_version = "8.0.mysql_aurora.3.05.2"
 
-#   ## Cluster Instance(s)
-#   instance_class = "db.t4g.medium"
-#   instances = {
-#     0 = {}
-#     1 = {}
-#   }
+  master_username                 = "hoge"
+  master_password                 = "fugafuga"
+  backup_retention_period         = 35
+  preferred_backup_window         = "16:10-16:40"
+  preferred_maintenance_window    = "sun:17:10-sun:17:40"
+  storage_encrypted               = true
+  enabled_cloudwatch_logs_exports = ["audit", "error", "slowquery"]
+  deletion_protection             = true
+  backtrack_window                = 86400
+  manage_master_user_password     = false
+  db_parameter_group_name         = "db-parameter-${local.env}"
 
-#   auto_minor_version_upgrade = false
-#   monitoring_interval        = 60
+  ## Cluster Instance(s)
+  instance_class = "db.t4g.medium"
+  instances = {
+    0 = {}
+    1 = {}
+  }
 
-#   ## Cluster Endpoint(s)
-#   endpoints = {
-#     reader = {
-#       identifier = "ro-${local.env}"
-#       type       = "READER"
-#     }
-#   }
+  auto_minor_version_upgrade = false
+  monitoring_interval        = 60
 
-#   ## Cluster IAM Roles
-#   ## Enhanced Monitoring
-#   iam_role_use_name_prefix = false
+  ## Cluster Endpoint(s)
+  endpoints = {
+    reader = {
+      identifier = "ro-${local.env}"
+      type       = "READER"
+    }
+  }
 
-#   ## Autoscaling
-#   # autoscaling_enabled      = true
-#   # autoscaling_min_capacity = 1
-#   # autoscaling_max_capacity = 5
+  ## Cluster IAM Roles
+  ## Enhanced Monitoring
+  iam_role_use_name_prefix = false
 
-#   ## Security Group
-#   security_group_use_name_prefix = false
-#   vpc_id                         = aws_vpc.hashicorp.id
+  ## Autoscaling
+  # autoscaling_enabled      = true
+  # autoscaling_min_capacity = 1
+  # autoscaling_max_capacity = 5
 
-#   security_group_rules = {
-#     ingress_rules = {
-#       cidr_blocks = [
-#         module.value.hashicorp_subnet_ip.a_private,
-#         module.value.hashicorp_subnet_ip.c_private,
-#         module.value.hashicorp_subnet_ip.d_private,
-#         module.value.hashicorp_subnet_ip.a_public,
-#         module.value.hashicorp_subnet_ip.c_public,
-#         module.value.hashicorp_subnet_ip.d_public
-#       ]
-#       description = "MySQL/Aurora"
-#     },
-#     egress_rules = {
-#       type      = "egress"
-#       from_port = "0"
-#       to_port   = "0"
-#       protocol  = "-1"
-#       cidr_blocks = [
-#         "0.0.0.0/0"
-#       ]
-#       description = "All protocols"
-#     },
-#   }
+  ## Security Group
+  security_group_use_name_prefix = false
+  vpc_id                         = aws_vpc.common.id
 
-#   ## Cluster Parameter Group
-#   create_db_cluster_parameter_group          = true
-#   db_cluster_parameter_group_name            = "rds-cluster-${local.env}"
-#   db_cluster_parameter_group_use_name_prefix = false
-#   db_cluster_parameter_group_description     = "RDS default cluster parameter group"
-#   db_cluster_parameter_group_family          = "aurora-mysql8.0"
-#   db_cluster_parameter_group_parameters = [
-#     {
-#       name  = "character_set_server",
-#       value = "utf8mb4",
-#     },
-#     {
-#       name  = "character_set_connection"
-#       value = "utf8mb4"
-#     },
-#     {
-#       name  = "character_set_database"
-#       value = "utf8mb4"
-#     },
-#     {
-#       name  = "character_set_results"
-#       value = "utf8mb4"
-#     },
-#     {
-#       name  = "character_set_client"
-#       value = "utf8mb4"
-#     },
-#     {
-#       name  = "collation_connection"
-#       value = "utf8mb4_general_ci"
-#     },
-#     {
-#       name  = "time_zone"
-#       value = "Asia/Tokyo"
-#     },
-#     {
-#       name  = "general_log"
-#       value = 0
-#     },
-#     {
-#       name  = "slow_query_log"
-#       value = 1
-#     },
-#     {
-#       name  = "log_output"
-#       value = "file"
-#     },
-#     ## 監査ログ関係
-#     {
-#       name  = "server_audit_logging"
-#       value = "1"
-#     },
-#     {
-#       name  = "server_audit_logs_upload"
-#       value = "1"
-#     },
-#     {
-#       name  = "server_audit_events"
-#       value = "connect,query,query_dcl,query_ddl,query_dml,table"
-#     },
-#     ## MySQLユーザ'rdsadmin'は特段監査ログに必要ないので記録しない。
-#     {
-#       apply_method = "immediate"
-#       name         = "server_audit_excl_users"
-#       value        = "rdsadmin"
-#     },
-#     ## Blue/Green Deploymentのため、binlog_formatをMIXEDに設定
-#     {
-#       apply_method = "pending-reboot"
-#       name         = "binlog_format"
-#       value        = "MIXED"
-#     }
-#   ]
+  security_group_rules = {
+    ingress_rules = {
+      cidr_blocks = [
+        module.value.subnet_ip_common.a_private,
+        module.value.subnet_ip_common.c_private,
+        module.value.subnet_ip_common.a_public,
+        module.value.subnet_ip_common.c_public,
+      ]
+      description = "MySQL/Aurora"
+    },
+    egress_rules = {
+      type      = "egress"
+      from_port = "0"
+      to_port   = "0"
+      protocol  = "-1"
+      cidr_blocks = [
+        "0.0.0.0/0"
+      ]
+      description = "All protocols"
+    },
+  }
 
-#   ## DB Parameter Group
-#   create_db_parameter_group          = true
-#   db_parameter_group_use_name_prefix = false
-#   db_parameter_group_description     = "RDS default DB parameter group"
-#   db_parameter_group_family          = "aurora-mysql8.0"
-#   db_parameter_group_parameters = [
-#     {
-#       name  = "max_connections"
-#       value = 1024
-#     }
-#   ]
+  ## Cluster Parameter Group
+  create_db_cluster_parameter_group          = true
+  db_cluster_parameter_group_name            = "rds-cluster-${local.env}"
+  db_cluster_parameter_group_use_name_prefix = false
+  db_cluster_parameter_group_description     = "RDS default cluster parameter group"
+  db_cluster_parameter_group_family          = "aurora-mysql8.0"
+  db_cluster_parameter_group_parameters = [
+    {
+      name  = "character_set_server",
+      value = "utf8mb4",
+    },
+    {
+      name  = "character_set_connection"
+      value = "utf8mb4"
+    },
+    {
+      name  = "character_set_database"
+      value = "utf8mb4"
+    },
+    {
+      name  = "character_set_results"
+      value = "utf8mb4"
+    },
+    {
+      name  = "character_set_client"
+      value = "utf8mb4"
+    },
+    {
+      name  = "collation_connection"
+      value = "utf8mb4_general_ci"
+    },
+    {
+      name  = "time_zone"
+      value = "Asia/Tokyo"
+    },
+    {
+      name  = "general_log"
+      value = 0
+    },
+    {
+      name  = "slow_query_log"
+      value = 1
+    },
+    {
+      name  = "log_output"
+      value = "file"
+    },
+    ## 監査ログ関係
+    {
+      name  = "server_audit_logging"
+      value = "1"
+    },
+    {
+      name  = "server_audit_logs_upload"
+      value = "1"
+    },
+    {
+      name  = "server_audit_events"
+      value = "connect,query,query_dcl,query_ddl,query_dml,table"
+    },
+    ## MySQLユーザ'rdsadmin'は特段監査ログに必要ないので記録しない。
+    {
+      apply_method = "immediate"
+      name         = "server_audit_excl_users"
+      value        = "rdsadmin"
+    },
+    ## Blue/Green Deploymentのため、binlog_formatをMIXEDに設定
+    {
+      apply_method = "pending-reboot"
+      name         = "binlog_format"
+      value        = "MIXED"
+    }
+  ]
 
-#   ## CloudWatch Log Group
-#   create_cloudwatch_log_group            = true
-#   cloudwatch_log_group_retention_in_days = 0 // 無期限
-# }
+  ## DB Parameter Group
+  create_db_parameter_group          = true
+  db_parameter_group_use_name_prefix = false
+  db_parameter_group_description     = "RDS default DB parameter group"
+  db_parameter_group_family          = "aurora-mysql8.0"
+  db_parameter_group_parameters = [
+    {
+      name  = "max_connections"
+      value = 1024
+    }
+  ]
+
+  ## CloudWatch Log Group
+  create_cloudwatch_log_group            = true
+  cloudwatch_log_group_retention_in_days = 0 // 無期限
+}

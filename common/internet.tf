@@ -131,153 +131,159 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "Managed-SecurityHeadersPolicy"
 }
 
-# resource "aws_cloudfront_function" "test" {
-#   name    = "test-sg"
-#   runtime = "cloudfront-js-2.0"
-#   comment = "my function"
-#   publish = true
-#   code    = file("../function/function.js")
-# }
+resource "aws_cloudfront_function" "stg" {
+  count = var.cdn_stg ? 1 : 0
 
-# resource "aws_cloudfront_origin_access_control" "oac_stg" {
-#   description                       = "${aws_s3_bucket.static.id}-oac"
-#   name                              = "${aws_s3_bucket.static.id}-oac"
-#   origin_access_control_origin_type = "s3"
-#   signing_behavior                  = "always"
-#   signing_protocol                  = "sigv4"
-# }
+  name    = "test-sg"
+  runtime = "cloudfront-js-2.0"
+  comment = "my function"
+  publish = true
+  code    = file("../function/function.js")
+}
 
-# resource "aws_cloudfront_distribution" "stg" {
-#   aliases = [
-#     module.value.cdn_tanaka_cloud_net
-#   ]
+resource "aws_cloudfront_origin_access_control" "stg" {
+    count = var.cdn_stg ? 1 : 0
 
-#   enabled         = true
-#   is_ipv6_enabled = true
-#   price_class     = "PriceClass_All"
-#   #web_acl_id      = aws_wafv2_web_acl.region_count.arn
+  description                       = "${aws_s3_bucket.static.id}-oac"
+  name                              = "${aws_s3_bucket.static.id}-oac"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
 
-#   // ALB
-#   origin {
-#     domain_name = aws_lb.this.dns_name
-#     origin_id   = local.ecs_origin_id
+resource "aws_cloudfront_distribution" "stg" {
+  count = var.cdn_stg ? 1 : 0
 
-#     custom_origin_config {
-#       http_port                = 80
-#       https_port               = 443
-#       origin_protocol_policy   = "https-only"
-#       origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-#       origin_keepalive_timeout = "5"
-#       origin_read_timeout      = "30"
-#     }
-#   }
+  aliases = [
+    module.value.cdn_tanaka_cloud_net
+  ]
 
-#   // S3
-#   origin {
-#     domain_name              = aws_s3_bucket.static.bucket_regional_domain_name
-#     origin_id                = aws_s3_bucket.static.bucket_regional_domain_name
-#     origin_access_control_id = aws_cloudfront_origin_access_control.oac_stg.id
-#   }
+  enabled         = true
+  is_ipv6_enabled = true
+  price_class     = "PriceClass_All"
+  #web_acl_id      = aws_wafv2_web_acl.region_count.arn
 
-#   ordered_cache_behavior {
-#     path_pattern           = "/maintenance/*"
-#     allowed_methods        = ["GET", "HEAD"]
-#     cached_methods         = ["GET", "HEAD"]
-#     target_origin_id       = aws_s3_bucket.static.bucket_regional_domain_name
-#     compress               = false
-#     viewer_protocol_policy = "redirect-to-https"
-#     cache_policy_id        = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
-#   }
+  // ALB
+  origin {
+    domain_name = aws_lb.this.dns_name
+    origin_id   = local.ecs_origin_id
 
-#   ordered_cache_behavior {
-#     path_pattern             = "/index.php"
-#     allowed_methods          = ["GET", "HEAD"]
-#     cached_methods           = ["GET", "HEAD"]
-#     target_origin_id         = local.ecs_origin_id
-#     compress                 = false
-#     viewer_protocol_policy   = "redirect-to-https"
-#     cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-#     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-#   }
+    custom_origin_config {
+      http_port                = 80
+      https_port               = 443
+      origin_protocol_policy   = "https-only"
+      origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      origin_keepalive_timeout = "5"
+      origin_read_timeout      = "30"
+    }
+  }
 
-#   default_cache_behavior {
-#     allowed_methods          = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
-#     cached_methods           = ["GET", "HEAD"]
-#     target_origin_id         = local.ecs_origin_id
-#     compress                 = true
-#     viewer_protocol_policy   = "redirect-to-https"
-#     cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-#     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+  // S3
+  origin {
+    domain_name              = aws_s3_bucket.static.bucket_regional_domain_name
+    origin_id                = aws_s3_bucket.static.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.stg[0].id
+  }
 
-#     # function_association {
-#     #   event_type   = "viewer-request"
-#     #   function_arn = aws_cloudfront_function.test.arn
-#     # }
-#   }
+  ordered_cache_behavior {
+    path_pattern           = "/maintenance/*"
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = aws_s3_bucket.static.bucket_regional_domain_name
+    compress               = false
+    viewer_protocol_policy = "redirect-to-https"
+    cache_policy_id        = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
+  }
 
-#   //S3bucket作成してからコメントイン予定
-#   /*  logging_config {
-#     include_cookies = false
-#     bucket          = aws_s3_bucket.cdn_log.bucket
-#     prefix          = "cloudfront"
-#   } */
+  ordered_cache_behavior {
+    path_pattern             = "/index.php"
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = local.ecs_origin_id
+    compress                 = false
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+  }
 
-#   restrictions {
-#     geo_restriction {
-#       restriction_type = "none"
-#     }
-#   }
+  default_cache_behavior {
+    allowed_methods          = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = local.ecs_origin_id
+    compress                 = true
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
 
-#   viewer_certificate {
-#     acm_certificate_arn            = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
-#     cloudfront_default_certificate = "false"
-#     minimum_protocol_version       = "TLSv1.2_2021"
-#     ssl_support_method             = "sni-only"
-#   }
+    # function_association {
+    #   event_type   = "viewer-request"
+    #   function_arn = aws_cloudfront_function.test.arn
+    # }
+  }
 
-#   dynamic "custom_error_response" {
-#     for_each = var.full_maintenance || var.half_maintenance ? [1] : [0]
+  //S3bucket作成してからコメントイン予定
+  /*  logging_config {
+    include_cookies = false
+    bucket          = aws_s3_bucket.cdn_log.bucket
+    prefix          = "cloudfront"
+  } */
 
-#     content {
-#       error_caching_min_ttl = 10
-#       error_code            = 503
-#       response_code         = 503
-#       response_page_path    = "/maintenance/maintenance.html"
-#     }
-#   }
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
 
-#   custom_error_response {
-#     error_caching_min_ttl = 10
-#     error_code            = 500
-#     response_code         = 500
-#     response_page_path    = "/maintenance/maintenance.html"
-#   }
+  viewer_certificate {
+    acm_certificate_arn            = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
+    cloudfront_default_certificate = "false"
+    minimum_protocol_version       = "TLSv1.2_2021"
+    ssl_support_method             = "sni-only"
+  }
 
-#   custom_error_response {
-#     error_caching_min_ttl = 10
-#     error_code            = 501
-#     response_code         = 501
-#     response_page_path    = "/maintenance/maintenance.html"
-#   }
+  dynamic "custom_error_response" {
+    for_each = var.full_maintenance || var.half_maintenance ? [1] : [0]
 
-#   custom_error_response {
-#     error_caching_min_ttl = 10
-#     error_code            = 502
-#     response_code         = 502
-#     response_page_path    = "/maintenance/maintenance.html"
-#   }
+    content {
+      error_caching_min_ttl = 10
+      error_code            = 503
+      response_code         = 503
+      response_page_path    = "/maintenance/maintenance.html"
+    }
+  }
 
-#   custom_error_response {
-#     error_caching_min_ttl = 10
-#     error_code            = 504
-#     response_code         = 504
-#     response_page_path    = "/maintenance/maintenance.html"
-#   }
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 500
+    response_code         = 500
+    response_page_path    = "/maintenance/maintenance.html"
+  }
 
-#   tags = {
-#     "Name" : "common"
-#   }
-# }
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 501
+    response_code         = 501
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 502
+    response_code         = 502
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 504
+    response_code         = 504
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+
+  tags = {
+    "Name" : "common"
+  }
+}
 
 # reference: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "main_stg" {
@@ -428,6 +434,24 @@ resource "aws_lb_listener" "alb_443" {
   }
 }
 
+// Prometheusの学習用
+# resource "aws_lb_listener" "alb_9000" {
+#   load_balancer_arn = aws_lb.this.arn
+#   port              = "9000"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+#   certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
+#   default_action {
+#     type = "fixed-response"
+
+#     fixed_response {
+#       content_type = "text/plain"
+#       message_body = "Fixed response "
+#       status_code  = "503"
+#     }
+#   }
+# }
+
 resource "aws_alb_listener_rule" "nginx" {
   listener_arn = aws_lb_listener.alb_443.arn
   priority     = 2
@@ -470,24 +494,6 @@ resource "aws_lb_target_group" "ecs_nginx" {
     unhealthy_threshold = 2
   }
 }
-
-// Prometheusの学習用
-# resource "aws_lb_listener" "alb_9000" {
-#   load_balancer_arn = aws_lb.this.arn
-#   port              = "9000"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-#   certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
-#   default_action {
-#     type = "fixed-response"
-
-#     fixed_response {
-#       content_type = "text/plain"
-#       message_body = "Fixed response "
-#       status_code  = "503"
-#     }
-#   }
-# }
 
 # resource "aws_lb_target_group" "ec2" {
 #   name                 = "ec2"
