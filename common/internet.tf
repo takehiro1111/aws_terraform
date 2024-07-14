@@ -215,18 +215,17 @@ resource "aws_cloudfront_distribution" "stg" {
     cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
 
-    # function_association {
-    #   event_type   = "viewer-request"
-    #   function_arn = aws_cloudfront_function.test.arn
-    # }
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.stg[0].arn
+    }
   }
 
-  //S3bucket作成してからコメントイン予定
-  /*  logging_config {
+  logging_config {
     include_cookies = false
-    bucket          = aws_s3_bucket.cdn_log.bucket
-    prefix          = "cloudfront"
-  } */
+    bucket          = aws_s3_bucket.cdn_log.bucket_domain_name
+    prefix          = "stg"
+  }
 
   restrictions {
     geo_restriction {
@@ -309,11 +308,11 @@ module "main_stg" {
   # web_acl_id =  WAF作成時にコメントイン予定
 
   //S3bucket作成してからコメントイン予定
-  # logging_config = {
-  #   bucket = 
-  #   prefix = "official_module_stg"
-  #   include_cookies = false
-  # }
+  logging_config = {
+    bucket = aws_s3_bucket.cdn_log.bucket_domain_name
+    prefix = local.logging_config_prefix
+    include_cookies = false
+  }
 
   // ALB
   origin = {
@@ -364,7 +363,7 @@ module "main_stg" {
   ordered_cache_behavior = [
     {
       target_origin_id       = aws_s3_bucket.static.bucket_regional_domain_name
-      path_pattern           = "/maintenance/*"
+      path_pattern           = "/static/*"
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
       compress               = false
@@ -396,7 +395,7 @@ module "main_stg" {
 # ALB
 #####################################################
 resource "aws_lb" "this" {
-  name               = "ecs"
+  name               = "common"
   internal           = false
   load_balancer_type = "application"
   security_groups = [
@@ -410,10 +409,11 @@ resource "aws_lb" "this" {
   drop_invalid_header_fields = true
   depends_on                 = [aws_vpc.common]
 
-  /*  access_logs {
-    bucket  = aws_s3_bucket.logging.bucket
+  access_logs {
+    bucket  = module.s3_alb_accesslog.s3_bucket_id
+    prefix = "common"
     enabled = true
-  } */
+  }
 }
 
 #Listener------------------------------------

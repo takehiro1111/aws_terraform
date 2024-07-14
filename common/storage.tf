@@ -213,7 +213,7 @@ resource "aws_s3_bucket_policy" "logging" {
 }
 
 /* 
- * cdn_log
+ * CloudFront用のアクセスログ
  */
 resource "aws_s3_bucket" "cdn_log" {
   bucket   = "cdn-log-${data.aws_caller_identity.current.account_id}"
@@ -261,8 +261,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdn_log" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3.arn
+      sse_algorithm     = "AES256"
     }
   }
 }
@@ -270,8 +269,41 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdn_log" {
 resource "aws_s3_bucket_logging" "cdn_log" {
   bucket        = aws_s3_bucket.cdn_log.bucket
   target_bucket = aws_s3_bucket.cdn_log.bucket
-  target_prefix = "${aws_s3_bucket.cdn_log.bucket}/log/"
+  target_prefix = "${aws_s3_bucket.cdn_log.bucket}/cdn_log/"
   provider      = aws.us-east-1
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cdn_log" {
+  bucket = aws_s3_bucket.cdn_log.id
+    provider = aws.us-east-1
+
+  dynamic "rule" {
+    for_each = local.lifecycle_configuration
+
+    content {
+      id = rule.value.id
+      status = rule.value.status
+
+      filter {
+        prefix = rule.value.prefix
+      }
+
+      dynamic "transition" {
+        for_each = rule.value.transitions
+
+        content {
+          days = transition.value.days
+          storage_class = transition.value.storage_class
+        }
+      }
+
+      noncurrent_version_transition {
+        newer_noncurrent_versions = rule.value.noncurrent_version_transition.newer_noncurrent_versions
+        noncurrent_days = rule.value.noncurrent_version_transition.noncurrent_days
+        storage_class = rule.value.noncurrent_version_transition.storage_class
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket_policy" "cdn_log" {
@@ -311,6 +343,11 @@ resource "aws_s3_bucket_policy" "cdn_log" {
           "arn:aws:s3:::${aws_s3_bucket.cdn_log.bucket}",
           "arn:aws:s3:::${aws_s3_bucket.cdn_log.bucket}/*"
         ]
+        "Condition" : {
+          "StringLike" : {
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
+          } 
+        }
       }
     ]
   })
@@ -532,3 +569,88 @@ module "config_log" {
   bucket_name    = "config-${data.aws_caller_identity.current.account_id}"
   bucket_logging = aws_s3_bucket.logging.bucket
 }
+
+# ALB Access Log ----------------------------------------------
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module s3_alb_accesslog {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.2"
+
+  # aws_s3_bucket
+  bucket = "alb-accesslog-${data.aws_caller_identity.current.account_id}"
+  force_destroy = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = aws_s3_bucket.logging.bucket
+    target_prefix = "alb_access_log"
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "EventTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+# aws_s3_bucket_policy
+# ref: https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/enable-access-logging.html
+  attach_policy = true
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "For ALB Access Logging"
+    Statement = [
+      {
+        Sid    = "For ALB Access Logging"
+        Effect = "Allow"
+        Principal = {
+          AWS = [
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+            "arn:aws:iam::582318560864:root"  // 東京リージョンにおけるALBのログ配信を管理するために使用される内部的なAWSアカウント
+          ]
+          Service = "logdelivery.elasticloadbalancing.amazonaws.com"
+        }
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = [
+          "${module.s3_alb_accesslog.s3_bucket_arn}/common/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+        ]
+      },
+    ]
+  })
+
+
+    # aws_s3_bucket_lifecycle_configuration
+}
+
+
+

@@ -37,7 +37,10 @@ locals {
   ]
 }
 
-# CloudFrontのカスタムエラーレスポンス
+/* 
+ * CloudFront
+ */
+  // CloudFrontのカスタムエラーレスポンス
 locals {
   custom_error_responses = [
     {
@@ -66,7 +69,7 @@ locals {
     }
   ]
 
-  # メンテモードをtrueにする場合は503エラーのカスタムエラーレスポンスを作成する。
+  // メンテモードをtrueにする場合は503エラーのカスタムエラーレスポンスを作成する。
   conditional_custom_error_responses = var.full_maintenance || var.half_maintenance ? [
     {
       error_caching_min_ttl = 10
@@ -76,6 +79,39 @@ locals {
     }
   ] : []
 }
+
+// CloudFrontのロギング用バケットのPrefix設定
+locals {
+  processing = replace(module.value.cdn_tanaka_cloud_net, ".", "_")
+  logging_config_prefix = replace(local.processing, "-", "_")
+}
+
+/* 
+ * S3
+ */
+// ライフサイクルポリシーをdynamicブロックで再利用
+locals {
+  lifecycle_configuration = [
+    {
+      id = local.logging_config_prefix
+      status = "Enabled"
+      prefix = local.logging_config_prefix
+      
+      transitions = [
+      { days = 30, storage_class = "STANDARD_IA" },
+      { days = 180, storage_class = "GLACIER" },
+      { days = 365, storage_class = "DEEP_ARCHIVE" }
+      ]
+
+      noncurrent_version_transition = {
+        newer_noncurrent_versions = 1
+        noncurrent_days = 30
+        storage_class = "DEEP_ARCHIVE"
+      }
+    }
+  ]
+}
+
 
 /* 
  * VPC Flow Logs Parameter
