@@ -2,14 +2,14 @@
 # EC2
 #####################################################
 // WEBサーバ用のインスタンス
-resource "aws_instance" "web_instance" {
+resource "aws_instance" "common" {
   count = var.create_web_instance ? 1 : 0
 
   ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
   subnet_id                   = aws_subnet.common["public_a"].id
   instance_type               = "t2.micro"
   vpc_security_group_ids      = [aws_security_group.ecs_stg.id]
-  associate_public_ip_address = false // グローバルIPの有効化
+  associate_public_ip_address = false // SessionManagerでのログインに絞りたいためGIPの付与は行わない。
   iam_instance_profile        = aws_iam_instance_profile.session_manager.name
 
   // Apacheのインストールまで実施
@@ -33,57 +33,55 @@ resource "aws_instance" "web_instance" {
   }
 
   tags = {
-    Name = "web-instance"
+    Name = "common-instance"
   }
 }
 
 /*
  * Prometheus,Grafana用 
  */
+module "prometheus_server" {
+  source = "../modules/ec2/general_instance"
 
-# module "prometheus_server" {
-#   source = "../modules/ec2/general_instance"
+  env                  = local.env
+  vpc_id               = aws_vpc.common.id
+  subnet_id            = aws_subnet.common["public_a"].id // NAT GWはを出来る限り有効化したくないため。
+  iam_instance_profile = aws_iam_instance_profile.session_manager.name
 
-#   env                  = "stg"
-#   vpc_id               = aws_vpc.hashicorp.id
-#   subnet_id            = aws_subnet.public_a.id
-#   iam_instance_profile = aws_iam_instance_profile.session_manager.name
+  root_volume_name = "prometheus-server"
+  inastance_name   = "prometheus-server"
 
-#   root_volume_name = "prometheus-server"
-#   inastance_name   = "prometheus-server"
+  ## SessionManagerの設定は既に作成済みのためfalse
+  create_common_resource = false
 
-#   ## SessionManagerの設定は既に作成済みのためfalse
-#   create_common_resource = false
+  ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
+  create_tmp_ebs_resource = false
 
-#   ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
-#   create_tmp_ebs_resource = false
-
-#   sg_name = "security-bastion"
-# }
+  sg_name = "security-bastion"
+}
 
 /*
  * Node Exporter用 
  */
+module "node_exporter" {
+  source = "../modules/ec2/general_instance"
 
-# module "node_exporter" {
-#   source = "../modules/ec2/general_instance"
+  env                  = "stg"
+  vpc_id               = aws_vpc.common.id
+  subnet_id            = aws_subnet.common["public_a"].id // NAT GWはを出来る限り有効化したくないため。
+  iam_instance_profile = aws_iam_instance_profile.session_manager.name
 
-#   env                  = "stg"
-#   vpc_id               = aws_vpc.hashicorp.id
-#   subnet_id            = aws_subnet.public_a.id
-#   iam_instance_profile = aws_iam_instance_profile.session_manager.name
+  root_volume_name = "node-exporter"
+  inastance_name   = "node-exporter"
 
-#   root_volume_name = "node-exporter"
-#   inastance_name   = "node-exporter"
+  ## SessionManagerの設定は既に作成済みのためfalse
+  create_common_resource = false
 
-#   ## SessionManagerの設定は既に作成済みのためfalse
-#   create_common_resource = false
+  ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
+  create_tmp_ebs_resource = false
 
-#   ## 一時的にルートボリューム以外のEBSを作成する場合はtrueにする
-#   create_tmp_ebs_resource = false
-
-#   sg_name = "prometheus-node-exporter"
-# }
+  sg_name = "prometheus-node-exporter"
+}
 
 #####################################################
 # ECS

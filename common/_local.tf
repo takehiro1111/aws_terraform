@@ -1,8 +1,8 @@
 locals {
-  servicename = "hashicorp"
+  servicename = "common"
   env         = "stg"
-  repository  = "hashicorp"
-  directory   = "sekigaku/hashicorp"
+  repository  = "aws_terraform"
+  directory   = "aws_terraform/common"
 
   accounnt_id = data.aws_caller_identity.current.id
 
@@ -198,6 +198,22 @@ locals {
     #   service_name      = data.terraform_remote_state.stats_stg.outputs.td_vpc_endpoint_service_service_name
     #   security_group_ids = [module.vpc_endpoint.security_group_id]
     # }
+  }
+}
+
+/* 
+ * EIP
+ */
+locals {
+  eip = {
+    prometheus_server = {
+      create = true
+      instance_id   = module.prometheus_server.instance_id
+    }
+    node_exporter = {
+      create = true
+      instance_id   = module.node_exporter.instance_id
+    }
   }
 }
 

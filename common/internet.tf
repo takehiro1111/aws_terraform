@@ -428,24 +428,6 @@ resource "aws_lb_listener" "alb_443" {
   }
 }
 
-//
-# resource "aws_lb_listener" "alb_9000" {
-#   load_balancer_arn = aws_lb.this.arn
-#   port              = "9000"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-#   certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
-#   default_action {
-#     type = "fixed-response"
-
-#     fixed_response {
-#       content_type = "text/plain"
-#       message_body = "Fixed response "
-#       status_code  = "503"
-#     }
-#   }
-# }
-
 resource "aws_alb_listener_rule" "nginx" {
   listener_arn = aws_lb_listener.alb_443.arn
   priority     = 2
@@ -488,6 +470,24 @@ resource "aws_lb_target_group" "ecs_nginx" {
     unhealthy_threshold = 2
   }
 }
+
+// Prometheusの学習用
+# resource "aws_lb_listener" "alb_9000" {
+#   load_balancer_arn = aws_lb.this.arn
+#   port              = "9000"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+#   certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
+#   default_action {
+#     type = "fixed-response"
+
+#     fixed_response {
+#       content_type = "text/plain"
+#       message_body = "Fixed response "
+#       status_code  = "503"
+#     }
+#   }
+# }
 
 # resource "aws_lb_target_group" "ec2" {
 #   name                 = "ec2"

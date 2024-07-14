@@ -14,7 +14,7 @@ resource "aws_vpc" "common" {
 
 # VPCフローログ ----------------------------
 resource "aws_flow_log" "common" {
-  for_each = { for k, v in local.flow_logs : k => v if v.create == true }
+  for_each = { for k, v in local.flow_logs : k => v if v.create }
 
   iam_role_arn         = aws_iam_role.flow_log.arn
   log_destination_type = each.value.log_destination_type
@@ -65,41 +65,25 @@ resource "aws_eip" "nat" {
   }
 }
 
-// Prometheusサーバ用
-# resource "aws_eip" "public_instance" {
-#   domain = "vpc"
+resource "aws_eip" "common" {
+  for_each = { for k,v in local.eip : k => v if v.create }
+  domain = "vpc"
 
-#   depends_on = [
-#     aws_internet_gateway.common
-#   ]
+  depends_on = [
+    aws_internet_gateway.common
+  ]
 
-#   tags = {
-#     Name = "prometheus-server"
-#   }
-# }
+  tags = {
+    Name = each.key
+  }
+}
 
-# resource "aws_eip_association" "public_instance" {
-#   instance_id   = module.prometheus_server.instance_id
-#   allocation_id = aws_eip.public_instance.id
-# }
+resource "aws_eip_association" "common" {
+  for_each = { for k,v in local.eip : k => v if v.create }
 
-// Prometheusサーバの監視対象であるNodeExporter用
-# resource "aws_eip" "node_exporter" {
-#   domain = "vpc"
-
-#   depends_on = [
-#     aws_internet_gateway.common
-#   ]
-
-#   tags = {
-#     Name = "node-exporter"
-#   }
-# }
-
-# resource "aws_eip_association" "node_exporter" {
-#   instance_id   = module.node_exporter.instance_id
-#   allocation_id = aws_eip.node_exporter.id
-# }
+  instance_id   = each.value.instance_id
+  allocation_id = aws_eip.common[each.key].id
+}
 
 #####################################################
 # Subnet
