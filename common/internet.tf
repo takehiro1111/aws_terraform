@@ -142,7 +142,7 @@ resource "aws_cloudfront_function" "stg" {
 }
 
 resource "aws_cloudfront_origin_access_control" "stg" {
-    count = var.cdn_stg ? 1 : 0
+  count = var.cdn_stg ? 1 : 0
 
   description                       = "${aws_s3_bucket.static.id}-oac"
   name                              = "${aws_s3_bucket.static.id}-oac"

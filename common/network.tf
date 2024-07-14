@@ -66,8 +66,8 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_eip" "common" {
-  for_each = { for k,v in local.eip : k => v if v.create }
-  domain = "vpc"
+  for_each = { for k, v in local.eip : k => v if v.create }
+  domain   = "vpc"
 
   depends_on = [
     aws_internet_gateway.common
@@ -79,7 +79,7 @@ resource "aws_eip" "common" {
 }
 
 resource "aws_eip_association" "common" {
-  for_each = { for k,v in local.eip : k => v if v.create }
+  for_each = { for k, v in local.eip : k => v if v.create }
 
   instance_id   = each.value.instance_id
   allocation_id = aws_eip.common[each.key].id

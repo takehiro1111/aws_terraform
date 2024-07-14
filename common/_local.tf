@@ -207,12 +207,12 @@ locals {
 locals {
   eip = {
     prometheus_server = {
-      create = true
-      instance_id   = module.prometheus_server.instance_id
+      create      = true
+      instance_id = module.prometheus_server.instance_id
     }
     node_exporter = {
-      create = true
-      instance_id   = module.node_exporter.instance_id
+      create      = true
+      instance_id = module.node_exporter.instance_id
     }
   }
 }
