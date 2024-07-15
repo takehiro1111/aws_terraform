@@ -653,4 +653,112 @@ module "s3_alb_accesslog" {
 }
 
 
+#####################################################################
+# S3 Inventory 
+#####################################################################
+/* 
+ * Athena
+ */
+resource "aws_s3_bucket_inventory" "athena" {
+  bucket = aws_s3_bucket.athena.id
+  name   = "AthenaBucket-Inventory"
+  included_object_versions = "Current" // 現在のバージョンのみを対象。
+  schedule {
+    frequency = "Daily" // 日次でのレポート送信
+  }
+  destination {
+    bucket {
+      format     = "CSV"
+      bucket_arn = module.s3_inventory_dist.s3_bucket_arn // インベントリレポートの送信先バケットを指定
+      prefix     = "inventory"
+      // インベントリで出力されるレポートファイルの暗号化設定
+      encryption {
+        sse_s3 {}
+      }
+    }
+  }
+}
 
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "s3_inventory_dist" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.2"
+
+  # aws_s3_bucket
+  bucket              = "s3-inventory-dist-${data.aws_caller_identity.current.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = aws_s3_bucket.logging.bucket
+    target_prefix = "s3_inventory_dist"
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "EventTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  # aws_s3_bucket_policy
+  # ref: https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/enable-access-logging.html
+  attach_policy = true
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Id      = "s3iinventory-permission",
+    Statement = [
+      {
+        Effect    = "Allow",
+        Principal = {
+          Service = "s3.amazonaws.com"
+        },
+        Action   = "s3:PutObject",
+        Resource = [
+          module.s3_inventory_dist.s3_bucket_arn,
+          "${module.s3_inventory_dist.s3_bucket_arn}/*",
+        ]
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id,
+            # "s3:x-amz-acl"      = "bucket-owner-full-control"
+          },
+          # ArnLike = {
+          #   "aws:SourceArn" = [
+          #     "arn:aws:s3:::backend-common",
+          #     "arn:aws:s3:::logging-sekigaku-20231120"
+          #   ]
+          # }
+        }
+      }
+    ]
+  })
+}
