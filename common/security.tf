@@ -555,6 +555,28 @@ resource "aws_iam_role_policy" "lambda_execute" {
   policy = data.aws_iam_policy_document.lambda_execute.json
 }
 
+# S3 Batch Operation ------------------------------------------
+resource "aws_iam_role" "s3_batch_operation" {
+  name = "s3-batch-operation"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "batchoperations.s3.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "s3_batch_operation" {
+  role       = aws_iam_role.s3_batch_operation.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
 #####################################################
 # KMS
 #####################################################
