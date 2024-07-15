@@ -670,7 +670,7 @@ resource "aws_s3_bucket_inventory" "athena" {
     bucket {
       format     = "CSV"
       bucket_arn = module.s3_inventory_dist.s3_bucket_arn // インベントリレポートの送信先バケットを指定
-      prefix     = "inventory"
+      prefix     = "athena"
       // インベントリで出力されるレポートファイルの暗号化設定
       encryption {
         sse_s3 {}
