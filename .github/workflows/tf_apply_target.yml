@@ -3,7 +3,7 @@ name: tf_apply_target
 on:
   # pull_request:
   #   types: [opened, synchronize, reopened]
-  # push:
+  push:
     branches:
       - 'main'
     paths:
