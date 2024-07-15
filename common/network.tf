@@ -65,25 +65,25 @@ resource "aws_eip" "nat" {
   }
 }
 
-resource "aws_eip" "common" {
-  for_each = { for k, v in local.eip : k => v if v.create }
-  domain   = "vpc"
+# resource "aws_eip" "common" {
+#   for_each = { for k, v in local.eip : k => v if v.create }
+#   domain   = "vpc"
 
-  depends_on = [
-    aws_internet_gateway.common
-  ]
+#   depends_on = [
+#     aws_internet_gateway.common
+#   ]
 
-  tags = {
-    Name = each.key
-  }
-}
+#   tags = {
+#     Name = each.key
+#   }
+# }
 
-resource "aws_eip_association" "common" {
-  for_each = { for k, v in local.eip : k => v if v.create }
+# resource "aws_eip_association" "common" {
+#   for_each = { for k, v in local.eip : k => v if v.create }
 
-  instance_id   = each.value.instance_id
-  allocation_id = aws_eip.common[each.key].id
-}
+#   instance_id   = each.value.instance_id
+#   allocation_id = aws_eip.common[each.key].id
+# }
 
 #####################################################
 # Subnet
