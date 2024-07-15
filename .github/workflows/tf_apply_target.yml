@@ -28,6 +28,9 @@ jobs:
       pull-requests: write 
     
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Check for specific commit message
         id: check_message
         run: |
@@ -38,9 +41,6 @@ jobs:
           else
             echo "MATCH_FOUND=false" >> $GITHUB_ENV
           fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
