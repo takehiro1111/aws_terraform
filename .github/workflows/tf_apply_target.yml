@@ -1,29 +1,25 @@
-name: tf_plan
+name: tf_apply_target
 
 on:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - 'common/**'
   workflow_dispatch:
 
 env:
   AWS_REGION: ap-northeast-1
   TF_VERSION: 1.9.1
   SLACK_ICON: terraform_logo.png
-
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  plan:
-    name: terraform plan
+  terraform1:
+    name: terraform apply
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: stg/
+        working-directory: common/
+
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write 
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,25 +43,27 @@ jobs:
           terraform init
 
       - name: Validate
-        id: validate
         run: |
           terraform validate
 
       - name: Fmt
-        id: fmt
         run: |
-          terraform fmt
+          terraform fmt -check
     
       - name: Plan
-        id: plan
         run: |
-          terraform plan | tee plan_output.txt
+          terraform plan
+      
+      - name: Apply
+        id: apply
+        run: |
+          terraform plan -auto-approve -target={aws_wafv2_web_acl.region_count,aws_security_group.alb_stg} | tee apply_output.txt
 
-      # planの結果を環境変数に格納
-      - name: Extract terraform plan result
+      # applyの結果を環境変数に格納
+      - name: Extract terraform apply result
         run: |
-          PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
-          echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
+          APPLY_RESULT=$(grep -e "No changes." -e "Apply complete! Resources:" apply_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g' | tr -d '\n')
+          echo "APPLY_RESULT=${APPLY_RESULT}" >> $GITHUB_ENV
 
       - if: always()
         name: Slack Notification
@@ -73,8 +71,8 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ job.status }}
-          SLACK_USERNAME: Plan
-          SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
+          SLACK_USERNAME: Deploy
+          SLACK_MESSAGE: '${{ job.status }}: ${{ env.APPLY_RESULT }}'
           SLACK_ICON: ${{ env.SLACK_ICON }}
-          SLACK_TITLE: Execute Plan Result🚀
+          SLACK_TITLE: Execute Apply Result🚀
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
