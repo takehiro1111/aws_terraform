@@ -34,9 +34,9 @@ jobs:
       - name: Check for specific commit message
         id: check_message
         run: |
-          commit_message=$(git log -1 --pretty=%B)
+          commit_message=$(git log -n 3 --pretty=%B)
           echo "Latest commit message: $commit_message"
-          if echo "$commit_message" | grep -E "aws_wafv2_web_acl|地域制限|国"; then
+          if echo "$commit_message" | grep -qE "aws_wafv2_web_acl|地域制限|国"; then
             echo "MATCH_FOUND=true" >> $GITHUB_ENV
           else
             echo "MATCH_FOUND=false" >> $GITHUB_ENV
@@ -55,33 +55,34 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Init
-        id: init
-        run: |
-          terraform init
 
-      - name: Validate
-        run: |
-          terraform validate
-
-      - name: Fmt
-        run: |
-          terraform fmt -check
-      
       - name: Check for WAF Regional Rule Changes
-        id: check_waf_rule
-        run: |
-          if git diff origin/main...HEAD | grep -e 'resource "aws_wafv2_web_acl"'; then
-            if git diff origin/main...HEAD | grep -q 'geo_match_statement'; then
-              echo "apply=true" >> $GITHUB_ENV
-            else
-              echo "apply=false" >> $GITHUB_ENV
-            fi
+      id: check_waf_rule
+      run: |
+        if git diff origin/main...HEAD | grep -qE 'resource "aws_wafv2_web_acl"'; then
+          if git diff origin/main...HEAD | grep -q 'geo_match_statement'; then
+            echo "apply=true" >> $GITHUB_ENV
           else
             echo "apply=false" >> $GITHUB_ENV
           fi
-    
-    
+        else
+          echo "apply=false" >> $GITHUB_ENV
+        fi
+
+      - name: Init
+        id: init
+        if: env.apply == 'true'
+        run: |
+          terraform init
+
+      # - name: Validate
+      #   run: |
+      #     terraform validate
+
+      # - name: Fmt
+      #   run: |
+      #     terraform fmt -check
+
       - name: Plan
         if: env.apply == 'true'
         run: |
