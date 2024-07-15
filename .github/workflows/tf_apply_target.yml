@@ -62,23 +62,23 @@ jobs:
         run: |
           if git diff origin/main...HEAD | grep -q 'resource "aws_wafv2_web_acl"'; then
             if git diff origin/main...HEAD | grep -q 'geo_match_statement'; then
-              echo "::set-output name=apply::true"
+              echo "apply=true" >> $GITHUB_ENV
             else
-              echo "::set-output name=apply::false"
+              echo "apply=false" >> $GITHUB_ENV
             fi
           else
-            echo "::set-output name=apply::false"
+            echo "apply=false" >> $GITHUB_ENV
           fi
     
     
       - name: Plan
-        if: steps.check_waf_rule.outputs.apply == 'true'
+        if: env.apply == 'true'
         run: |
           terraform plan
       
       - name: Apply
         id: apply
-        if: steps.check_waf_rule.outputs.apply == 'true'
+        if: env.apply == 'true'
         run: |
           terraform apply -auto-approve | tee apply_output.txt
 
