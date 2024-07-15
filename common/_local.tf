@@ -240,16 +240,16 @@ locals {
 /* 
  * EIP
  */
-locals {
-  eip = {
-    prometheus_server = {
-      create      = true
-      instance_id = module.prometheus_server.instance_id
-    }
-    node_exporter = {
-      create      = true
-      instance_id = module.node_exporter.instance_id
-    }
-  }
-}
+# locals {
+#   eip = {
+#     prometheus_server = {
+#       create      = false
+#       instance_id = module.prometheus_server.instance_id
+#     }
+#     node_exporter = {
+#       create      = false
+#       instance_id = module.node_exporter.instance_id
+#     }
+#   }
+# }
 
