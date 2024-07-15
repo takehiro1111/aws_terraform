@@ -3,9 +3,9 @@ name: tf_apply_target
 on:
   # pull_request:
   #   types: [opened, synchronize, reopened]
-  # push:
-  #   branches:
-  #     - 'main'
+  push:
+    branches:
+      - 'main'
     paths:
       - 'common/**'
   workflow_dispatch:
