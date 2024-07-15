@@ -34,7 +34,7 @@ jobs:
       - name: Check for specific commit message
         id: check_message
         run: |
-          commit_message=$(git log -1 --pretty=%B)
+          commit_message=$(git log -n 3 --pretty=%B)
           echo "Latest commit message: $commit_message"
           if echo "$commit_message" | grep -qE "aws_wafv2_web_acl|地域制限|国"; then
             echo "MATCH_FOUND=true" >> $GITHUB_ENV
