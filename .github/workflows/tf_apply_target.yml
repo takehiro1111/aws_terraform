@@ -28,6 +28,17 @@ jobs:
       pull-requests: write 
     
     steps:
+    - name: Check for specific commit message
+      id: check_message
+      run: |
+        commit_message=$(git log -1 --pretty=%B)
+        echo "Latest commit message: $commit_message"
+        if echo "$commit_message" | grep -E "aws_wafv2_web_acl|地域制限|国"; then
+          echo "MATCH_FOUND=true" >> $GITHUB_ENV
+        else
+          echo "MATCH_FOUND=false" >> $GITHUB_ENV
+        fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
 

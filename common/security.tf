@@ -698,7 +698,7 @@ resource "aws_kms_key_policy" "s3" {
 # WAF
 #####################################################
 resource "aws_wafv2_web_acl" "region_count" {
-  count = var.waf_region_count ? 1 : 0
+  # count = var.waf_region_count ? 1 : 0
 
   name        = "example-web-acl"
   scope       = "CLOUDFRONT"
