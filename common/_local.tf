@@ -40,7 +40,7 @@ locals {
 /* 
  * CloudFront
  */
-  // CloudFrontのカスタムエラーレスポンス
+// CloudFrontのカスタムエラーレスポンス
 locals {
   custom_error_responses = [
     {
@@ -82,7 +82,7 @@ locals {
 
 // CloudFrontのロギング用バケットのPrefix設定
 locals {
-  processing = replace(module.value.cdn_tanaka_cloud_net, ".", "_")
+  processing            = replace(module.value.cdn_tanaka_cloud_net, ".", "_")
   logging_config_prefix = replace(local.processing, "-", "_")
 }
 
@@ -93,20 +93,20 @@ locals {
 locals {
   lifecycle_configuration = [
     {
-      id = local.logging_config_prefix
+      id     = local.logging_config_prefix
       status = "Enabled"
       prefix = local.logging_config_prefix
-      
+
       transitions = [
-      { days = 30, storage_class = "STANDARD_IA" },
-      { days = 180, storage_class = "GLACIER" },
-      { days = 365, storage_class = "DEEP_ARCHIVE" }
+        { days = 30, storage_class = "STANDARD_IA" },
+        { days = 180, storage_class = "GLACIER" },
+        { days = 365, storage_class = "DEEP_ARCHIVE" }
       ]
 
       noncurrent_version_transition = {
         newer_noncurrent_versions = 1
-        noncurrent_days = 30
-        storage_class = "DEEP_ARCHIVE"
+        noncurrent_days           = 30
+        storage_class             = "DEEP_ARCHIVE"
       }
     }
   ]

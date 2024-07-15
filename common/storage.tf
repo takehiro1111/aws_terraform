@@ -261,7 +261,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cdn_log" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "AES256"
+      sse_algorithm = "AES256"
     }
   }
 }
@@ -274,14 +274,14 @@ resource "aws_s3_bucket_logging" "cdn_log" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "cdn_log" {
-  bucket = aws_s3_bucket.cdn_log.id
-    provider = aws.us-east-1
+  bucket   = aws_s3_bucket.cdn_log.id
+  provider = aws.us-east-1
 
   dynamic "rule" {
     for_each = local.lifecycle_configuration
 
     content {
-      id = rule.value.id
+      id     = rule.value.id
       status = rule.value.status
 
       filter {
@@ -292,15 +292,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "cdn_log" {
         for_each = rule.value.transitions
 
         content {
-          days = transition.value.days
+          days          = transition.value.days
           storage_class = transition.value.storage_class
         }
       }
 
       noncurrent_version_transition {
         newer_noncurrent_versions = rule.value.noncurrent_version_transition.newer_noncurrent_versions
-        noncurrent_days = rule.value.noncurrent_version_transition.noncurrent_days
-        storage_class = rule.value.noncurrent_version_transition.storage_class
+        noncurrent_days           = rule.value.noncurrent_version_transition.noncurrent_days
+        storage_class             = rule.value.noncurrent_version_transition.storage_class
       }
     }
   }
@@ -346,7 +346,7 @@ resource "aws_s3_bucket_policy" "cdn_log" {
         "Condition" : {
           "StringLike" : {
             "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
-          } 
+          }
         }
       }
     ]
@@ -572,13 +572,13 @@ module "config_log" {
 
 # ALB Access Log ----------------------------------------------
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module s3_alb_accesslog {
+module "s3_alb_accesslog" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
 
   # aws_s3_bucket
-  bucket = "alb-accesslog-${data.aws_caller_identity.current.account_id}"
-  force_destroy = true // オブジェクトが入っていても強制的に削除可能
+  bucket              = "alb-accesslog-${data.aws_caller_identity.current.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
   # aws_s3_bucket_logging
@@ -595,7 +595,7 @@ module s3_alb_accesslog {
 
   # aws_s3_bucket_ownership_controls
   control_object_ownership = true
-  object_ownership = "BucketOwnerPreferred"
+  object_ownership         = "BucketOwnerPreferred"
 
   # aws_s3_bucket_acl
   acl = "private"
@@ -621,8 +621,8 @@ module s3_alb_accesslog {
   ignore_public_acls      = true
   restrict_public_buckets = true
 
-# aws_s3_bucket_policy
-# ref: https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/enable-access-logging.html
+  # aws_s3_bucket_policy
+  # ref: https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/enable-access-logging.html
   attach_policy = true
   policy = jsonencode({
     Version = "2012-10-17"
@@ -634,7 +634,7 @@ module s3_alb_accesslog {
         Principal = {
           AWS = [
             "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
-            "arn:aws:iam::582318560864:root"  // 東京リージョンにおけるALBのログ配信を管理するために使用される内部的なAWSアカウント
+            "arn:aws:iam::582318560864:root" // 東京リージョンにおけるALBのログ配信を管理するために使用される内部的なAWSアカウント
           ]
           Service = "logdelivery.elasticloadbalancing.amazonaws.com"
         }
@@ -649,7 +649,7 @@ module s3_alb_accesslog {
   })
 
 
-    # aws_s3_bucket_lifecycle_configuration
+  # aws_s3_bucket_lifecycle_configuration
 }
 
 

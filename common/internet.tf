@@ -309,8 +309,8 @@ module "main_stg" {
 
   //S3bucket作成してからコメントイン予定
   logging_config = {
-    bucket = aws_s3_bucket.cdn_log.bucket_domain_name
-    prefix = local.logging_config_prefix
+    bucket          = aws_s3_bucket.cdn_log.bucket_domain_name
+    prefix          = local.logging_config_prefix
     include_cookies = false
   }
 
@@ -411,7 +411,7 @@ resource "aws_lb" "this" {
 
   access_logs {
     bucket  = module.s3_alb_accesslog.s3_bucket_id
-    prefix = "common"
+    prefix  = "common"
     enabled = true
   }
 }
