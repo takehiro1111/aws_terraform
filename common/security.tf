@@ -572,9 +572,32 @@ resource "aws_iam_role" "s3_batch_operation" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "s3_batch_operation" {
-  role       = aws_iam_role.s3_batch_operation.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+data "aws_iam_policy_document" "s3_batch_operation" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+    ]
+    resources = ["arn:aws:kms:${data.aws_region.default.name}:${data.aws_caller_identity.current.account_id}:key/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:GetObjectAcl"
+    ]
+    resources = ["arn:aws:s3:::*"]
+  }
+}
+
+resource "aws_iam_role_policy" "s3_batch_operation" {
+  name   = aws_iam_role.s3_batch_operation.name
+  role   = aws_iam_role.s3_batch_operation.name
+  policy = data.aws_iam_policy_document.s3_batch_operation.json
 }
 
 #####################################################
