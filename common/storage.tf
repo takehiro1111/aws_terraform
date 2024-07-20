@@ -737,11 +737,11 @@ module "s3_inventory_dist" {
     Id      = "s3iinventory-permission",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "s3.amazonaws.com"
         },
-        Action   = "s3:PutObject",
+        Action = "s3:PutObject",
         Resource = [
           module.s3_inventory_dist.s3_bucket_arn,
           "${module.s3_inventory_dist.s3_bucket_arn}/*",
@@ -821,11 +821,11 @@ module "s3_batch_operation_dist" {
     Id      = "s3-batchoperation-permission",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "batchoperations.s3.amazonaws.com"
         },
-        Action   = [ 
+        Action = [
           "s3:PutObject",
           "s3:PutObjectAcl",
           "s3:GetBucketLocation",
@@ -910,11 +910,11 @@ module "s3_batch_operation_report_dist" {
     Id      = "s3 batch operation report permission",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "batchoperations.s3.amazonaws.com"
         },
-        Action   = [ 
+        Action = [
           "s3:PutObject",
           "s3:PutObjectAcl",
           "s3:GetBucketLocation",
@@ -1000,11 +1000,11 @@ module "cloudwatchlogs_to_s3" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "logs.${data.aws_region.default.name}.amazonaws.com"
         },
-        Action   = [ 
+        Action = [
           "s3:GetBucketAcl",
           "s3:PutObject",
         ]
@@ -1048,7 +1048,7 @@ module "cloudwatchlogs_to_s3" {
       }
     },
     {
-      id = "delete_old_objects"
+      id     = "delete_old_objects"
       status = "Enabled"
 
       expiration = {
