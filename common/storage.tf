@@ -1042,7 +1042,6 @@ module "cloudwatchlogs_to_s3" {
         storage_class = "GLACIER"
       }
 
-
       transition = {
         days          = 365
         storage_class = "DEEP_ARCHIVE"
