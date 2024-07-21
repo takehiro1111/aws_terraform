@@ -503,7 +503,9 @@ data "aws_iam_policy_document" "ecs_task_execution_policy_doc" {
   }
 }
 
-# Lamnda ------------------------------------------------
+/* 
+ * Lambda Common Excecute Role
+ */
 resource "aws_iam_role" "lambda_execute" {
   name = "lambda-execute-role"
   assume_role_policy = jsonencode({
@@ -555,7 +557,9 @@ resource "aws_iam_role_policy" "lambda_execute" {
   policy = data.aws_iam_policy_document.lambda_execute.json
 }
 
-# S3 Batch Operation ------------------------------------------
+/* 
+ * S3 Batch Operation
+ */
 resource "aws_iam_role" "s3_batch_operation" {
   name = "s3-batch-operation"
   assume_role_policy = jsonencode({
@@ -742,46 +746,46 @@ resource "aws_kms_key_policy" "s3" {
 #####################################################
 # WAF
 #####################################################
-# resource "aws_wafv2_web_acl" "region_count" {
-#   # count = var.waf_region_count ? 1 : 0 
+resource "aws_wafv2_web_acl" "region_count" {
+  count = var.waf_region_count ? 1 : 0 
 
-#   name        = "example-web-acl"
-#   scope       = "CLOUDFRONT"
-#   description = "ACL for allowing specific regions"
-#   provider    = aws.us-east-1
+  name        = "example-web-acl"
+  scope       = "CLOUDFRONT"
+  description = "ACL for allowing specific regions"
+  provider    = aws.us-east-1
 
-#   default_action {
-#     allow {}
-#   }
+  default_action {
+    allow {}
+  }
 
-#   rule {
-#     name     = "CountOtherRegions"
-#     priority = 1
+  rule {
+    name     = "CountOtherRegions"
+    priority = 1
 
-#     action {
-#       block {}
-#     }
+    action {
+      block {}
+    }
 
-#     statement {
-#       not_statement {
-#         statement {
-#           geo_match_statement {
-#             country_codes = ["JP", "US", "SG"]
-#           }
-#         }
-#       }
-#     }
+    statement {
+      not_statement {
+        statement {
+          geo_match_statement {
+            country_codes = ["JP", "US", "SG"]
+          }
+        }
+      }
+    }
 
-#     visibility_config {
-#       cloudwatch_metrics_enabled = true
-#       metric_name                = "countOtherRegions"
-#       sampled_requests_enabled   = true
-#     }
-#   }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "countOtherRegions"
+      sampled_requests_enabled   = true
+    }
+  }
 
-#   visibility_config {
-#     cloudwatch_metrics_enabled = true
-#     metric_name                = "exampleWebACL"
-#     sampled_requests_enabled   = true
-#   }
-# }
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "exampleWebACL"
+    sampled_requests_enabled   = true
+  }
+}
