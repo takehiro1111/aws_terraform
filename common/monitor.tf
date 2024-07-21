@@ -54,25 +54,25 @@ resource "aws_ssm_parameter" "aurora_mysql" {
 #####################################################
 # Athena
 #####################################################
-resource "aws_athena_workgroup" "test" {
-  name = aws_s3_bucket.athena.id
+# resource "aws_athena_workgroup" "test" {
+#   name = aws_s3_bucket.athena.id
 
-  configuration {
-    enforce_workgroup_configuration    = true
-    publish_cloudwatch_metrics_enabled = false
-    result_configuration {
-      output_location = "s3://${aws_s3_bucket.athena.id}/athena-result/"
-      encryption_configuration {
-        encryption_option = "SSE_S3"
-      }
-    }
-  }
-}
+#   configuration {
+#     enforce_workgroup_configuration    = true
+#     publish_cloudwatch_metrics_enabled = false
+#     result_configuration {
+#       output_location = "s3://${aws_s3_bucket.athena.id}/athena-result/"
+#       encryption_configuration {
+#         encryption_option = "SSE_S3"
+#       }
+#     }
+#   }
+# }
 
-resource "aws_athena_database" "test" {
-  name   = "test_employee_list"
-  bucket = aws_s3_bucket.athena.id
-}
+# resource "aws_athena_database" "test" {
+#   name   = "test_employee_list"
+#   bucket = aws_s3_bucket.athena.id
+# }
 
 # data "template_file" "flow_log" {
 #   template = file("${path.module}/sql/create-table.sql.tpl")

@@ -737,11 +737,11 @@ module "s3_inventory_dist" {
     Id      = "s3iinventory-permission",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "s3.amazonaws.com"
         },
-        Action   = "s3:PutObject",
+        Action = "s3:PutObject",
         Resource = [
           module.s3_inventory_dist.s3_bucket_arn,
           "${module.s3_inventory_dist.s3_bucket_arn}/*",
@@ -821,11 +821,11 @@ module "s3_batch_operation_dist" {
     Id      = "s3-batchoperation-permission",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "batchoperations.s3.amazonaws.com"
         },
-        Action   = [ 
+        Action = [
           "s3:PutObject",
           "s3:PutObjectAcl",
           "s3:GetBucketLocation",
@@ -910,11 +910,11 @@ module "s3_batch_operation_report_dist" {
     Id      = "s3 batch operation report permission",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           Service = "batchoperations.s3.amazonaws.com"
         },
-        Action   = [ 
+        Action = [
           "s3:PutObject",
           "s3:PutObjectAcl",
           "s3:GetBucketLocation",
@@ -939,4 +939,121 @@ module "s3_batch_operation_report_dist" {
       }
     ]
   })
+}
+
+########################################################################
+# Export logs from CloudwatchLogs to S3
+########################################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "cloudwatchlogs_to_s3" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.2"
+
+  # aws_s3_bucket
+  bucket              = "cloudwatchlogs-to-s3-${data.aws_caller_identity.current.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = aws_s3_bucket.logging.bucket
+    target_prefix = "cloudwatchlogs_to_s3"
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "EventTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  # aws_s3_bucket_policy
+  attach_policy = true
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "logs.${data.aws_region.default.name}.amazonaws.com"
+        },
+        Action = [
+          "s3:GetBucketAcl",
+          "s3:PutObject",
+        ]
+        Resource = [
+          module.cloudwatchlogs_to_s3.s3_bucket_arn,
+          "${module.cloudwatchlogs_to_s3.s3_bucket_arn}/*",
+        ]
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+          ArnLike = {
+            "aws:SourceArn" = [
+              "arn:aws:logs:${data.aws_region.default.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+            ]
+          }
+        }
+      }
+    ]
+  })
+
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
+    {
+      id     = "log"
+      status = "Enabled"
+
+      transition = {
+        days          = 90
+        storage_class = "STANDARD_IA"
+      }
+
+      transition = {
+        days          = 180
+        storage_class = "GLACIER"
+      }
+
+      transition = {
+        days          = 365
+        storage_class = "DEEP_ARCHIVE"
+      }
+    },
+    {
+      id     = "delete_old_objects"
+      status = "Enabled"
+
+      expiration = {
+        days = 1825 // 5年
+      }
+    }
+  ]
 }

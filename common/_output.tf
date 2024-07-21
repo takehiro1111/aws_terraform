@@ -25,10 +25,10 @@ output "aws_ec2_managed_prefix_list_cdn" {
 
 output "lambda_execute_role_arn" {
   description = "Lambdaの実行権限に関する基本的なIAMロール"
-  value = aws_iam_role.lambda_execute.arn
+  value       = aws_iam_role.lambda_execute.arn
 }
 
 output "s3_logging_bucket" {
   description = "Lambdaの実行権限に関する基本的なIAMロール"
-  value = aws_s3_bucket.logging.bucket
+  value       = aws_s3_bucket.logging.bucket
 }
