@@ -1064,7 +1064,7 @@ module "cloudwatchlogs_to_s3" {
 // 公式Moduleだとデフォルトリージョンでしか作成できないためresourceブロックで作成。
 // aws_s3_bucket_loggingについては、クロスリージョンのロギングが出来ないため未設定。
 resource "aws_s3_bucket" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}-us-east-1"
+  bucket   = "cloudwatchlogs-to-s3-${data.aws_caller_identity.current.account_id}-us-east-1"
   provider = aws.us-east-1
 }
 
@@ -1164,15 +1164,128 @@ resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
         ]
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
           }
           ArnLike = {
             "aws:SourceArn" = [
-              "arn:aws:logs:us-east-1:${data.aws_caller_identity.self.account_id}:log-group:*"
+              "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:*"
             ]
           }
         }
       }
     ]
   })
+}
+
+########################################################################
+# Common commands used in SAM CLI
+########################################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "sam_deploy" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.2"
+
+  # aws_s3_bucket
+  bucket              = "sam-deploy-${data.aws_caller_identity.current.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = aws_s3_bucket.logging.bucket
+    target_prefix = "sam_deploy"
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "EventTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  # aws_s3_bucket_policy
+  attach_policy = true
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.id}:root"
+        },
+        Action = [
+          "s3:GetBucketAcl",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          module.sam_deploy.s3_bucket_arn,
+          "${module.sam_deploy.s3_bucket_arn}/*",
+        ]
+        # Condition = {
+        #   StringEquals = {
+        #     "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+        #   }
+        # }
+      }
+    ]
+  })
+
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
+    {
+      id     = "log"
+      status = "Enabled"
+
+      transition = {
+        days          = 90
+        storage_class = "STANDARD_IA"
+      }
+
+      transition = {
+        days          = 180
+        storage_class = "GLACIER"
+      }
+
+      transition = {
+        days          = 365
+        storage_class = "DEEP_ARCHIVE"
+      }
+    },
+    {
+      id     = "delete_old_objects"
+      status = "Enabled"
+
+      expiration = {
+        days = 1825 // 5年
+      }
+    }
+  ]
 }
