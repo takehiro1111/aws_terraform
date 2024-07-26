@@ -1057,3 +1057,122 @@ module "cloudwatchlogs_to_s3" {
     }
   ]
 }
+
+/* 
+ * us-east-1
+ */
+// 公式Moduleだとデフォルトリージョンでしか作成できないためresourceブロックで作成。
+// aws_s3_bucket_loggingについては、クロスリージョンのロギングが出来ないため未設定。
+resource "aws_s3_bucket" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket   = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}-us-east-1"
+  provider = aws.us-east-1
+}
+
+resource "aws_s3_bucket_ownership_controls" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider = aws.us-east-1
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "cloudwatchlogs_to_s3_us_east_1" {
+  depends_on = [aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1]
+  bucket     = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider   = aws.us-east-1
+  acl        = "private"
+}
+
+resource "aws_s3_bucket_versioning" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider = aws.us-east-1
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket                  = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider                = aws.us-east-1
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider = aws.us-east-1
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider = aws.us-east-1
+  rule {
+    id     = "log"
+    status = "Enabled"
+
+    transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 180
+      storage_class = "GLACIER"
+    }
+
+    transition {
+      days          = 365
+      storage_class = "DEEP_ARCHIVE"
+    }
+  }
+
+  rule {
+    id     = "delete_old_objects"
+    status = "Enabled"
+
+    expiration {
+      days = 1825 // 5years
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
+  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
+  provider = aws.us-east-1
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "logs.us-east-1.amazonaws.com"
+        },
+        Action = [
+          "s3:GetBucketAcl",
+          "s3:PutObject",
+        ]
+        Resource = [
+          aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.arn,
+          "${aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.arn}/*",
+        ]
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
+          }
+          ArnLike = {
+            "aws:SourceArn" = [
+              "arn:aws:logs:us-east-1:${data.aws_caller_identity.self.account_id}:log-group:*"
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
