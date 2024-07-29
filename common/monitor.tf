@@ -37,12 +37,24 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 # }
 
 #####################################################
-# Parameter Group
+# Parameter Store
 #####################################################
 # Aurora ---------------------------------
 resource "aws_ssm_parameter" "aurora_mysql" {
   name        = "/aurora/MYSQL_PASSWORD"
   description = "Aurora MYSQL Master Password"
+  type        = "SecureString"
+  value       = "画面上から対応"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+# Lambda ---------------------------------
+resource "aws_ssm_parameter" "slack_webhook_url" {
+  name        = "/${local.servicename}/SLACK_WEBHOOK"
+  description = "Slack Webhook lambda_notify channel"
   type        = "SecureString"
   value       = "画面上から対応"
 

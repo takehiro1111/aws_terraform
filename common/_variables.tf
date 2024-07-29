@@ -152,7 +152,7 @@ variable "half_maintenance" {
 variable "waf_region_count" {
   description = "trueにすると国別アクセスをCountするためのWAFが作成される"
   type        = bool
-  default     = false
+  default     = true
 }
 
 # EC2インスタンス -------------------------------------------
