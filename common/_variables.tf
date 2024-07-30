@@ -152,6 +152,12 @@ variable "half_maintenance" {
 variable "waf_region_count" {
   description = "trueにすると国別アクセスをCountするためのWAFが作成される"
   type        = bool
+  default     = false
+}
+
+variable "waf_regional_limit" {
+  description = "trueにすると国別アクセスをCountするためのWAFが作成される"
+  type        = bool
   default     = true
 }
 

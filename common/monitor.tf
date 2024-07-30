@@ -65,30 +65,30 @@ resource "aws_ssm_parameter" "slack_webhook_url" {
 #####################################################
 # EventBridge
 #####################################################
-resource "aws_cloudwatch_event_rule" "update_waf_rule" {
-  name        = "update_waf_rule"
-  description = "Trigger Lambda function on UpdateWebACL for specific WAF rule"
+# resource "aws_cloudwatch_event_rule" "update_waf_rule" {
+#   name        = "update_waf_rule"
+#   description = "Trigger Lambda function on UpdateWebACL for specific WAF rule"
 
-  event_pattern = jsonencode({
-    source = ["aws.waf"],
-    detail-type =  ["AWS API Call via CloudTrail"],
-    detail =  {
-      eventSource = ["waf.amazonaws.com"],
-      eventName = ["UpdateWebACL"],
-      requestParameters =  {
-        rules = {
-          name = ["CountOtherRegions"]
-        }
-      }
-    }
-  })
-}
+#   event_pattern = jsonencode({
+#     source = ["aws.waf"],
+#     detail-type =  ["AWS API Call via CloudTrail"],
+#     detail =  {
+#       eventSource = ["waf.amazonaws.com"],
+#       eventName = ["UpdateWebACL"],
+#       requestParameters =  {
+#         rules = {
+#           name = ["CountOtherRegions"]
+#         }
+#       }
+#     }
+#   })
+# }
 
-resource "aws_cloudwatch_event_target" "lambda_target" {
-  rule      = aws_cloudwatch_event_rule.update_waf_rule.name
-  target_id = "update_waf_rule_lambda"
-  arn       = aws_lambda_function.update_waf_rule.arn
-}
+# resource "aws_cloudwatch_event_target" "lambda_target" {
+#   rule      = aws_cloudwatch_event_rule.update_waf_rule.name
+#   target_id = "update_waf_rule_lambda"
+#   arn       = aws_lambda_function.update_waf_rule.arn
+# }
 
 
 #####################################################
