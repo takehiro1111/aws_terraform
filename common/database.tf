@@ -103,6 +103,13 @@ resource "aws_db_instance" "mysql_8" {
 #   db_cluster_snapshot_identifier = "test-snapshot-20240218"
 # }
 
+/*
+ * RDS用のkey(KMS管理)
+ */
+data "aws_kms_key" "key_for_rds" {
+  key_id = "alias/aws/rds"
+}
+
 resource "aws_rds_cluster" "mysql_8" {
   count = var.start_aurora ? 1 : 0
 
@@ -119,16 +126,16 @@ resource "aws_rds_cluster" "mysql_8" {
 
   engine                          = "aurora-mysql"
   engine_mode                     = "provisioned" // デフォルト設定
-  engine_version                  = "5.7.mysql_aurora.2.12.1"
+  engine_version                  = "8.0.mysql_aurora.3.06.0"
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.mysql_8_aurora.name
   db_subnet_group_name            = aws_db_subnet_group.mysql_8.name
   delete_automated_backups        = true  //使用予定ないため削除後にシステムバックアップは不要
   deletion_protection             = false //テスト用のため削除保護は設定しない。
   enabled_cloudwatch_logs_exports = ["audit", "error", "slowquery"]
-  skip_final_snapshot             = true
+  skip_final_snapshot             = true // 削除の際に手動スナップショットを取得しなくても削除可能にする
 
   backup_retention_period     = 31
-  backtrack_window            = 259200 // 1週間前まで巻き戻し可能  
+  backtrack_window            = 259200 // 最大1週間前まで巻き戻し可能  
   availability_zones          = ["ap-northeast-1a", "ap-northeast-1c", ]
   apply_immediately           = true
   allow_major_version_upgrade = false
@@ -150,7 +157,7 @@ resource "aws_rds_cluster_instance" "mysql_8" {
 
   identifier         = "aurora-cluster-instance-${count.index}"
   cluster_identifier = aws_rds_cluster.mysql_8[count.index].id
-  instance_class     = "db.t3.small"
+  instance_class     = "db.t4g.medium"
   engine             = aws_rds_cluster.mysql_8[count.index].engine
   engine_version     = aws_rds_cluster.mysql_8[count.index].engine_version
 
@@ -164,12 +171,12 @@ resource "aws_rds_cluster_instance" "mysql_8" {
 
   performance_insights_enabled          = true
   performance_insights_retention_period = 7
-  performance_insights_kms_key_id       = "arn:aws:kms:ap-northeast-1:${data.aws_caller_identity.current.account_id}:key/6208518c-69f1-460a-9e58-0d3cee35a5f5"
+  performance_insights_kms_key_id       = data.aws_kms_key.key_for_rds.arn
 }
 
 resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {
   name        = local.idetifier_aurora_cluster
-  family      = "aurora-mysql5.7"
+  family      = "aurora-mysql8.0"
   description = "RDS default cluster parameter group"
   parameter {
     name  = "collation_connection"
@@ -213,7 +220,7 @@ resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {
 
 resource "aws_db_parameter_group" "mysql_8_aurora" {
   name        = local.idetifier_aurora_cluster
-  family      = "aurora-mysql5.7"
+  family      = "aurora-mysql8.0"
   description = "RDS default DB parameter group"
   parameter {
     name  = "max_connections"
@@ -400,4 +407,9 @@ module "official_module_aurora" {
   ## CloudWatch Log Group
   create_cloudwatch_log_group            = true
   cloudwatch_log_group_retention_in_days = 0 // 無期限
+
+  ## PerformanceInsight
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+  performance_insights_kms_key_id       = data.aws_kms_key.key_for_rds.arn
 }
