@@ -132,7 +132,7 @@ resource "aws_rds_cluster" "mysql_8" {
   delete_automated_backups        = true  //使用予定ないため削除後にシステムバックアップは不要
   deletion_protection             = false //テスト用のため削除保護は設定しない。
   enabled_cloudwatch_logs_exports = ["audit", "error", "slowquery"]
-  skip_final_snapshot             = true
+  skip_final_snapshot             = true // 削除の際に手動スナップショットを取得しなくても削除可能にする
 
   backup_retention_period     = 31
   backtrack_window            = 259200 // 最大1週間前まで巻き戻し可能  
