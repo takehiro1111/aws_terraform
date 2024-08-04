@@ -97,7 +97,7 @@ resource "aws_s3_bucket_policy" "tfstate" {
           "s3:PutBucketAcl",
         ],
         "Resource" : [
-          "${aws_s3_bucket.tfstate.arn}",
+          aws_s3_bucket.tfstate.arn,
           "${aws_s3_bucket.tfstate.arn}/*",
         ]
       }

@@ -85,3 +85,5 @@ modules/variable/my_ip.tf
 
 #policy/*
 tf_logo.png
+
+my_account/**/localdir/**
