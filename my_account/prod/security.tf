@@ -51,7 +51,7 @@ resource "aws_wafv2_web_acl" "regional_limit" {
   count = var.waf_regional_limit ? 1 : 0
 
   name        = "regionallimit"
-  description = "Example WebACL"
+  description = "prod.waf.com / prod.waf.com"
   scope       = "CLOUDFRONT"
   provider    = aws.us-east-1
 

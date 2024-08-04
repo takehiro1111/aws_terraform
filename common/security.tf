@@ -366,6 +366,7 @@ resource "aws_iam_role" "deploy_github_actions" {
               "repo:takehiro1111/github_terraform:*",
               "repo:takehiro1111/ecs-learning-course:*",
               "repo:takehiro1111/docker:*",
+              "repo:takehiro1111/serverless:*",
             ]
           }
         }
