@@ -30,11 +30,6 @@ data "aws_iam_policy_document" "monitor_waf_rule" {
       "sts:AssumeRole"
     ]
     resources = ["*"]
-    # condition {
-    #   test     = "StringLike"
-    #   variable = "sts:RoleSessionNam"
-    #   values   = ["sekigaku"]
-    # }
   }
 }
 
