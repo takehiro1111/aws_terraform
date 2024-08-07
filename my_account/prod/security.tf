@@ -14,7 +14,7 @@ resource "aws_iam_role" "monitor_waf_rule" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::421643133281:role/waf_rule_update_lambda_execution_role"
+          AWS = "arn:aws:iam::421643133281:role/monitor-waf-rule-lambda-execution-role"
         }
       }
     ]
@@ -27,14 +27,8 @@ data "aws_iam_policy_document" "monitor_waf_rule" {
     actions = [
       "wafv2:ListWebACLs",
       "wafv2:GetWebACL",
-      "sts:AssumeRole"
     ]
-    resources = ["*"]
-    # condition {
-    #   test     = "StringLike"
-    #   variable = "sts:RoleSessionNam"
-    #   values   = ["sekigaku"]
-    # }
+    resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.self.account_id}:global/webacl/*/*"]
   }
 }
 
