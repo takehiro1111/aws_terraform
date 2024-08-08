@@ -14,7 +14,10 @@ resource "aws_iam_role" "monitor_waf_rule" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::421643133281:role/monitor-waf-rule-lambda-execution-role"
+          AWS = [
+            "arn:aws:iam::421643133281:role/monitor-waf-rule-lambda-execution-role",
+            "arn:aws:iam::789003075721:role/monitor-waf-lambda-execution-role",
+          ]
         }
       }
     ]
