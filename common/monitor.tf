@@ -37,6 +37,42 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 # }
 
 #####################################################
+# Cloudwatch Alerm
+#####################################################
+# Billing -------------------------------------------
+locals {
+  billing_alert_threshold = {
+    low = 50
+    middle = 60
+    high = 70
+  }
+}
+
+# CloudWatchアラームを作成
+resource "aws_cloudwatch_metric_alarm" "billing_alarm" {
+  for_each =  {for k,v in local.billing_alert_threshold : k => v}
+
+  provider = aws.us-east-1
+  alarm_name          = "billing-alarm-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "EstimatedCharges"
+  namespace           = "AWS/Billing"
+  period              = 86400 # 1日間隔のチェック
+  statistic           = "Maximum"
+  threshold           = each.value
+  alarm_description   = "Triggered when AWS account billing exceeds ${each.value}USD"
+  dimensions = {
+    Currency = "USD"
+  }
+
+  # SNSトピックに通知を送信
+  alarm_actions = [
+    aws_sns_topic.slack_alert.arn
+  ]
+}
+
+#####################################################
 # Parameter Store
 #####################################################
 # Aurora ---------------------------------
@@ -147,3 +183,44 @@ resource "aws_sns_topic_subscription" "lambda_mail" {
 ######################################################################
 # Config
 ######################################################################
+
+######################################################################
+# SNS
+######################################################################
+resource "aws_sns_topic" "slack_alert" {
+  name = "slack-alert"
+  provider = aws.us-east-1
+}
+
+######################################################################
+# Chatbot
+######################################################################
+locals {
+  chatbots = {
+    personal = {
+      name = "common-alert-notify"
+      slack_workspace_id = "T06PFGXUB2B" # personal 
+      slack_channel_id = "C07GTL63RDJ"  # aws_alert
+    }
+  }
+}
+
+resource "awscc_chatbot_slack_channel_configuration" "example" {
+  for_each = { for k,v in local.chatbots : k => v}
+  configuration_name = each.key
+  iam_role_arn       = aws_iam_role.chatbot.arn
+  guardrail_policies = [
+    "arn:aws:iam::aws:policy/ReadOnlyAccess",
+  ]
+  slack_channel_id   = each.value.slack_channel_id
+  slack_workspace_id = each.value.slack_workspace_id
+  logging_level = "ERROR"
+  sns_topic_arns = [aws_sns_topic.slack_alert.arn]
+
+  tags = [
+    {
+      key = "Name"
+      value = each.key
+    }
+  ]
+}
