@@ -760,7 +760,7 @@ resource "aws_wafv2_web_acl" "region_count" {
   }
 
   rule {
-    name     = "CountOtherRegions"
+    name     = "RegionalLimit"
     priority = 1
 
     action {

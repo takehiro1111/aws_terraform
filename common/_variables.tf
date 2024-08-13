@@ -158,7 +158,7 @@ variable "waf_region_count" {
 variable "waf_regional_limit" {
   description = "trueにすると国別アクセスをCountするためのWAFが作成される"
   type        = bool
-  default     = true
+  default     = false
 }
 
 # EC2インスタンス -------------------------------------------
