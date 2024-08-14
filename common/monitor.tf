@@ -216,6 +216,7 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   slack_workspace_id = each.value.slack_workspace_id
   logging_level = "ERROR"
   sns_topic_arns = [aws_sns_topic.slack_alert.arn]
+  user_role_required = true
 
   tags = [
     {
