@@ -193,6 +193,34 @@ resource "aws_sns_topic" "slack_alert" {
 }
 
 ######################################################################
+# SSM ParameterStore
+######################################################################
+locals {
+  slack_info = {
+    notify_slack_workspace = {
+      name = "/slack/workspace_id/personal"
+      description = "個人用のSlackワークスペースID"
+    }
+    notify_slack_channel = {
+      name  = "/slack/channel_id/aws_alert"
+      description = "通知用のSlackチャンネルID"
+    }
+  }
+}
+
+resource "aws_ssm_parameter" "slack_info" {
+  for_each = { for k,v in local.slack_info : k => v }
+  name  = each.value.name
+  description = each.value.description
+  type  = "SecureString"
+  value = "コンソール画面で設定する。"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+######################################################################
 # Chatbot
 ######################################################################
 locals {
@@ -200,7 +228,7 @@ locals {
     personal = {
       name = "common-alert-notify"
       slack_workspace_id = "T06PFGXUB2B" # personal 
-      slack_channel_id = "C07GTL63RDJ"  # aws_alert
+      slack_channel_id = aws_ssm_parameter.slack_info.notify_slack_channel.value
     }
   }
 }
