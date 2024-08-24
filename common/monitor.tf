@@ -228,7 +228,7 @@ locals {
     personal = {
       name = "common-alert-notify"
       slack_workspace_id = "T06PFGXUB2B" # personal 
-      slack_channel_id = aws_ssm_parameter.slack_info.notify_slack_channel.value
+      slack_channel_id = "C07GTL63RDJ"  # aws_alert
     }
   }
 }
