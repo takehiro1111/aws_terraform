@@ -8,17 +8,16 @@
 #####################################################
 locals {
   monthly_budget = {
-    test   = 2
-    low    = 10
-    middle = 20
-    high   = 30
+    low    = 2
+    middle = 5
+    high   = 8
   }
 }
 
 resource "aws_budgets_budget" "notify_slack" {
   name              = "monthly-budget"
   budget_type       = "COST"
-  limit_amount      = 30
+  limit_amount      = 10
   limit_unit        = "USD"
   time_period_start = "2024-08-01_00:00"
   time_unit         = "MONTHLY"
@@ -28,7 +27,7 @@ resource "aws_budgets_budget" "notify_slack" {
     include_support = true
   }
 
-  # SNS通知の設定
+  # SNS,Eメールアドレスへの通知設定
   dynamic "notification" {
     for_each = { for k, v in local.monthly_budget : k => v }
     content {
@@ -37,6 +36,7 @@ resource "aws_budgets_budget" "notify_slack" {
       threshold           = notification.value
       threshold_type      = "ABSOLUTE_VALUE"
       subscriber_sns_topic_arns = [aws_sns_topic.slack_alert.arn]
+      subscriber_email_addresses = [module.value.my_gmail_address]
     }
   }
 }

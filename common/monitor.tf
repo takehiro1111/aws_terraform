@@ -269,7 +269,7 @@ resource "aws_budgets_budget" "notify_slack" {
     include_support = true
   }
 
-  # SNS通知の設定
+    # SNS,Eメールアドレスへの通知設定
   dynamic "notification" {
     for_each = { for k, v in local.monthly_budget : k => v }
     content {
@@ -278,6 +278,7 @@ resource "aws_budgets_budget" "notify_slack" {
       threshold           = notification.value
       threshold_type      = "ABSOLUTE_VALUE"
       subscriber_sns_topic_arns = [aws_sns_topic.slack_alert.arn]
+      subscriber_email_addresses = [module.value.my_gmail_address,module.value.company_mail_address]
     }
   }
 }
