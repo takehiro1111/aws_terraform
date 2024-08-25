@@ -39,38 +39,6 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 #####################################################
 # Cloudwatch Alerm
 #####################################################
-# Billing -------------------------------------------
-locals {
-  billing_alert_threshold = {
-    low = 50
-    middle = 60
-    high = 70
-  }
-}
-
-# CloudWatchアラームを作成
-resource "aws_cloudwatch_metric_alarm" "billing_alarm" {
-  for_each =  {for k,v in local.billing_alert_threshold : k => v}
-
-  provider = aws.us-east-1
-  alarm_name          = "billing-alarm-${each.key}"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "EstimatedCharges"
-  namespace           = "AWS/Billing"
-  period              = 86400 # 1日間隔のチェック
-  statistic           = "Maximum"
-  threshold           = each.value
-  alarm_description   = "Triggered when AWS account billing exceeds ${each.value}USD"
-  dimensions = {
-    Currency = "USD"
-  }
-
-  # SNSトピックに通知を送信
-  alarm_actions = [
-    aws_sns_topic.slack_alert.arn
-  ]
-}
 
 #####################################################
 # Parameter Store
@@ -192,6 +160,29 @@ resource "aws_sns_topic" "slack_alert" {
   provider = aws.us-east-1
 }
 
+resource "aws_sns_topic_policy" "slack_alert" {
+  arn = aws_sns_topic.slack_alert.arn
+  provider = aws.us-east-1
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "budgets.amazonaws.com"
+        },
+        Action = "SNS:Publish",
+        Resource = aws_sns_topic.slack_alert.arn,
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      }
+    ]
+  })
+}
+
 ######################################################################
 # SSM ParameterStore
 ######################################################################
@@ -252,4 +243,41 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
       value = each.key
     }
   ]
+}
+
+#####################################################
+# BudGet
+#####################################################
+locals {
+  monthly_budget = {
+    low    = 50
+    middle = 60
+    high   = 70
+  }
+}
+
+resource "aws_budgets_budget" "notify_slack" {
+  name              = "monthly-budget"
+  budget_type       = "COST"
+  limit_amount      = 70
+  limit_unit        = "USD"
+  time_period_start = "2024-08-01_00:00"
+  time_unit         = "MONTHLY"
+
+  cost_types {
+    include_tax     = true
+    include_support = true
+  }
+
+  # SNS通知の設定
+  dynamic "notification" {
+    for_each = { for k, v in local.monthly_budget : k => v }
+    content {
+      comparison_operator = "GREATER_THAN"
+      notification_type   = "ACTUAL"
+      threshold           = notification.value
+      threshold_type      = "ABSOLUTE_VALUE"
+      subscriber_sns_topic_arns = [aws_sns_topic.slack_alert.arn]
+    }
+  }
 }

@@ -45,21 +45,21 @@ module "tfstate" {
   # aws_s3_bucket_policy
   attach_policy = true
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": [
+        "Effect" : "Allow",
+        "Principal" : "*",
+        "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutBucketAcl",
           "s3:PutObject"
         ],
-        "Resource": [
-            module.tfstate.s3_bucket_arn,
-            "${module.tfstate.s3_bucket_arn}/*"
+        "Resource" : [
+          module.tfstate.s3_bucket_arn,
+          "${module.tfstate.s3_bucket_arn}/*"
         ]
       }
     ]
@@ -67,11 +67,11 @@ module "tfstate" {
 }
 
 resource "aws_s3_object" "tfstate" {
-  bucket = module.tfstate.s3_bucket_id
-  key    = "prod/state_prod"
+  bucket                 = module.tfstate.s3_bucket_id
+  key                    = "prod/state_prod"
   server_side_encryption = "AES256"
-  acl = "private"
-  storage_class = "STANDARD"
+  acl                    = "private"
+  storage_class          = "STANDARD"
 
   lifecycle {
     ignore_changes = [tags_all]
