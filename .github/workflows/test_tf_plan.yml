@@ -1,0 +1,100 @@
+name: test_tf_plan
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'common/**'
+  workflow_dispatch:
+    inputs:
+      run_init:
+        description: 'Run Init Step'
+        required: true
+        default: 'true'
+      run_validate:
+        description: 'Run Validate Step'
+        required: true
+        default: 'true'
+      run_fmt:
+        description: 'Run Fmt Step'
+        required: true
+        default: 'true'
+      run_plan:
+        description: 'Run Plan Step'
+        required: true
+        default: 'true'
+      run_slack_notify:
+        description: 'Send Slack Notification'
+        required: true
+        default: 'true'
+
+env:
+  AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.9.1
+  SLACK_ICON: terraform_logo.png
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  plan:
+    name: terraform plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: common/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{env.AWS_REGION}}
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
+          role-session-name: GithubActions_AssumeRole
+            
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init
+        id: init
+        if: ${{ github.event.inputs.run_init == 'true' }}
+        run: terraform init
+
+      - name: Validate
+        id: validate
+        if: ${{ github.event.inputs.run_validate == 'true' }}
+        run: terraform validate
+
+      - name: Fmt
+        id: fmt
+        if: ${{ github.event.inputs.run_fmt == 'true' }}
+        run: terraform fmt
+    
+      - name: Plan
+        id: plan
+        if: ${{ github.event.inputs.run_plan == 'true' }}
+        run: terraform plan | tee plan_output.txt
+
+      - name: Extract terraform plan result
+        if: ${{ github.event.inputs.run_plan == 'true' }}
+        run: |
+          PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
+          echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
+
+      - name: Slack Notification
+        if: ${{ github.event.inputs.run_slack_notify == 'true' }}
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_USERNAME: Plan
+          SLACK_MESSAGE: '${{ job.status }}: ${{ env.PLAN_RESULT }}'
+          SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_TITLE: Execute Plan Result🚀
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
