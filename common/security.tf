@@ -605,6 +605,48 @@ resource "aws_iam_role_policy" "s3_batch_operation" {
   policy = data.aws_iam_policy_document.s3_batch_operation.json
 }
 
+# Chatbot ---------------------------------------------------------------------
+resource "aws_iam_role" "chatbot" {
+  name                  = "AWSChatbot-role"
+  description           = "AWS Chatbot Execution Role"
+  path                  = "/service-role/"
+  force_detach_policies = false
+  max_session_duration  = 3600
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "chatbot.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# 想定外のエラーにならないよう、デフォルトのテンプレートポリシーに沿った設定しているためワイルドーカードで定義している。
+#tfsec:ignore:aws-iam-no-policy-wildcards
+data "aws_iam_policy_document" "chatbot" {
+  statement {
+    actions = [
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*"
+    ]
+    effect    = "Allow"
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "chatbot" {
+  name   = aws_iam_role.chatbot.name
+  role   = aws_iam_role.chatbot.name
+  policy = data.aws_iam_policy_document.chatbot.json
+}
+
 #####################################################
 # KMS
 #####################################################
@@ -760,7 +802,7 @@ resource "aws_wafv2_web_acl" "region_count" {
   }
 
   rule {
-    name     = "CountOtherRegions"
+    name     = "RegionalLimit"
     priority = 1
 
     action {

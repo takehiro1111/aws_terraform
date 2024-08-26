@@ -17,6 +17,10 @@ terraform {
       source  = "hashicorp/http"
       version = "3.4.1"
     }
+    awscc = {
+      source  = "hashicorp/awscc"
+      version = "1.9.0"
+    }
   }
 
   backend "s3" {
@@ -59,6 +63,10 @@ provider "aws" {
       repository = "hcl"
     }
   }
+}
+
+provider "awscc" {
+  region = "us-east-1"
 }
 
 #####################################################
