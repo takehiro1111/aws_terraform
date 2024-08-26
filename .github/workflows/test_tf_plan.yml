@@ -3,15 +3,20 @@ name: test_tf_plan
 on:
   workflow_dispatch:
     inputs:
-      run_init:
-        description: 'Run Init Step'
+      run_common:
+        description: 'Run Common'
         required: true
-        default: 'true'
-        
+        default: 'false'
+
+      run_my_account:
+        description: 'Run my_account'
+        required: true
+        default: 'false'
+
       run_slack_notify:
         description: 'Send Slack Notification'
         required: true
-        default: 'true'
+        default: 'false'
 
 env:
   AWS_REGION: ap-northeast-1
@@ -24,7 +29,7 @@ permissions:
 
 jobs:
   job1:
-    name: terraform plan
+    name: terraform plan common
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,6 +37,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        if: ${{ github.event.inputs.run_common == 'true' }}
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -39,38 +45,89 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
           role-session-name: GithubActions_AssumeRole
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
 
       - name: Init
         id: init
-        if: ${{ github.event.inputs.run_init == 'true' }}
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
         run: terraform init
         continue-on-error: true
 
       - name: Validate
         id: validate
-        if: ${{ github.event.inputs.run_init == 'true' && success() }}
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
         run: terraform validate
 
       - name: Fmt
         id: fmt
-        if: ${{ github.event.inputs.run_init == 'true' && success() }}
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
         run: terraform fmt
 
       - name: Plan
         id: plan
-        if: ${{ github.event.inputs.run_init == 'true' && success() }}
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
         run: terraform plan | tee plan_output.txt
 
       - name: Extract terraform plan result
-        if: ${{ github.event.inputs.run_init == 'true' && success() }}
+        if: ${{ github.event.inputs.run_common == 'true' && success() }}
         run: |
           PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
           echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
+  
+  # job2:
+  #   name: terraform plan my_account
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: my_account/prod
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Configure AWS credentials via OIDC
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-region: ${{ env.AWS_REGION }}
+  #         role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
+  #         role-session-name: GithubActions_AssumeRole
+
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v3
+  #       with:
+  #         terraform_version: ${{ env.TF_VERSION }}
+
+  #     - name: Init
+  #       id: init
+  #       if: ${{ github.event.inputs.run_common == 'true' }}
+  #       run: terraform init
+  #       continue-on-error: true
+
+  #     - name: Validate
+  #       id: validate
+  #       if: ${{ github.event.inputs.run_common == 'true' && success() }}
+  #       run: terraform validate
+
+  #     - name: Fmt
+  #       id: fmt
+  #       if: ${{ github.event.inputs.run_common == 'true' && success() }}
+  #       run: terraform fmt
+
+  #     - name: Plan
+  #       id: plan
+  #       if: ${{ github.event.inputs.run_common == 'true' && success() }}
+  #       run: terraform plan | tee plan_output.txt
+
+  #     - name: Extract terraform plan result
+  #       if: ${{ github.event.inputs.run_common == 'true' && success() }}
+  #       run: |
+  #         PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
+  #         echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
 
   notify:
     name: Slack Notification
