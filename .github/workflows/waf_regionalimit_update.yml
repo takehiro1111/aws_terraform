@@ -25,6 +25,7 @@ on:
 
 env:
   AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.x
   SLACK_ICON: terraform_logo.png
 
 permissions:
@@ -60,7 +61,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: latest
+          terraform_version: 1.x
         if: ${{ github.event.inputs.plan_false == 'true' && success() }}
 
       - name: Init
@@ -98,7 +99,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: latest
+          terraform_version: ${{ env.TF_VERSION }}
         if: ${{ github.event.inputs.apply_false == 'true' && success() }}
 
       - name: Init
@@ -138,7 +139,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: latest
+          terraform_version: ${{ env.TF_VERSION }}
         if: ${{ github.event.inputs.plan_true == 'true' && success() }}
 
       - name: Init
@@ -176,7 +177,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: latest
+          terraform_version: ${{ env.TF_VERSION }}
         if: ${{ github.event.inputs.apply_true == 'true' && success() }}
 
       - name: Init
