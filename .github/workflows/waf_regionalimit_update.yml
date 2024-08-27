@@ -39,6 +39,7 @@ jobs:
   plan-false:
     name: Plan-False
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.plan_false == 'true' }}
     defaults:
       run:
         working-directory: common/
@@ -115,6 +116,7 @@ jobs:
   plan-true:
     name: Plan-True
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.plan_true == 'true' }}
     defaults:
       run:
         working-directory: common/
@@ -152,6 +154,7 @@ jobs:
   apply-true:
     name: Apply-True
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.apply_true == 'true' }}
     defaults:
       run:
         working-directory: platform/production/
