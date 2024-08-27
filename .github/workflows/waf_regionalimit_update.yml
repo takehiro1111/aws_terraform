@@ -80,7 +80,7 @@ jobs:
     if: ${{ github.event.inputs.apply_false == 'true' }}
     defaults:
       run:
-        working-directory: platform/production/
+        working-directory: common/
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -158,7 +158,7 @@ jobs:
     if: ${{ github.event.inputs.apply_true == 'true' }}
     defaults:
       run:
-        working-directory: platform/production/
+        working-directory: common/
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
