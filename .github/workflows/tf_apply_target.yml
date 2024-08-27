@@ -3,11 +3,11 @@ name: tf_apply_target
 on:
   # pull_request:
   #   types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - 'main'
-    paths:
-      - 'common/**'
+  # push:
+  #   branches:
+  #     - 'main'
+  #   paths:
+  #     - 'common/**'
   workflow_dispatch:
 
 env:
