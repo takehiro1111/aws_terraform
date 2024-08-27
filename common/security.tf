@@ -476,7 +476,7 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
       "s3:PutObject",
       "s3:ListBucket",
     ]
-    resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
+    resources = ["${aws_s3_bucket.tfstate.arn}/*"]
   }
 }
 
