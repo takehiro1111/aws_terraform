@@ -466,7 +466,13 @@ resource "aws_iam_role" "github_actions_for_waf" {
 data "aws_iam_policy_document" "github_actions_for_waf" {
   statement {
     effect    = "Allow"
-    actions   = ["waf:*"]
+    actions   = [
+      "wafv2:UpdateWebACL",
+      "wafv2:ListWebACLs",
+      "wafv2:GetWebACL",
+      "wafv2:DeleteRule",
+      "wafv2:CreateRule",
+    ]
     resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
   }
   statement {
