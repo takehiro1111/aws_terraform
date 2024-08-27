@@ -59,7 +59,7 @@ jobs:
       - name: Get Terraform version
         id: get_tf_version
         run: |
-          TF_VERSION=$(cat common/.terraform-version)
+          TF_VERSION=$(cat .terraform-version)
           echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
 
       - name: Setup Terraform
