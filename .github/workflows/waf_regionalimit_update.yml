@@ -25,7 +25,6 @@ on:
 
 env:
   AWS_REGION: ap-northeast-1
-  TF_VERSION: ~1.9.1
   SLACK_ICON: terraform_logo.png
 
 permissions:
@@ -61,12 +60,13 @@ jobs:
         id: get_tf_version
         run: |
           echo "TF_VERSION=$(cat common/.terraform-version)" >> $GITHUB_ENV
+          echo "::set-output name=tf_version::$(cat common/.terraform-version)"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ steps.get_tf_version.outputs.tf_version }}
         if: ${{ github.event.inputs.plan_false == 'true' && success() }}
 
       - name: Init
