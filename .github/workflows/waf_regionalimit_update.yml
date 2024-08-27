@@ -198,23 +198,29 @@ jobs:
     needs: [apply-false,apply-true]
     if:  always() && (needs.apply-false.result == 'success' || needs.apply-true.result == 'success')
     steps:
+      - name: Get the result of Apply
+        uses: technote-space/workflow-conclusion-action@v3
+        id: conclusion
+
       - name: Set Slack Title and Username
         run: |
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
-            echo "SLACK_TITLE=RegionalLimit Disabled Successful 🛑" >> $GITHUB_ENV
-            echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=RegionalLimit Disabled Successful 🛑" >> $GITHUB_ENV
+            echo "SLACK_USERNAME=WebACLv2 Rule Apply False🚀" >> $GITHUB_ENV
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
-            echo "SLACK_TITLE=RegionalLimit Enabled Successful ✅" >> $GITHUB_ENV
-            echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=RegionalLimit Enabled Successful ✅" >> $GITHUB_ENV
+            echo "SLACK_USERNAME=WebACLv2 Rule Apply True🚀" >> $GITHUB_ENV
           fi
+          echo "SLACK_TITLE=${{ steps.conclusion.outputs.conclusion }}" >> $GITHUB_ENV
+
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
-          SLACK_COLOR: ${{ job.status }}
+          SLACK_COLOR: ${{ env.SLACK_TITLE }}
           SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
-          SLACK_MESSAGE: '${{ job.status }}'
+          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
           SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_TITLE: ${{ env.SLACK_TITLE }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
