@@ -472,6 +472,7 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
       "wafv2:GetWebACL",
       "wafv2:DeleteRule",
       "wafv2:CreateRule",
+      "wafv2:ListTagsForResource",
     ]
     resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
   }
