@@ -30,6 +30,7 @@ env:
 
 permissions:
   id-token: write
+  actions: write
   contents: read
 
 jobs:
