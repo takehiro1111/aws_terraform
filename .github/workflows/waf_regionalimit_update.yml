@@ -25,7 +25,7 @@ on:
 
 env:
   AWS_REGION: ap-northeast-1
-  TF_VERSION: 1.x
+  TF_VERSION: ~1.9.1
   SLACK_ICON: terraform_logo.png
 
 permissions:
