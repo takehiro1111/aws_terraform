@@ -34,7 +34,7 @@ permissions:
 
 jobs:
 ##########################################################
-# False
+# RegionalLimit Disable
 ##########################################################
   plan-false:
     name: Plan-False
@@ -112,7 +112,7 @@ jobs:
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
 
 ##########################################################
-# True
+# RegionalLimit Enable
 ##########################################################
   plan-true:
     name: Plan-True
@@ -190,7 +190,7 @@ jobs:
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=true' -target='aws_wafv2_web_acl.region_count[0]'
 
 ##########################################################
-# Slack
+# Notify Slack
 ##########################################################
   notify:
     name: Slack Notification
@@ -198,13 +198,23 @@ jobs:
     needs: [apply-false,apply-true]
     if:  always() && (needs.apply-false.result == 'success' || needs.apply-true.result == 'success')
     steps:
+      - name: Set Slack Title and Username
+        run: |
+          if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
+            echo "SLACK_TITLE=RegionalLimit Disabled Successful 🛑" >> $GITHUB_ENV
+            echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_ENV
+          elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
+            echo "SLACK_TITLE=RegionalLimit Enabled Successful ✅" >> $GITHUB_ENV
+            echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_ENV
+          fi
+
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ job.status }}
-          SLACK_USERNAME: WAF RegionalLimit Update
+          SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
           SLACK_MESSAGE: '${{ job.status }}'
           SLACK_ICON: ${{ env.SLACK_ICON }}
-          SLACK_TITLE: Execute Apply Result🚀
+          SLACK_TITLE: ${{ env.SLACK_TITLE }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
