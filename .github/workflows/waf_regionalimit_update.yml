@@ -203,6 +203,11 @@ jobs:
         uses: technote-space/workflow-conclusion-action@v3
         id: conclusion
 
+      - name: Extract Branch Name
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
       - name: Set Slack Title and Username
         run: |
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
@@ -212,6 +217,7 @@ jobs:
             echo "SLACK_MESSAGE=RegionalLimit Enabled Successful ✅" >> $GITHUB_ENV
             echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_ENV
           fi
+      
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.0
