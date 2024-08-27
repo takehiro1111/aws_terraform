@@ -437,6 +437,46 @@ resource "aws_iam_role_policy" "deploy_github_actions" {
   policy = data.aws_iam_policy_document.deploy_github_actions.json
 }
 
+/* 
+ * Workflow for handling WAF RegionalLimit
+ */
+resource "aws_iam_role" "github_actions_for_waf" {
+  name = "deploy-github-actions-for-waf"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Effect = "Allow"
+        Principal = {
+          Federated = module.oidc.oidc_arn
+        },
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" : [
+              "repo:takehiro1111/aws_terraform:*",
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy_document" "github_actions_for_waf" {
+  statement {
+    effect    = "Allow"
+    actions   = ["waf:*"]
+    resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_actions_for_waf" {
+  name   = aws_iam_role.github_actions_for_waf.name
+  role   = aws_iam_role.github_actions_for_waf.name
+  policy = data.aws_iam_policy_document.github_actions_for_waf.json
+}
+
 # Session Manager ---------------------------------------------------------------------
 data "aws_iam_policy_document" "session_manager" {
   statement {
@@ -792,7 +832,7 @@ resource "aws_kms_key_policy" "s3" {
 resource "aws_wafv2_web_acl" "region_count" {
   count = var.waf_region_count ? 1 : 0
 
-  name        = "example-web-acl"
+  name        = "common-web-acl"
   scope       = "CLOUDFRONT"
   description = "ACL for allowing specific regions"
   provider    = aws.us-east-1
@@ -801,28 +841,31 @@ resource "aws_wafv2_web_acl" "region_count" {
     allow {}
   }
 
-  rule {
-    name     = "RegionalLimit"
-    priority = 1
+  dynamic "rule" {
+    for_each = var.waf_rule_regional_limit ? [1]:[0]
+    content {
+      name     = "RegionalLimit"
+      priority = 1
 
-    action {
-      block {}
-    }
+      action {
+        block {}
+      }
 
-    statement {
-      not_statement {
-        statement {
-          geo_match_statement {
-            country_codes = ["JP", "US", "SG"]
+      statement {
+        not_statement {
+          statement {
+            geo_match_statement {
+              country_codes = ["JP", "US", "SG"]
+            }
           }
         }
       }
-    }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "countOtherRegions"
-      sampled_requests_enabled   = true
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "RegionalLimit"
+        sampled_requests_enabled   = true
+      }
     }
   }
 

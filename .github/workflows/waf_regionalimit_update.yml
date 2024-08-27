@@ -1,0 +1,206 @@
+name: waf_regionallimit_update
+
+on:
+  workflow_dispatch:
+    inputs:
+      plan_false:
+        description: 'Plan False'
+        required: true
+        default: 'false'
+
+      apply_false:
+        description: 'Apply False'
+        required: true
+        default: 'false'
+
+      plan_true:
+        description: 'Plan True'
+        required: true
+        default: 'false'
+
+      apply_true:
+        description: 'Apply True'
+        required: true
+        default: 'false'
+
+env:
+  AWS_REGION: ap-northeast-1
+  TF_VERSION: 1.9.1
+  SLACK_ICON: terraform_logo.png
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+##########################################################
+# False
+##########################################################
+  plan-false:
+    name: Plan-False
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: common/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        if: ${{ github.event.inputs.plan_false == 'true' }}
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
+          role-session-name: GithubActions_AssumeRole
+        if: ${{ github.event.inputs.plan_false == 'true' && success() }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        id: setup_terraform
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+        if: ${{ github.event.inputs.plan_false == 'true' && success() }}
+
+      - name: Init
+        id: init
+        if: ${{ steps.setup_terraform.outcome == 'success' }}
+        run: terraform init
+        continue-on-error: false
+
+      - name: Plan
+        id: plan
+        if: ${{ steps.init.outcome == 'success' }}
+        run: terraform plan -var 'waf_rule_regional_limit=false' -target=aws_wafv2_web_acl.region_count
+
+  apply-false:
+    name: Apply-False
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform/production/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        if: ${{ github.event.inputs.apply_false == 'true' }}
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
+          role-session-name: GithubActions_AssumeRole
+        if: ${{ github.event.inputs.apply_false == 'true' && success() }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        id: setup_terraform
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+        if: ${{ github.event.inputs.apply_false == 'true' && success() }}
+
+      - name: Init
+        id: init
+        if: ${{ steps.setup_terraform.outcome == 'success' }}
+        run: terraform init
+        continue-on-error: false
+
+      - name: Apply
+        if: ${{ steps.init.outcome == 'success' }}
+        run: terraform apply -auto-approve -var 'waf_rule_regional_limit=false' -target=aws_wafv2_web_acl.region_count
+
+##########################################################
+# True
+##########################################################
+  plan-true:
+    name: Plan-True
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: common/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        if: ${{ github.event.inputs.plan_true == 'true' }}
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
+          role-session-name: GithubActions_AssumeRole
+        if: ${{ github.event.inputs.plan_true == 'true' && success() }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        id: setup_terraform
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+        if: ${{ github.event.inputs.plan_true == 'true' && success() }}
+
+      - name: Init
+        id: init
+        if: ${{ steps.setup_terraform.outcome == 'success' }}
+        run: terraform init
+        continue-on-error: false
+
+      - name: Plan
+        id: plan
+        if: ${{ steps.init.outcome == 'success' }}
+        run: terraform plan -var 'waf_rule_regional_limit=false' -target=aws_wafv2_web_acl.region_count
+
+  apply-true:
+    name: Apply-True
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform/production/
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        if: ${{ github.event.inputs.apply_true == 'true' }}
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
+          role-session-name: GithubActions_AssumeRole
+        if: ${{ github.event.inputs.apply_true == 'true' && success() }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        id: setup_terraform
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+        if: ${{ github.event.inputs.apply_true == 'true' && success() }}
+
+      - name: Init
+        id: init
+        if: ${{ steps.setup_terraform.outcome == 'success' }}
+        run: terraform init
+        continue-on-error: false
+
+      - name: Apply
+        if: ${{ steps.init.outcome == 'success' }}
+        run: terraform apply -auto-approve -var 'waf_rule_regional_limit=false' -target=aws_wafv2_web_acl.region_count
+
+##########################################################
+# Slack
+##########################################################
+  notify:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    needs: [apply-false,apply-true]
+    if: ${{ needs.apply-false.result == 'Success' || needs.apply-true.result == 'Success' }}
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2.2.0
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_USERNAME: Plan
+          SLACK_MESSAGE: '${{ job.status }}'
+          SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_TITLE: Execute Apply Result🚀
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
