@@ -59,14 +59,14 @@ jobs:
       - name: Get Terraform version
         id: get_tf_version
         run: |
-          echo "TF_VERSION=$(cat common/.terraform-version)" >> $GITHUB_ENV
-          echo "::set-output name=tf_version::$(cat common/.terraform-version)"
+          TF_VERSION=$(cat common/.terraform-version)
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: ${{ steps.get_tf_version.outputs.tf_version }}
+          terraform_version: ${{ env.TF_VERSION }}
         if: ${{ github.event.inputs.plan_false == 'true' && success() }}
 
       - name: Init
