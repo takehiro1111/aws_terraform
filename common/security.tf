@@ -478,6 +478,14 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
     ]
     resources = ["${aws_s3_bucket.tfstate.arn}/*"]
   }
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+    ]
+    resources = [aws_dynamodb_table.tfstate_locks.arn]
+  }
 }
 
 resource "aws_iam_role_policy" "github_actions_for_waf" {
