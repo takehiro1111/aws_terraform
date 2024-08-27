@@ -866,7 +866,7 @@ resource "aws_wafv2_web_acl" "region_count" {
   }
 
   dynamic "rule" {
-    for_each = var.waf_rule_regional_limit ? [1]:[0]
+    for_each = var.waf_rule_regional_limit ? [1]:[]
     content {
       name     = "RegionalLimit"
       priority = 1
