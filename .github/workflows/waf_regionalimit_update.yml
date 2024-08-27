@@ -203,15 +203,10 @@ jobs:
         uses: technote-space/workflow-conclusion-action@v3
         id: conclusion
 
-      - name: Extract Branch Name
-        run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
       - name: Set Slack Title and Username
         run: |
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
-            echo "SLACK_MESSAGE=RegionalLimit Disabled Successful 🛑" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_ENV
             echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_ENV
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
             echo "SLACK_MESSAGE=RegionalLimit Enabled Successful ✅" >> $GITHUB_ENV
