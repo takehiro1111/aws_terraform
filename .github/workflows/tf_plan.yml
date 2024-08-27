@@ -1,11 +1,11 @@
 name: tf_plan
 
 on:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - 'common/**'
+  # push:
+  #   branches:
+  #     - 'main'
+  #   paths:
+  #     - 'common/**'
   workflow_dispatch:
 
 env:

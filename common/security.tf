@@ -469,6 +469,15 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
     actions   = ["waf:*"]
     resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
   }
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:ListBucket",
+    ]
+    resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
+  }
 }
 
 resource "aws_iam_role_policy" "github_actions_for_waf" {
