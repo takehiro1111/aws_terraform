@@ -282,3 +282,65 @@ resource "aws_budgets_budget" "notify_slack" {
     }
   }
 }
+
+#####################################################
+# Kinesis Data Firehose
+#####################################################
+locals {
+  common_delivery = {
+    common_vpc_flow_logs = {
+      create = true
+      name = "delivery-vpc-flow-logs"
+      index_name = "comon_vpc_flow_logs"
+    }
+  }
+}
+
+resource "aws_kinesis_firehose_delivery_stream" "logs" {
+  for_each = { for k, v in local.common_delivery : k => v if v.create }
+
+  name        = each.value.name
+  destination = "opensearch"
+
+  opensearch_configuration {
+    domain_arn = aws_opensearch_domain.logs.arn
+    role_arn   = aws_iam_role.firehose_delivery_role.arn
+    index_name = each.key
+    index_rotation_period = "OneWeek"
+
+    s3_configuration {
+      role_arn           = aws_iam_role.firehose_delivery_role.arn
+      bucket_arn         = module.firehose_delivery_logs.s3_bucket_arn
+      buffering_size     = 10
+      buffering_interval = 60
+      compression_format = "GZIP"
+    }
+
+    cloudwatch_logging_options {
+      enabled         = true
+      log_group_name  = "/aws/kinesisfirehose/${each.key}"
+      log_stream_name = "DestinationDelivery"
+    }
+
+    // データの配信前に処理が必要な場合は設定する。
+    # processing_configuration {
+    #   enabled = "true"
+
+    #   processors {
+    #     type = "Lambda"
+
+    #     parameters {
+    #       parameter_name  = "LambdaArn"
+    #       parameter_value = "${aws_lambda_function.lambda_processor.arn}:$LATEST"
+    #     }
+    #   }
+    # }
+  }
+}
+
+#####################################################
+# OpenSearch
+#####################################################
+resource "aws_opensearch_domain" "logs" {
+  domain_name = "firehose-os-test"
+}

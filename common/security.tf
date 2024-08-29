@@ -261,6 +261,16 @@ data "aws_iam_policy_document" "flow_log" {
       "${aws_cloudwatch_log_group.flow_log.arn}:*",
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "firehose:PutRecord",
+      "firehose:PutRecordBatch",
+    ]
+    resources = [
+      "*", // Firehoseのresourceを指定予定
+    ]
+  }
 }
 
 resource "aws_iam_policy" "flow_log" {
@@ -709,6 +719,113 @@ resource "aws_iam_role_policy" "chatbot" {
   name   = aws_iam_role.chatbot.name
   role   = aws_iam_role.chatbot.name
   policy = data.aws_iam_policy_document.chatbot.json
+}
+
+/**
+ * For Firehose
+ */
+resource "aws_iam_role" "firehose_delivery_role" {
+  name        = "firehose-stg@delivery_role"
+  description = "firehose delivery role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "sts:ExternalId": "${data.aws_caller_identity.current.account_id}"
+        }
+      }
+    }
+  ]
+}
+EOF
+
+}
+
+resource "aws_iam_role_policy_attachment" "firehose_delivery_role" {
+  role       = aws_iam_role.firehose_delivery_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
+
+/*
+    IAM policy document uses sensitive action 'es:DescribeElasticsearchDomain' on wildcarded resource '8b0806a0-9bce-45c3-8e47-7b65366d8275'
+    IAM policy document uses sensitive action 'es:ESHttpGet' on wildcarded resource '8b0806a0-9bce-45c3-8e47-7b65366d8275/_all/_settings'
+    IAM policy document uses sensitive action 'lambda:InvokeFunction' on wildcarded resource 'arn:aws:lambda:ap-northeast-1:${data.aws_caller_identity.current.account_id}:function:*'
+ */
+resource "aws_iam_role_policy" "firehose_delivery_role" {
+  name = "ForFirehoseDeliveryStg"
+  role = aws_iam_role.firehose_delivery_role.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:AbortMultipartUpload",
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:PutObject"
+            ],
+            "Resource": [
+              "${module.firehose_delivery_logs.s3_bucket_arn}/*",
+            ]
+        },
+        {
+           "Effect": "Allow",
+           "Action": [
+               "es:DescribeElasticsearchDomain",
+               "es:DescribeElasticsearchDomains",
+               "es:DescribeElasticsearchDomainConfig",
+               "es:ESHttpPost",
+               "es:ESHttpPut"
+           ],
+          "Resource": [
+              "${aws_opensearch_domain.logs.arn}",
+              "${aws_opensearch_domain.logs.arn}/*"
+          ]
+       },
+       {
+          "Effect": "Allow",
+          "Action": [
+              "es:ESHttpGet"
+          ],
+          "Resource": [
+              "${aws_opensearch_domain.logs.arn}/_all/_settings",
+              "${aws_opensearch_domain.logs.arn}/_cluster/stats",
+              "${aws_opensearch_domain.logs.arn}/index-name*/_mapping/type-name",
+              "${aws_opensearch_domain.logs.arn}/_nodes",
+              "${aws_opensearch_domain.logs.arn}/_nodes/stats",
+              "${aws_opensearch_domain.logs.arn}/_nodes/*/stats",
+              "${aws_opensearch_domain.logs.arn}/_stats",
+              "${aws_opensearch_domain.logs.arn}/index-name*/_stats"
+          ]
+       },
+       {
+              "Effect": "Allow",
+              "Action": [
+                  "lambda:InvokeFunction",
+                  "lambda:GetFunctionConfiguration",
+                  "lambda:ListTags"
+              ],
+              "Resource": [
+                  "arn:aws:lambda:ap-northeast-1:${data.aws_caller_identity.current.account_id}:function:*"
+              ]
+       }
+    ]
+}
+EOF
 }
 
 #####################################################

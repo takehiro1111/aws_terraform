@@ -137,6 +137,15 @@ locals {
       log_format               = "$${account-id} $${region} $${interface-id} $${srcaddr} $${dstaddr} $${pkt-srcaddr} $${pkt-dstaddr} $${protocol} $${action} $${log-status}"
       max_aggregation_interval = 60
     }
+    kinesis_data_firehose = {
+      create                   = true
+      log_destination_type     = "kinesis-data-firehose"
+      log_destination          = aws_kinesis_firehose_delivery_stream.logs["common_vpc_flow_logs"].arn
+      traffic_type             = "ALL"
+      log_format               = "$${account-id} $${region} $${interface-id} $${srcaddr} $${dstaddr} $${pkt-srcaddr} $${pkt-dstaddr} $${protocol} $${action} $${log-status}"
+      max_aggregation_interval = 60 // 1分単位でレコードがフローログに集約される。
+      iam_role_arn         = aws_iam_role.flow_log.arn
+    }
   }
 }
 
