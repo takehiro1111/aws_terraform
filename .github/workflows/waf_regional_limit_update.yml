@@ -50,6 +50,11 @@ jobs:
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
+        # with:
+        #   aws-access-key-id: ASIAWEK7DUFQQDTGD7OR
+        #   aws-secret-access-key: dd6NgFqpOlBNkoWrqhPEaP27D8R89Ew2lVEHv9au
+        #   aws-region: ap-northeast-1
+        #   aws-session-token: IQoJb3JpZ2luX2VjECIaDmFwLW5vcnRoZWFzdC0xIkgwRgIhAO+Wub2lp9lsQWZ4JxNp4WE62FpZ2GYNBTLQtDGs56fBAiEA25ZBcRtiQDwDYvLGHDgNBJ89uLSF+rhNpsUSOOJeb+kq/AIIPBAAGgw0MjE2NDMxMzMyODEiDPcHnOiUCyWv+4pzqirZAiSTxJBOjMWZuSAdwACfsi/ZyoWZ9Mj0ZKZIMy9GKcu44neMKmnndr3cMRIO2hM/Ir7alonIQVX6Q68brkDNGMU+oqIKXr+QxP6OZYyBhG/eDSxyiz0cpLrDqhj3Bm+qBLd7BK13KAN+0P1JKuwMEcsfXcX+QU3FTiRN3SSaVMKiYcjPsqag8Ziehq0qXlOAMCRm48vAB9vCWJ0pSUJUUEzMpMol31Rn945ndsF4PBmkSm3j/fDvm8W+2bDGmSB2kQhuEg7RPAgmh6rG5/K8hDCG4w3W0S+HO+PfEnSsNB+yPeCUq8iS4zR66Xi4CfVkcaunHNvj6WxJXB5y3K0oNtXhUTbMQMZfaBye5BVcnL9H6M9o7ysLVph7Hxofk64d9D303rUo88baO5uwxRMfXUzGJZC5myffFBoEJlORHzXCTsn33yMn2D+jO5F6Q6SjYM1qPKWZ0i+u6zD4tr+2BjqmAX0P6FHFl8IwSjwkasIYez6KgH2NjaPToldyju1uzT8/OlI9mXEKikAzF3NT/Hp0Y3Hr+xH0E+ev1HqVnKWDZnhglkjneBsSY1HamFzk4imS6lRII76/AMq6l2HodsrmcVi0U5viJvK465CLscs0HZAn+3CAnLQCUYn+jnwP1oZvi/8eN7nXpbuD4ulHwNq9KLs39AR6gAVcqqeJjFiOcYYR+sJGmNo=
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
@@ -94,11 +99,22 @@ jobs:
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
+        # with:
+        #   aws-access-key-id: ASIAWEK7DUFQQDTGD7OR
+        #   aws-secret-access-key: dd6NgFqpOlBNkoWrqhPEaP27D8R89Ew2lVEHv9au
+        #   aws-region: ap-northeast-1
+        #   aws-session-token: IQoJb3JpZ2luX2VjECIaDmFwLW5vcnRoZWFzdC0xIkgwRgIhAO+Wub2lp9lsQWZ4JxNp4WE62FpZ2GYNBTLQtDGs56fBAiEA25ZBcRtiQDwDYvLGHDgNBJ89uLSF+rhNpsUSOOJeb+kq/AIIPBAAGgw0MjE2NDMxMzMyODEiDPcHnOiUCyWv+4pzqirZAiSTxJBOjMWZuSAdwACfsi/ZyoWZ9Mj0ZKZIMy9GKcu44neMKmnndr3cMRIO2hM/Ir7alonIQVX6Q68brkDNGMU+oqIKXr+QxP6OZYyBhG/eDSxyiz0cpLrDqhj3Bm+qBLd7BK13KAN+0P1JKuwMEcsfXcX+QU3FTiRN3SSaVMKiYcjPsqag8Ziehq0qXlOAMCRm48vAB9vCWJ0pSUJUUEzMpMol31Rn945ndsF4PBmkSm3j/fDvm8W+2bDGmSB2kQhuEg7RPAgmh6rG5/K8hDCG4w3W0S+HO+PfEnSsNB+yPeCUq8iS4zR66Xi4CfVkcaunHNvj6WxJXB5y3K0oNtXhUTbMQMZfaBye5BVcnL9H6M9o7ysLVph7Hxofk64d9D303rUo88baO5uwxRMfXUzGJZC5myffFBoEJlORHzXCTsn33yMn2D+jO5F6Q6SjYM1qPKWZ0i+u6zD4tr+2BjqmAX0P6FHFl8IwSjwkasIYez6KgH2NjaPToldyju1uzT8/OlI9mXEKikAzF3NT/Hp0Y3Hr+xH0E+ev1HqVnKWDZnhglkjneBsSY1HamFzk4imS6lRII76/AMq6l2HodsrmcVi0U5viJvK465CLscs0HZAn+3CAnLQCUYn+jnwP1oZvi/8eN7nXpbuD4ulHwNq9KLs39AR6gAVcqqeJjFiOcYYR+sJGmNo=
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole
         if: ${{ github.event.inputs.apply_false == 'true' && success() }}
+
+      - name: Get Terraform version
+        id: get_tf_version
+        run: |
+          TF_VERSION=$(cat .terraform-version)
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -140,6 +156,12 @@ jobs:
           role-session-name: GithubActions_AssumeRole
         if: ${{ github.event.inputs.plan_true == 'true' && success() }}
 
+      - name: Get Terraform version
+        id: get_tf_version
+        run: |
+          TF_VERSION=$(cat .terraform-version)
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
@@ -172,11 +194,22 @@ jobs:
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
+        # with:
+        #   aws-access-key-id: ASIAWEK7DUFQQDTGD7OR
+        #   aws-secret-access-key: dd6NgFqpOlBNkoWrqhPEaP27D8R89Ew2lVEHv9au
+        #   aws-region: ap-northeast-1
+        #   aws-session-token: IQoJb3JpZ2luX2VjECIaDmFwLW5vcnRoZWFzdC0xIkgwRgIhAO+Wub2lp9lsQWZ4JxNp4WE62FpZ2GYNBTLQtDGs56fBAiEA25ZBcRtiQDwDYvLGHDgNBJ89uLSF+rhNpsUSOOJeb+kq/AIIPBAAGgw0MjE2NDMxMzMyODEiDPcHnOiUCyWv+4pzqirZAiSTxJBOjMWZuSAdwACfsi/ZyoWZ9Mj0ZKZIMy9GKcu44neMKmnndr3cMRIO2hM/Ir7alonIQVX6Q68brkDNGMU+oqIKXr+QxP6OZYyBhG/eDSxyiz0cpLrDqhj3Bm+qBLd7BK13KAN+0P1JKuwMEcsfXcX+QU3FTiRN3SSaVMKiYcjPsqag8Ziehq0qXlOAMCRm48vAB9vCWJ0pSUJUUEzMpMol31Rn945ndsF4PBmkSm3j/fDvm8W+2bDGmSB2kQhuEg7RPAgmh6rG5/K8hDCG4w3W0S+HO+PfEnSsNB+yPeCUq8iS4zR66Xi4CfVkcaunHNvj6WxJXB5y3K0oNtXhUTbMQMZfaBye5BVcnL9H6M9o7ysLVph7Hxofk64d9D303rUo88baO5uwxRMfXUzGJZC5myffFBoEJlORHzXCTsn33yMn2D+jO5F6Q6SjYM1qPKWZ0i+u6zD4tr+2BjqmAX0P6FHFl8IwSjwkasIYez6KgH2NjaPToldyju1uzT8/OlI9mXEKikAzF3NT/Hp0Y3Hr+xH0E+ev1HqVnKWDZnhglkjneBsSY1HamFzk4imS6lRII76/AMq6l2HodsrmcVi0U5viJvK465CLscs0HZAn+3CAnLQCUYn+jnwP1oZvi/8eN7nXpbuD4ulHwNq9KLs39AR6gAVcqqeJjFiOcYYR+sJGmNo=
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole
         if: ${{ github.event.inputs.apply_true == 'true' && success() }}
+
+      - name: Get Terraform version
+        id: get_tf_version
+        run: |
+          TF_VERSION=$(cat .terraform-version)
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
