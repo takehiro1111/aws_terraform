@@ -1,5 +1,5 @@
 name: tf_plan
-run-name: ${{ github.workflow }} on ${{ github.job }} triggered by ${{ github.actor }}
+run-name: ${{ github.workflow }} triggered by ${{ github.actor }}
 
 on:
   # push:
