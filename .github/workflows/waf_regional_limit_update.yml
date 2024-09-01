@@ -4,28 +4,40 @@ run-name: ${{ github.workflow }} triggered by ${{ github.actor }}
 on:
   workflow_dispatch:
     inputs:
-      plan_false:
-        description: 'Plan False'
+      actions_target:
+        description: 'Choice an Workflow Action'
         required: true
-        default: 'false'
+        default: 'none'
+        type: choice
+        options:
+          - 'Plan RegionalLimit False'
+          - 'Apply RegionalLimit False'
+          - 'Plan RegionalLimit True'
+          - 'Apply RegionalLimit True'
+          - 'none'
+      # plan_false:
+      #   description: 'Plan False'
+      #   required: true
+      #   default: 'false'
 
-      apply_false:
-        description: 'Apply False'
-        required: true
-        default: 'false'
+      # apply_false:
+      #   description: 'Apply False'
+      #   required: true
+      #   default: 'false'
 
-      plan_true:
-        description: 'Plan True'
-        required: true
-        default: 'false'
+      # plan_true:
+      #   description: 'Plan True'
+      #   required: true
+      #   default: 'false'
 
-      apply_true:
-        description: 'Apply True'
-        required: true
-        default: 'false'
+      # apply_true:
+      #   description: 'Apply True'
+      #   required: true
+      #   default: 'false'
 
 env:
   AWS_REGION: ap-northeast-1
+  WORKING_DIR: common/
 
 permissions:
   id-token: write
@@ -39,10 +51,10 @@ jobs:
   plan-false:
     name: Plan-False
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.plan_false == 'true' }}
+    if: ${{ inputs.actions_target == 'Plan RegionalLimit False' }}
     defaults:
       run:
-        working-directory: common/
+        working-directory: ${{ env.WORKING_DIR}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -85,10 +97,11 @@ jobs:
   apply-false:
     name: Apply-False
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.apply_false == 'true' }}
+    # if: ${{ github.event.inputs.apply_false == 'true' }}
+    if: ${{ inputs.actions_target == 'Apply RegionalLimit False' }}
     defaults:
       run:
-        working-directory: common/
+        working-directory: ${{ env.WORKING_DIR}}
     outputs:
       work_dir: ${{ steps.set_output_working_directory.outputs.WORKING_DIR }}
     steps:
@@ -139,10 +152,11 @@ jobs:
   plan-true:
     name: Plan-True
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.plan_true == 'true' }}
+    # if: ${{ github.event.inputs.plan_true == 'true' }}
+    if: ${{ inputs.actions_target == 'Plan RegionalLimit True' }}
     defaults:
       run:
-        working-directory: common/
+        working-directory: ${{ env.WORKING_DIR}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -165,7 +179,6 @@ jobs:
         id: setup_terraform
         with:
           terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
-        if: ${{ github.event.inputs.plan_true == 'true' && success() }}
 
       - name: Init
         id: init
@@ -181,16 +194,16 @@ jobs:
   apply-true:
     name: Apply-True
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.apply_true == 'true' }}
+    # if: ${{ github.event.inputs.apply_true == 'true' }}
+    if: ${{ inputs.actions_target == 'Apply RegionalLimit True' }}
     defaults:
       run:
-        working-directory: common/
+        working-directory: ${{ env.WORKING_DIR}}
     outputs:
       work_dir: ${{ steps.set_output_working_directory.outputs.WORKING_DIR }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        if: ${{ github.event.inputs.apply_true == 'true' }}
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
