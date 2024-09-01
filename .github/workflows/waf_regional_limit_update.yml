@@ -242,7 +242,6 @@ jobs:
             echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_OUTPUT
           fi
       
-
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2.2.0
         env:
@@ -252,4 +251,4 @@ jobs:
           SLACK_MESSAGE: ${{ steps.define_slack_variables.outputs.SLACK_MESSAGE }}
           # SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_TITLE: ${{ steps.conclusion.outputs.conclusion }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
