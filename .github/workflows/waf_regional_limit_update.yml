@@ -15,25 +15,6 @@ on:
           - 'Plan RegionalLimit True'
           - 'Apply RegionalLimit True'
           - ' '
-      # plan_false:
-      #   description: 'Plan False'
-      #   required: true
-      #   default: 'false'
-
-      # apply_false:
-      #   description: 'Apply False'
-      #   required: true
-      #   default: 'false'
-
-      # plan_true:
-      #   description: 'Plan True'
-      #   required: true
-      #   default: 'false'
-
-      # apply_true:
-      #   description: 'Apply True'
-      #   required: true
-      #   default: 'false'
 
 env:
   AWS_REGION: ap-northeast-1
@@ -46,7 +27,7 @@ permissions:
 
 jobs:
 ##########################################################
-# RegionalLimit Disable
+# Rule Disable
 ##########################################################
   plan-false:
     name: Plan-False
@@ -142,12 +123,8 @@ jobs:
         continue-on-error: false
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
 
-      - name: Set working directory
-        id: set_output_working_directory
-        run: echo "WORKING_DIR=${GITHUB_WORKSPACE}/${GITHUB_JOB}" >> $GITHUB_OUTPUT
-
 ##########################################################
-# RegionalLimit Enable
+# Rule Enable
 ##########################################################
   plan-true:
     name: Plan-True
@@ -238,10 +215,6 @@ jobs:
         if: ${{ steps.init.outcome == 'success' }}
         continue-on-error: false
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=true' -target='aws_wafv2_web_acl.region_count[0]'
-      
-      - name: Set working directory
-        id: set_output_working_directory
-        run: echo "WORKING_DIR=${GITHUB_WORKSPACE}/${GITHUB_JOB}" >> $GITHUB_OUTPUT
 
 ##########################################################
 # Notify Slack
@@ -262,11 +235,11 @@ jobs:
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=Working Directory:${{ needs.apply-false.outputs.work_dir }}" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=Working Directory:${{ env.WORKING_DIR }}" >> $GITHUB_OUTPUT
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Enabled Successful ✅" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=Working Directory:${{ needs.apply-true.outputs.work_dir }}" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=Working Directory:${{ env.WORKING_DIR }}}" >> $GITHUB_OUTPUT
           fi
       
       - name: Slack Notification
