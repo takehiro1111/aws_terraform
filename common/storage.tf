@@ -1291,7 +1291,7 @@ module "sam_deploy" {
 }
 
 ########################################################################
-# Firehose De;ivery Logs
+# Firehose Delivery Logs
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "firehose_delivery_logs" {
