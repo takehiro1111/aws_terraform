@@ -19,6 +19,7 @@ on:
 env:
   AWS_REGION: ap-northeast-1
   WORKING_DIR: common/
+  SLACK_ICON: images/terraform_logo.png
 
 permissions:
   id-token: write
@@ -249,6 +250,6 @@ jobs:
           SLACK_COLOR: ${{ steps.conclusion.outputs.conclusion }}
           SLACK_USERNAME: ${{ steps.define_slack_variables.outputs.SLACK_USERNAME }}
           SLACK_MESSAGE: ${{ steps.define_slack_variables.outputs.SLACK_MESSAGE }}
-          # SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_TITLE: ${{ steps.define_slack_variables.outputs.SLACK_TITLE }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
