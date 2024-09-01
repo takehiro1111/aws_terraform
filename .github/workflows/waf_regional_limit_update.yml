@@ -26,7 +26,6 @@ on:
 
 env:
   AWS_REGION: ap-northeast-1
-  SLACK_ICON: terraform_logo.png
 
 permissions:
   id-token: write
@@ -58,7 +57,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
-          role-session-name: GithubActions_AssumeRole_${{ github.actor }}
+          role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.actor }}
 
       - name: Get Terraform version
         id: get_tf_version
@@ -76,11 +75,11 @@ jobs:
         id: init
         if: ${{ steps.setup_terraform.outcome == 'success' }}
         run: terraform init
-        continue-on-error: false
 
       - name: Plan
         id: plan
         if: ${{ steps.init.outcome == 'success' }}
+        continue-on-error: false
         run: terraform plan -lock=false -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
 
   apply-false:
@@ -93,7 +92,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        if: ${{ github.event.inputs.apply_false == 'true' }}
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -105,30 +103,28 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
-          role-session-name: GithubActions_AssumeRole
-        if: ${{ github.event.inputs.apply_false == 'true' && success() }}
+          role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.actor }}
 
       - name: Get Terraform version
         id: get_tf_version
         run: |
           TF_VERSION=$(cat .terraform-version)
-          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_OUTPUT
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: ${{ env.TF_VERSION }}
-        if: ${{ github.event.inputs.apply_false == 'true' && success() }}
+          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
 
       - name: Init
         id: init
         if: ${{ steps.setup_terraform.outcome == 'success' }}
         run: terraform init
-        continue-on-error: false
 
       - name: Apply
         if: ${{ steps.init.outcome == 'success' }}
+        continue-on-error: false
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
 
 ##########################################################
@@ -144,38 +140,36 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        if: ${{ github.event.inputs.plan_true == 'true' }}
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
-          role-session-name: GithubActions_AssumeRole
-        if: ${{ github.event.inputs.plan_true == 'true' && success() }}
+          role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.actor }}
 
       - name: Get Terraform version
         id: get_tf_version
         run: |
           TF_VERSION=$(cat .terraform-version)
-          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_OUTPUT
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
         if: ${{ github.event.inputs.plan_true == 'true' && success() }}
 
       - name: Init
         id: init
         if: ${{ steps.setup_terraform.outcome == 'success' }}
         run: terraform init
-        continue-on-error: false
 
       - name: Plan
         id: plan
         if: ${{ steps.init.outcome == 'success' }}
+        continue-on-error: false
         run: terraform plan -lock=false -var 'waf_rule_regional_limit=true' -target='aws_wafv2_web_acl.region_count[0]'
 
   apply-true:
@@ -200,30 +194,28 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
-          role-session-name: GithubActions_AssumeRole
-        if: ${{ github.event.inputs.apply_true == 'true' && success() }}
+          role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.actor }}
 
       - name: Get Terraform version
         id: get_tf_version
         run: |
           TF_VERSION=$(cat .terraform-version)
-          echo TF_VERSION=$TF_VERSION >> $GITHUB_ENV
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_OUTPUT
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         id: setup_terraform
         with:
-          terraform_version: ${{ env.TF_VERSION }}
-        if: ${{ github.event.inputs.apply_true == 'true' && success() }}
+          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
 
       - name: Init
         id: init
         if: ${{ steps.setup_terraform.outcome == 'success' }}
         run: terraform init
-        continue-on-error: false
 
       - name: Apply
         if: ${{ steps.init.outcome == 'success' }}
+        continue-on-error: false
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=true' -target='aws_wafv2_web_acl.region_count[0]'
 
 ##########################################################
@@ -240,13 +232,14 @@ jobs:
         id: conclusion
 
       - name: Set Slack Title and Username
+        id: define_slack_variables
         run: |
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
-            echo "SLACK_MESSAGE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_ENV
-            echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_OUTPUT
+            echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_OUTPUT
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
-            echo "SLACK_MESSAGE=RegionalLimit Enabled Successful ✅" >> $GITHUB_ENV
-            echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=RegionalLimit Enabled Successful ✅" >> $GITHUB_OUTPUT
+            echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_OUTPUT
           fi
       
 
@@ -255,8 +248,8 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ steps.conclusion.outputs.conclusion }}
-          SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
-          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
-          SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_USERNAME: ${{ steps.define_slack_variables.outputs.SLACK_USERNAME }}
+          SLACK_MESSAGE: ${{ steps.define_slack_variables.outputs.SLACK_MESSAGE }}
+          # SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_TITLE: ${{ steps.conclusion.outputs.conclusion }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
