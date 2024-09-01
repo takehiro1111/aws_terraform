@@ -21,6 +21,10 @@ env:
   WORKING_DIR: common/
   SLACK_ICON: terraform_logo.png
 
+  aws_access_key_id: # actでの検証時に記載
+  aws_secret_access_key: # actでの検証時に記載
+  aws_session_token: # actでの検証時に記載
+
 permissions:
   id-token: write
   actions: write
@@ -47,6 +51,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.job }}
+          # actでの検証用
+          aws-access-key-id: ${{env.aws_access_key_id}}
+          aws-secret-access-key: ${{env.aws_secret_access_key}}
+          aws-session-token: ${{env.aws_session_token}}
 
       - name: Get Terraform version
         id: get_tf_version
@@ -88,6 +96,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.job }}
+          # actでの検証用
+          aws-access-key-id: ${{env.aws_access_key_id}}
+          aws-secret-access-key: ${{env.aws_secret_access_key}}
+          aws-session-token: ${{env.aws_session_token}}
 
       - name: Get Terraform version
         id: get_tf_version
@@ -131,6 +143,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.job }}
+          # actでの検証用
+          aws-access-key-id: ${{env.aws_access_key_id}}
+          aws-secret-access-key: ${{env.aws_secret_access_key}}
+          aws-session-token: ${{env.aws_session_token}}
 
       - name: Get Terraform version
         id: get_tf_version
@@ -172,6 +188,10 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.job }}
+          # actでの検証用
+          aws-access-key-id: ${{env.aws_access_key_id}}
+          aws-secret-access-key: ${{env.aws_secret_access_key}}
+          aws-session-token: ${{env.aws_session_token}}
 
       - name: Get Terraform version
         id: get_tf_version
