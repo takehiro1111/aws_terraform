@@ -7,14 +7,14 @@ on:
       actions_target:
         description: 'Choice an Workflow Action'
         required: true
-        default: 'none'
+        default: ' '
         type: choice
         options:
           - 'Plan RegionalLimit False'
           - 'Apply RegionalLimit False'
           - 'Plan RegionalLimit True'
           - 'Apply RegionalLimit True'
-          - 'none'
+          - ' '
       # plan_false:
       #   description: 'Plan False'
       #   required: true
