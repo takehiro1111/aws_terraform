@@ -10,10 +10,10 @@ on:
         default: ' '
         type: choice
         options:
-          - 'Plan RegionalLimit False'
-          - 'Apply RegionalLimit False'
-          - 'Plan RegionalLimit True'
-          - 'Apply RegionalLimit True'
+          - 'Plan Rule False'
+          - 'Apply Rule False'
+          - 'Plan Rule True'
+          - 'Apply Rule True'
           - ' '
 
 env:
@@ -32,7 +32,7 @@ jobs:
   plan-false:
     name: Plan-False
     runs-on: ubuntu-latest
-    if: ${{ inputs.actions_target == 'Plan RegionalLimit False' }}
+    if: ${{ inputs.actions_target == 'Plan Rule False' }}
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR}}
@@ -79,7 +79,7 @@ jobs:
     name: Apply-False
     runs-on: ubuntu-latest
     # if: ${{ github.event.inputs.apply_false == 'true' }}
-    if: ${{ inputs.actions_target == 'Apply RegionalLimit False' }}
+    if: ${{ inputs.actions_target == 'Apply Rule False' }}
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR}}
@@ -130,7 +130,7 @@ jobs:
     name: Plan-True
     runs-on: ubuntu-latest
     # if: ${{ github.event.inputs.plan_true == 'true' }}
-    if: ${{ inputs.actions_target == 'Plan RegionalLimit True' }}
+    if: ${{ inputs.actions_target == 'Plan Rule True' }}
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR}}
@@ -172,7 +172,7 @@ jobs:
     name: Apply-True
     runs-on: ubuntu-latest
     # if: ${{ github.event.inputs.apply_true == 'true' }}
-    if: ${{ inputs.actions_target == 'Apply RegionalLimit True' }}
+    if: ${{ inputs.actions_target == 'Apply Rule True' }}
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR}}
