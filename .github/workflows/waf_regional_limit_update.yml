@@ -52,9 +52,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
           role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.job }}
           # actでの検証用
-          aws-access-key-id: ${{env.aws_access_key_id}}
-          aws-secret-access-key: ${{env.aws_secret_access_key}}
-          aws-session-token: ${{env.aws_session_token}}
+          # aws-access-key-id: ${{env.aws_access_key_id}}
+          # aws-secret-access-key: ${{env.aws_secret_access_key}}
+          # aws-session-token: ${{env.aws_session_token}}
 
       - name: Get Terraform version
         id: get_tf_version
@@ -234,11 +234,11 @@ jobs:
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=Working_Dir:${{ env.WORKING_DIR }}" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=*Working_Dirextory:* \`${{ env.WORKING_DIR }}}\`" >> $GITHUB_OUTPUT
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Enabled Successful ✅" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=Working_Dir:${{ env.WORKING_DIR }}}" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE*Working_Dirextory:* \`${{ env.WORKING_DIR }}}\`" >> $GITHUB_OUTPUT
           fi
       
       - name: Slack Notification
