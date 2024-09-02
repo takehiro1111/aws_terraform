@@ -234,11 +234,11 @@ jobs:
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=*Working_Directory:* \`${{ env.WORKING_DIR }}\`" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=\*Working_Directory:\* \`${{ env.WORKING_DIR }}\`" >> $GITHUB_OUTPUT
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Enabled Successful ✅" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE*Working_Directory:* \`${{ env.WORKING_DIR }}\`" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=\*Working_Directory\* \`${{ env.WORKING_DIR }}\`" >> $GITHUB_OUTPUT
           fi
       
       - name: Slack Notification
