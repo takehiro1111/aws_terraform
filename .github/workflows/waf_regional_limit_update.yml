@@ -4,38 +4,45 @@ run-name: ${{ github.workflow }} by @${{ github.actor }}
 on:
   workflow_dispatch:
     inputs:
-      actions_target:
-        description: 'actions_target'
+      common:
+        description: 'common.com'
         required: true
         default: ' '
         type: choice
         options:
-          - 'Plan Rule False'
-          - 'Apply Rule False'
-          - 'Plan Rule True'
-          - 'Apply Rule True'
+          - 'plan_false'
+          - 'apply_false'
+          - 'plan_true'
+          - 'apply_true'
           - ' '
 
-      actions_target_2:
-        description: 'actions_target_2'
+      my_account:
+        description: 'my_account'
         required: true
         default: ' '
         type: choice
         options:
-          - 'Plan Rule False'
-          - 'Apply Rule False'
-          - 'Plan Rule True'
-          - 'Apply Rule True'
+          - 'plan_false'
+          - 'apply_false'
+          - 'plan_true'
+          - 'apply_true'
           - ' '
 
 env:
   AWS_REGION: ap-northeast-1
-  WORKING_DIR: common/
+  COMMON_DIR: common/
+  MY_ACCOUNT_DIR: my_account/prod/
+  COMMON_ASSUME_ROLE: arn:aws:iam::421643133281:role/deploy-github-actions-for-waf
+  MY_ACCOUNT_ASSUMR_ROLE:
   SLACK_ICON: terraform_logo.png
 
   aws_access_key_id: # actでの検証時に記載
   aws_secret_access_key: # actでの検証時に記載
   aws_session_token: # actでの検証時に記載
+
+defaults:
+  run: 
+    shell: bash
 
 permissions:
   id-token: write
@@ -44,24 +51,37 @@ permissions:
 
 jobs:
 ##########################################################
-# Rule Disable
+# Common
 ##########################################################
+# WAF Rule Disabled
   plan-false:
     name: Plan-False
     runs-on: ubuntu-latest
-    if: ${{ inputs.actions_target == 'Plan Rule False' }}
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR}}
+    timeout-minutes: 10
+    if: ${{ inputs.common == 'plan_false' || inputs.my_account == 'plan_false'  }}
+    # ステップの中でディレクトリを定義するためコメントアウト。
+    # defaults:
+    #   run:
+    #     working-directory: ${{ env.COMMON_DIR}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set AWS Role
+        id: set-role
+        run: |
+          if [[ "${{ inputs.common == 'plan_false' }} ]]; then
+            echo "COMMON_ASSUME_ROLE=${{ env.COMMON_ASSUME_ROLE }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.my_account == 'plan_false' }}" ]]; then
+            echo "MY_ACCOUNT_ASSUMR_ROLE=${{ env.MY_ACCOUNT_ASSUMR_ROLE }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
+          # role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_FOR_WAF }}
+          role-to-assume: 
           role-session-name: GithubActions_AssumeRole_${{ github.workflow }}_${{ github.job }}
           # actでの検証用
           # aws-access-key-id: ${{env.aws_access_key_id}}
@@ -94,10 +114,11 @@ jobs:
   apply-false:
     name: Apply-False
     runs-on: ubuntu-latest
-    if: ${{ inputs.actions_target == 'Apply Rule False' }}
+    timeout-minutes: 5
+    if: ${{ inputs.common == 'apply_false' }}
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR}}
+        working-directory: ${{ env.COMMON_DIR}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -135,16 +156,15 @@ jobs:
         if: ${{ steps.init.outcome == 'success' }}
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
 
-##########################################################
-# Rule Enable
-##########################################################
+# WAF Rule Enabled
   plan-true:
     name: Plan-True
     runs-on: ubuntu-latest
-    if: ${{ inputs.actions_target == 'Plan Rule True' }}
+    timeout-minutes: 5
+    if: ${{ inputs.common == 'plan_true' }}
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR}}
+        working-directory: ${{ env.COMMON_DIR}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -186,10 +206,11 @@ jobs:
   apply-true:
     name: Apply-True
     runs-on: ubuntu-latest
-    if: ${{ inputs.actions_target == 'Apply Rule True' }}
+    timeout-minutes: 5
+    if: ${{ inputs.common == 'apply_true' }}
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR}}
+        working-directory: ${{ env.COMMON_DIR}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -246,11 +267,11 @@ jobs:
           if [[ "${{ needs.apply-false.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Disabled Successful 🚫" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply False🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=directory: \`${{ env.WORKING_DIR }}\`" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=directory: \`${{ env.COMMON_DIR }}\`" >> $GITHUB_OUTPUT
           elif [[ "${{ needs.apply-true.result }}" == "success" ]]; then
             echo "SLACK_TITLE=RegionalLimit Enabled Successful ✅" >> $GITHUB_OUTPUT
             echo "SLACK_USERNAME=WAF Apply True🚀" >> $GITHUB_OUTPUT
-            echo "SLACK_MESSAGE=directory: \`${{ env.WORKING_DIR }}\`" >> $GITHUB_OUTPUT
+            echo "SLACK_MESSAGE=directory: \`${{ env.COMMON_DIR }}\`" >> $GITHUB_OUTPUT
           fi
       
       - name: Slack Notification
