@@ -828,6 +828,40 @@ resource "aws_iam_role_policy" "firehose_delivery_role" {
 EOF
 }
 
+resource "aws_iam_role" "extract_sg_role" {
+  name = "extract-sg-untagged"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          // 00-sre-managementに配置しているIAMロールを許可することでクロスアカウントで処理を実行する。
+          AWS = "arn:aws:iam::421643133281:role/extract-sg-untagged-lambda-execution-role"
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy_document" "extract_sg_role" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeSecurityGroups",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "extract_sg_role" {
+  name   = aws_iam_role.extract_sg_role.name
+  role   = aws_iam_role.extract_sg_role.name
+  policy = data.aws_iam_policy_document.extract_sg_role.json
+}
+
+
 #####################################################
 # KMS
 #####################################################

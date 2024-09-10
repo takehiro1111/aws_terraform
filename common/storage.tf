@@ -1297,6 +1297,9 @@ module "sam_deploy" {
 module "firehose_delivery_logs" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
+  #   providers = {
+  #   aws = aws.us-east-1
+  # }
 
   # aws_s3_bucket
   bucket              = "firehose-delivery-logs-${data.aws_caller_identity.current.account_id}"
