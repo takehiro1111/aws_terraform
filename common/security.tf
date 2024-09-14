@@ -1001,6 +1001,77 @@ resource "aws_kms_key_policy" "s3" {
   })
 }
 
+resource "aws_iam_role" "glue_crawler_vpc_flow_logs" {
+  name = "glue_crawler_role_vpc_flow_logs"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "glue.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "glue_crawler_vpc_flow_logs" {
+  role       = aws_iam_role.glue_crawler_vpc_flow_logs.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+resource "aws_iam_role_policy" "glue_crawler_vpc_flow_logs" {
+  role = aws_iam_role.glue_crawler_vpc_flow_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetBucketLocation",
+          "s3:ListBucket",
+          "s3:GetObject"
+        ]
+        Resource = [
+          module.s3_for_vpc_flow_log_stg.s3_bucket_arn,
+          "${module.s3_for_vpc_flow_log_stg.s3_bucket_arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "aws_glue_service_role_fluentd_log_stg" {
+  role       = aws_iam_role.aws_glue_service_role_fluentd_log_stg.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+resource "aws_iam_role_policy" "aws_glue_service_role_fluentd_log_stg" {
+  name = "AWSGlueServiceRole-fluentd-log-stg"
+  role = aws_iam_role.aws_glue_service_role_fluentd_log_stg.name
+
+  policy = <<EOF
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::nextbeat-stats-fluentd-log-stg/*"
+          ]
+        }
+      ]
+    }
+  EOF
+}
+
 #####################################################
 # WAF
 #####################################################

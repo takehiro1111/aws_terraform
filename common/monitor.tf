@@ -344,3 +344,64 @@ resource "aws_kinesis_firehose_delivery_stream" "logs" {
 resource "aws_opensearch_domain" "logs" {
   domain_name = "firehose-os-test"
 }
+
+
+/**
+ * VPC FlowLogs
+ */
+resource "aws_athena_workgroup" "forwarding_flow_logs_stats_s3" {
+  name          = "forwarding-vpc-flow-log-${local.env}"
+  description   = "Querying VPC Flow Logs for a Product's Accounts"
+  state         = "ENABLED"
+  force_destroy = true // 一時的な検証用のため。
+
+  configuration {
+    enforce_workgroup_configuration    = true
+    publish_cloudwatch_metrics_enabled = true
+
+    result_configuration {
+      output_location = "s3://${module.athena_query_result_for_vpc_flow_log.s3_bucket_id}/output/"
+
+      encryption_configuration {
+        encryption_option = "SSE_S3"
+      }
+    }
+  }
+}
+
+resource "aws_glue_catalog_database" "vpc_flow_logs" {
+  name = "vpc_flow_logs_glue_database"
+}
+
+resource "aws_glue_crawler" "vpc_flow_logs" {
+  name          = aws_glue_catalog_database.vpc_flow_logs.id
+  role          = aws_iam_role.glue_crawler_vpc_flow_logs.arn
+  database_name = aws_glue_catalog_database.vpc_flow_logs.id
+  schedule      = "cron(0 0 * * ? *)"
+
+  schema_change_policy {
+    delete_behavior = "DELETE_FROM_DATABASE"
+    update_behavior = "UPDATE_IN_DATABASE"
+  }
+
+  s3_target {
+    path = "s3://${module.s3_for_vpc_flow_log_stg.s3_bucket_id}"
+  }
+
+  configuration = <<EOF
+    {
+      "Version": 1.0,
+      "Grouping": {
+        "TableGroupingPolicy": "CombineCompatibleSchemas"
+      },
+      "CrawlerOutput": {
+        "Partitions": {
+          "AddOrUpdateBehavior": "InheritFromTable"
+        },
+        "Tables": {
+          "AddOrUpdateBehavior": "MergeNewColumns"
+        }
+      }
+    }
+  EOF
+}
