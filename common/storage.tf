@@ -1412,13 +1412,13 @@ module "s3_for_vpc_flow_log_stg" {
   version = "4.1.2"
 
   # aws_s3_bucket
-  bucket              = "vpc-flow-logs-${local.env}-${data.aws_caller_identity.self.account_id}"
+  bucket              = "forward-vpc-flow-logs-${local.env}-${data.aws_caller_identity.current.account_id}"
   force_destroy       = true // 一時的な検証用に使用するバケットのため
   object_lock_enabled = false
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = data.aws_s3_bucket.s3_accesslog_nextbeat.bucket
+    target_bucket = aws_s3_bucket.logging.bucket
     target_prefix = "${local.env}/${module.s3_for_vpc_flow_log_stg.s3_bucket_id}/"
 
     target_object_key_format = {
@@ -1430,10 +1430,7 @@ module "s3_for_vpc_flow_log_stg" {
 
   # aws_s3_bucket_ownership_controls
   control_object_ownership = true
-  object_ownership         = "BucketOwnerPreferred"
-
-  # aws_s3_bucket_acl
-  acl = "private"
+  object_ownership         = "BucketOwnerEnforced"
 
   # aws_s3_bucket_versioning
   versioning = {
@@ -1505,13 +1502,13 @@ module "athena_query_result_for_vpc_flow_log" {
   version = "4.1.2"
 
   # aws_s3_bucket
-  bucket              = "athena-result-vpc-flow-logs-${data.aws_caller_identity.self.account_id}"
+  bucket              = "athena-result-vpc-flow-logs-${data.aws_caller_identity.current.account_id}"
   force_destroy       = true // 一時的な検証用に使用するバケットのため
   object_lock_enabled = false
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = data.aws_s3_bucket.s3_accesslog_nextbeat.bucket
+    target_bucket = aws_s3_bucket.logging.bucket
     target_prefix = "${local.env}/${module.s3_for_vpc_flow_log_stg.s3_bucket_id}/"
 
     target_object_key_format = {
@@ -1523,10 +1520,7 @@ module "athena_query_result_for_vpc_flow_log" {
 
   # aws_s3_bucket_ownership_controls
   control_object_ownership = true
-  object_ownership         = "BucketOwnerPreferred"
-
-  # aws_s3_bucket_acl
-  acl = "private"
+  object_ownership         = "BucketOwnerEnforced"
 
   # aws_s3_bucket_versioning
   versioning = {

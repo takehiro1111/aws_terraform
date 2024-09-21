@@ -760,107 +760,150 @@ resource "aws_iam_role_policy_attachment" "firehose_delivery_role" {
     IAM policy document uses sensitive action 'es:ESHttpGet' on wildcarded resource '8b0806a0-9bce-45c3-8e47-7b65366d8275/_all/_settings'
     IAM policy document uses sensitive action 'lambda:InvokeFunction' on wildcarded resource 'arn:aws:lambda:ap-northeast-1:${data.aws_caller_identity.current.account_id}:function:*'
  */
-resource "aws_iam_role_policy" "firehose_delivery_role" {
-  name = "ForFirehoseDeliveryStg"
-  role = aws_iam_role.firehose_delivery_role.id
+# resource "aws_iam_role_policy" "firehose_delivery_role" {
+#   name = "ForFirehoseDeliveryStg"
+#   role = aws_iam_role.firehose_delivery_role.id
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:AbortMultipartUpload",
-                "s3:GetBucketLocation",
-                "s3:GetObject",
-                "s3:ListBucket",
-                "s3:ListBucketMultipartUploads",
-                "s3:PutObject"
-            ],
-            "Resource": [
-              "${module.firehose_delivery_logs.s3_bucket_arn}/*",
-            ]
-        },
-        {
-           "Effect": "Allow",
-           "Action": [
-               "es:DescribeElasticsearchDomain",
-               "es:DescribeElasticsearchDomains",
-               "es:DescribeElasticsearchDomainConfig",
-               "es:ESHttpPost",
-               "es:ESHttpPut"
-           ],
-          "Resource": [
-              "${aws_opensearch_domain.logs.arn}",
-              "${aws_opensearch_domain.logs.arn}/*"
-          ]
-       },
-       {
-          "Effect": "Allow",
-          "Action": [
-              "es:ESHttpGet"
-          ],
-          "Resource": [
-              "${aws_opensearch_domain.logs.arn}/_all/_settings",
-              "${aws_opensearch_domain.logs.arn}/_cluster/stats",
-              "${aws_opensearch_domain.logs.arn}/index-name*/_mapping/type-name",
-              "${aws_opensearch_domain.logs.arn}/_nodes",
-              "${aws_opensearch_domain.logs.arn}/_nodes/stats",
-              "${aws_opensearch_domain.logs.arn}/_nodes/*/stats",
-              "${aws_opensearch_domain.logs.arn}/_stats",
-              "${aws_opensearch_domain.logs.arn}/index-name*/_stats"
-          ]
-       },
-       {
-              "Effect": "Allow",
-              "Action": [
-                  "lambda:InvokeFunction",
-                  "lambda:GetFunctionConfiguration",
-                  "lambda:ListTags"
-              ],
-              "Resource": [
-                  "arn:aws:lambda:ap-northeast-1:${data.aws_caller_identity.current.account_id}:function:*"
-              ]
-       }
-    ]
-}
-EOF
-}
+#   policy = <<EOF
+# {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Effect": "Allow",
+#             "Action": [
+#                 "s3:AbortMultipartUpload",
+#                 "s3:GetBucketLocation",
+#                 "s3:GetObject",
+#                 "s3:ListBucket",
+#                 "s3:ListBucketMultipartUploads",
+#                 "s3:PutObject"
+#             ],
+#             "Resource": [
+#               "${module.firehose_delivery_logs.s3_bucket_arn}/*",
+#             ]
+#         },
+#         {
+#            "Effect": "Allow",
+#            "Action": [
+#                "es:DescribeElasticsearchDomain",
+#                "es:DescribeElasticsearchDomains",
+#                "es:DescribeElasticsearchDomainConfig",
+#                "es:ESHttpPost",
+#                "es:ESHttpPut"
+#            ],
+#           "Resource": [
+#               "${aws_opensearch_domain.logs.arn}",
+#               "${aws_opensearch_domain.logs.arn}/*"
+#           ]
+#        },
+#        {
+#           "Effect": "Allow",
+#           "Action": [
+#               "es:ESHttpGet"
+#           ],
+#           "Resource": [
+#               "${aws_opensearch_domain.logs.arn}/_all/_settings",
+#               "${aws_opensearch_domain.logs.arn}/_cluster/stats",
+#               "${aws_opensearch_domain.logs.arn}/index-name*/_mapping/type-name",
+#               "${aws_opensearch_domain.logs.arn}/_nodes",
+#               "${aws_opensearch_domain.logs.arn}/_nodes/stats",
+#               "${aws_opensearch_domain.logs.arn}/_nodes/*/stats",
+#               "${aws_opensearch_domain.logs.arn}/_stats",
+#               "${aws_opensearch_domain.logs.arn}/index-name*/_stats"
+#           ]
+#        },
+#        {
+#               "Effect": "Allow",
+#               "Action": [
+#                   "lambda:InvokeFunction",
+#                   "lambda:GetFunctionConfiguration",
+#                   "lambda:ListTags"
+#               ],
+#               "Resource": [
+#                   "arn:aws:lambda:ap-northeast-1:${data.aws_caller_identity.current.account_id}:function:*"
+#               ]
+#        }
+#     ]
+# }
+# EOF
+# }
 
-resource "aws_iam_role" "extract_sg_role" {
-  name = "extract-sg-untagged"
+# resource "aws_iam_role" "extract_sg_role" {
+#   name = "extract-sg-untagged"
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole",
+#         Effect = "Allow",
+#         Principal = {
+#           // 00-sre-managementに配置しているIAMロールを許可することでクロスアカウントで処理を実行する。
+#           AWS = "arn:aws:iam::421643133281:role/extract-sg-untagged-lambda-execution-role"
+#         }
+#       }
+#     ]
+#   })
+# }
+
+# data "aws_iam_policy_document" "extract_sg_role" {
+#   statement {
+#     effect = "Allow"
+#     actions = [
+#       "ec2:DescribeSecurityGroups",
+#     ]
+#     resources = ["*"]
+#   }
+# }
+
+# resource "aws_iam_role_policy" "extract_sg_role" {
+#   name   = aws_iam_role.extract_sg_role.name
+#   role   = aws_iam_role.extract_sg_role.name
+#   policy = data.aws_iam_policy_document.extract_sg_role.json
+# }
+
+resource "aws_iam_role" "glue_crawler_vpc_flow_logs" {
+  name = "glue_crawler_role_vpc_flow_logs"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
         Principal = {
-          // 00-sre-managementに配置しているIAMロールを許可することでクロスアカウントで処理を実行する。
-          AWS = "arn:aws:iam::421643133281:role/extract-sg-untagged-lambda-execution-role"
+          Service = "glue.amazonaws.com"
         }
       }
     ]
   })
 }
 
-data "aws_iam_policy_document" "extract_sg_role" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "ec2:DescribeSecurityGroups",
+resource "aws_iam_role_policy_attachment" "glue_crawler_vpc_flow_logs" {
+  role       = aws_iam_role.glue_crawler_vpc_flow_logs.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+resource "aws_iam_role_policy" "glue_crawler_vpc_flow_logs" {
+  role = aws_iam_role.glue_crawler_vpc_flow_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetBucketLocation",
+          "s3:ListBucket",
+          "s3:GetObject"
+        ]
+        Resource = [
+          module.s3_for_vpc_flow_log_stg.s3_bucket_arn,
+          "${module.s3_for_vpc_flow_log_stg.s3_bucket_arn}/*"
+        ]
+      }
     ]
-    resources = ["*"]
-  }
+  })
 }
-
-resource "aws_iam_role_policy" "extract_sg_role" {
-  name   = aws_iam_role.extract_sg_role.name
-  role   = aws_iam_role.extract_sg_role.name
-  policy = data.aws_iam_policy_document.extract_sg_role.json
-}
-
 
 #####################################################
 # KMS
@@ -999,77 +1042,6 @@ resource "aws_kms_key_policy" "s3" {
       }
     ]
   })
-}
-
-resource "aws_iam_role" "glue_crawler_vpc_flow_logs" {
-  name = "glue_crawler_role_vpc_flow_logs"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "glue.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "glue_crawler_vpc_flow_logs" {
-  role       = aws_iam_role.glue_crawler_vpc_flow_logs.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-}
-
-resource "aws_iam_role_policy" "glue_crawler_vpc_flow_logs" {
-  role = aws_iam_role.glue_crawler_vpc_flow_logs.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:GetObject"
-        ]
-        Resource = [
-          module.s3_for_vpc_flow_log_stg.s3_bucket_arn,
-          "${module.s3_for_vpc_flow_log_stg.s3_bucket_arn}/*"
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "aws_glue_service_role_fluentd_log_stg" {
-  role       = aws_iam_role.aws_glue_service_role_fluentd_log_stg.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-}
-
-resource "aws_iam_role_policy" "aws_glue_service_role_fluentd_log_stg" {
-  name = "AWSGlueServiceRole-fluentd-log-stg"
-  role = aws_iam_role.aws_glue_service_role_fluentd_log_stg.name
-
-  policy = <<EOF
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": [
-            "s3:GetObject"
-          ],
-          "Resource": [
-            "arn:aws:s3:::nextbeat-stats-fluentd-log-stg/*"
-          ]
-        }
-      ]
-    }
-  EOF
 }
 
 #####################################################
