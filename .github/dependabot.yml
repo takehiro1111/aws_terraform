@@ -1,0 +1,11 @@
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: technote-space/workflow-conclusion-action
+        update-types:
+          - version-update:semver-major
