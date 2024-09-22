@@ -1,5 +1,5 @@
 name: dependabot_auto_merge
-run-name: dependabot_auto_merge
+run-name: triger by @${{github.actor}}
 
 on: pull_request
 
