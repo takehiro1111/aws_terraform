@@ -1,4 +1,4 @@
-name: waf_regionallimit_update
+name: waf_regionallimit_update_slack
 run-name: ${{ github.workflow }} by @${{ github.actor }}
 
 on:
