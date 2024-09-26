@@ -76,18 +76,26 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]' -out=tfplan
 
       - name: Send Slack notification for confirmation
-        uses: rtCamp/action-slack-notify@v2.2.0
+        uses: rtCamp/action-slack-notify@v2.3.0
         with:
           webhook_url: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
           message: |
             `terraform plan` has completed. Please confirm to proceed with `terraform apply`.
             Respond with `yes` or `no` to continue the process.
+
         env:
           SLACK_COLOR: '#00FF00'
           SLACK_USERNAME: 'TerraformBot'
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
+          # SLACK_COLOR: ${{ steps.conclusion.outputs.conclusion }}
+          # SLACK_USERNAME: ${{ steps.define_slack_variables.outputs.SLACK_USERNAME }}
+          # SLACK_MESSAGE: ${{ steps.define_slack_variables.outputs.SLACK_MESSAGE }}
+          SLACK_ICON: ${{ env.SLACK_ICON }}
+          # SLACK_TITLE: ${{ steps.define_slack_variables.outputs.SLACK_TITLE }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
 
       - name: Wait for Slack confirmation
         run: |
