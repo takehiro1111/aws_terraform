@@ -51,48 +51,6 @@ jobs:
 # Common
 ##########################################################
 # WAF Rule Disabled
-  plan-false:
-    name: Plan-False
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: ${{ inputs.common == 'plan_false' || inputs.my_account == 'plan_false'  }}
-    defaults:
-      run:
-        working-directory: ${{ env.COMMON_DIR}}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.ASSUME_ROLE }}
-          role-session-name: ${{ github.workflow }}_${{ github.job }}
-
-      - name: Get Terraform version
-        id: get_tf_version
-        run: |
-          TF_VERSION=$(cat .terraform-version)
-          echo TF_VERSION=$TF_VERSION >> $GITHUB_OUTPUT
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        id: setup_terraform
-        with:
-          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
-
-      - name: Init
-        id: init
-        if: ${{ steps.setup_terraform.outcome == 'success' }}
-        continue-on-error: false
-        run: terraform init
-
-      - name: Plan
-        id: plan
-        if: ${{ steps.init.outcome == 'success' }}
-        run: terraform plan -lock=false -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
-
   apply-false:
     name: Apply-False
     runs-on: ubuntu-latest
@@ -130,53 +88,48 @@ jobs:
         continue-on-error: false
         run: terraform init
 
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan
+
+      - name: Send Slack notification for confirmation
+        uses: rtCamp/action-slack-notify@v2.2.0
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
+          message: |
+            `terraform plan` has completed. Please confirm to proceed with `terraform apply`.
+            Respond with `yes` or `no` to continue the process.
+        env:
+          SLACK_COLOR: '#00FF00'
+          SLACK_USERNAME: 'TerraformBot'
+
+      - name: Wait for Slack confirmation
+        run: |
+          echo "Waiting for confirmation..."
+          for i in {1..12}; do
+            result=$(curl -s -H "Authorization: Bearer ${{ env.SLACK_BOT_TOKEN }}" \
+                "https://slack.com/api/conversations.history?channel=${{ env.SLACK_CHANNEL_ID }}&limit=1" \
+                | jq -r '.messages[0].text')
+            echo "Last message: $result"
+            if [[ "$result" == "yes" ]]; then
+              echo "Confirmed. Proceeding with terraform apply."
+              exit 0
+            elif [[ "$result" == "no" ]]; then
+              echo "Confirmation declined. Stopping process."
+              exit 1
+            fi
+            sleep 10
+          done
+        env:
+          SLACK_CHANNEL_ID: C07EFGAE81J
+          SLACK_BOT_TOKEN: xoxb-6797575963079-7482444612838-ByYfqLwJQBMpnboyOxzggefv
+
+
       - name: Apply
-        if: ${{ steps.init.outcome == 'success' }}
+        if: success()
         run: terraform apply -lock=false -auto-approve -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]'
 
 # WAF Rule Enabled
-  plan-true:
-    name: Plan-True
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: ${{ inputs.common == 'plan_true' }}
-    defaults:
-      run:
-        working-directory: ${{ env.COMMON_DIR}}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.ASSUME_ROLE }}
-          role-session-name: ${{ github.workflow }}_${{ github.job }}
-
-      - name: Get Terraform version
-        id: get_tf_version
-        run: |
-          TF_VERSION=$(cat .terraform-version)
-          echo TF_VERSION=$TF_VERSION >> $GITHUB_OUTPUT
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        id: setup_terraform
-        with:
-          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
-
-      - name: Init
-        id: init
-        if: ${{ steps.setup_terraform.outcome == 'success' }}
-        continue-on-error: false
-        run: terraform init
-
-      - name: Plan
-        id: plan
-        if: ${{ steps.init.outcome == 'success' }}
-        run: terraform plan -lock=false -var 'waf_rule_regional_limit=true' -target='aws_wafv2_web_acl.region_count[0]'
-
   apply-true:
     name: Apply-True
     runs-on: ubuntu-latest
