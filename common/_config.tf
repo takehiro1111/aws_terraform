@@ -29,7 +29,7 @@ terraform {
     region         = "ap-northeast-1"
     acl            = "private"
     encrypt        = true
-    dynamodb_table = "tfstate-locks"
+    # dynamodb_table = "tfstate-locks"
   }
 }
 
