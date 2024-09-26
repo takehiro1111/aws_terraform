@@ -6,27 +6,13 @@ on:
     inputs:
       common:
         description: 'common.com'
-        required: true
-        default: ' '
+        required: false
+        default: ''
         type: choice
         options:
-          - 'plan_false'
           - 'apply_false'
-          - 'plan_true'
           - 'apply_true'
-          - ' '
-
-      my_account:
-        description: 'my_account'
-        required: true
-        default: ' '
-        type: choice
-        options:
-          - 'plan_false'
-          - 'apply_false'
-          - 'plan_true'
-          - 'apply_true'
-          - ' '
+          - ''
 
 env:
   AWS_REGION: ap-northeast-1
