@@ -85,16 +85,11 @@ jobs:
           message: |
             `terraform plan` has completed. Please confirm to proceed with `terraform apply`.
             Respond with `yes` or `no` to continue the process.
-
         env:
           SLACK_COLOR: '#00FF00'
           SLACK_USERNAME: 'TerraformBot'
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
-          # SLACK_COLOR: ${{ steps.conclusion.outputs.conclusion }}
-          # SLACK_USERNAME: ${{ steps.define_slack_variables.outputs.SLACK_USERNAME }}
-          # SLACK_MESSAGE: ${{ steps.define_slack_variables.outputs.SLACK_MESSAGE }}
           SLACK_ICON: ${{ env.SLACK_ICON }}
-          # SLACK_TITLE: ${{ steps.define_slack_variables.outputs.SLACK_TITLE }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
 
       - name: Wait for Slack confirmation
