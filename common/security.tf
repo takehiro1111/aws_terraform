@@ -475,8 +475,8 @@ resource "aws_iam_role" "github_actions_for_waf" {
 
 data "aws_iam_policy_document" "github_actions_for_waf" {
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "wafv2:UpdateWebACL",
       "wafv2:ListWebACLs",
       "wafv2:GetWebACL",
@@ -487,8 +487,8 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
     resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
   }
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "s3:GetObject",
       "s3:PutObject",
       "s3:ListBucket",
@@ -496,8 +496,8 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
     resources = ["${aws_s3_bucket.tfstate.arn}/*"]
   }
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
     ]
@@ -1065,7 +1065,7 @@ resource "aws_wafv2_web_acl" "region_count" {
   }
 
   dynamic "rule" {
-    for_each = var.waf_rule_regional_limit ? [1]:[]
+    for_each = var.waf_rule_regional_limit ? [1] : []
     content {
       name     = "RegionalLimit"
       priority = 1

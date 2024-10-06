@@ -7,7 +7,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.51.1"
+      version = "5.70.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -24,11 +24,11 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "terraform-state-421643133281"
-    key            = "common/state_common"
-    region         = "ap-northeast-1"
-    acl            = "private"
-    encrypt        = true
+    bucket  = "terraform-state-421643133281"
+    key     = "common/state_common"
+    region  = "ap-northeast-1"
+    acl     = "private"
+    encrypt = true
     # dynamodb_table = "tfstate-locks"
   }
 }

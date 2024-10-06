@@ -1365,7 +1365,8 @@ module "firehose_delivery_logs" {
           "s3:PutObject"
         ]
         Resource = [
-          "${module.firehose_delivery_logs.s3_bucket_arn}/*",
+          module.firehose_delivery_logs.s3_bucket_arn,
+          "${module.firehose_delivery_logs.s3_bucket_arn}/*"
         ]
       }
     ]

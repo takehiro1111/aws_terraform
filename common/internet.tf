@@ -165,7 +165,7 @@ resource "aws_cloudfront_distribution" "stg" {
 
   // ALB
   origin {
-    domain_name = aws_lb.this.dns_name
+    domain_name = module.alb_common.dns_name
     origin_id   = local.ecs_origin_id
 
     custom_origin_config {
@@ -316,9 +316,9 @@ module "main_stg" {
 
   // ALB
   origin = {
-    origin-alb = {
-      domain_name = aws_lb.this.dns_name
-      origin_id   = aws_lb.this.dns_name
+    origin_alb = {
+      domain_name = module.alb_common.dns_name
+      origin_id   = module.alb_common.dns_name
 
       custom_origin_config = {
         http_port                = 80
@@ -330,7 +330,7 @@ module "main_stg" {
       }
     }
 
-    origin-s3 = {
+    origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
       origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
       origin_access_control = "main-stg-oac"
@@ -344,7 +344,7 @@ module "main_stg" {
   }
 
   default_cache_behavior = {
-    target_origin_id       = aws_lb.this.dns_name
+    target_origin_id       = module.alb_common.dns_name
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
     cached_methods         = ["GET", "HEAD"]
@@ -394,130 +394,101 @@ module "main_stg" {
 #####################################################
 # ALB
 #####################################################
-resource "aws_lb" "this" {
-  name               = "common"
-  internal           = false
-  load_balancer_type = "application"
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/alb/aws/latest
+module "alb_common" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "9.11.0"
+
+  # handling ALB creation
+  create = true
+
+  # aws_lb
+  name                       = local.servicename
+  load_balancer_type         = "application"
+  internal                   = false
+  enable_deletion_protection = false
+
+  vpc_id = aws_vpc.common.id
+  subnets = [
+    aws_subnet.common["public_a"].id,
+    aws_subnet.common["public_c"].id
+  ]
+
+  create_security_group = false
   security_groups = [
     aws_security_group.alb_stg.id,
     aws_security_group.alb_9000.id,
     aws_vpc.common.default_security_group_id
   ]
-  subnets = [aws_subnet.common["public_a"].id, aws_subnet.common["public_c"].id]
 
-  enable_deletion_protection = false
-  drop_invalid_header_fields = true
-  depends_on                 = [aws_vpc.common]
-
-  access_logs {
-    bucket  = module.s3_alb_accesslog.s3_bucket_id
-    prefix  = "common"
+  access_logs = {
     enabled = true
-  }
-}
-
-#Listener------------------------------------
-resource "aws_lb_listener" "alb_443" {
-  load_balancer_arn = aws_lb.this.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
-  default_action {
-    type = "fixed-response"
-
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "Fixed response "
-      status_code  = "503"
-    }
-  }
-}
-
-// Prometheusの学習用
-# resource "aws_lb_listener" "alb_9000" {
-#   load_balancer_arn = aws_lb.this.arn
-#   port              = "9000"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-#   certificate_arn   = aws_acm_certificate.tanaka_cloud_net.arn
-#   default_action {
-#     type = "fixed-response"
-
-#     fixed_response {
-#       content_type = "text/plain"
-#       message_body = "Fixed response "
-#       status_code  = "503"
-#     }
-#   }
-# }
-
-resource "aws_alb_listener_rule" "nginx" {
-  listener_arn = aws_lb_listener.alb_443.arn
-  priority     = 2
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_nginx.arn
+    bucket  = module.s3_alb_accesslog.s3_bucket_id
+    prefix  = local.servicename
   }
 
-  condition {
-    host_header {
-      values = [module.value.cdn_tanaka_cloud_net]
+  # aws_lb_listener
+  ## aws_alb_listener_rule
+  listeners = {
+    https_443 = {
+      port            = 443
+      protocol        = "HTTPS"
+      ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+      certificate_arn = aws_acm_certificate.tanaka_cloud_net.arn
+      fixed_response = {
+        content_type = "text/html"
+        message_body = "Fixed response "
+        status_code  = "503"
+      }
+
+      rules = {
+        web = {
+          priority = 2
+          conditions = [
+            {
+              host_header = {
+                values = [module.value.cdn_tanaka_cloud_net]
+              }
+            },
+            {
+              path_pattern = {
+                values = ["*"]
+              }
+            }
+          ]
+          actions = [
+            {
+              type             = "forward"
+              target_group_arn = module.alb_common.target_groups.web.arn
+            }
+          ]
+        }
+      }
     }
   }
 
-  condition {
-    path_pattern {
-      values = ["*"]
+  # aws_lb_target_group
+  target_groups = {
+    web = {
+      name                 = "${local.servicename}-web"
+      port                 = 80
+      protocol             = "HTTP"
+      deregistration_delay = "60"
+      proxy_protocol_v2    = false
+      vpc_id               = aws_vpc.common.id
+      target_type          = "ip"
+      create_attachment    = false
+
+      health_check = {
+        healthy_threshold   = 5
+        interval            = 60
+        matcher             = "200"
+        path                = "/"
+        port                = "traffic-port"
+        protocol            = "HTTP"
+        timeout             = 30
+        unhealthy_threshold = 2
+      }
     }
   }
 }
-
-resource "aws_lb_target_group" "ecs_nginx" {
-  name                 = "nginx"
-  port                 = 80
-  protocol             = "HTTP"
-  deregistration_delay = "60"
-  proxy_protocol_v2    = false
-  vpc_id               = aws_vpc.common.id
-  target_type          = "ip"
-
-  health_check {
-    healthy_threshold   = 5
-    interval            = 60
-    matcher             = "200"
-    path                = "/"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = 30
-    unhealthy_threshold = 2
-  }
-}
-
-# resource "aws_lb_target_group" "ec2" {
-#   name                 = "ec2"
-#   port                 = 80
-#   protocol             = "HTTP"
-#   deregistration_delay = "60"
-#   proxy_protocol_v2    = false
-#   vpc_id               = aws_vpc.common.id
-#   target_type          = "instance"
-
-#   health_check {
-#     healthy_threshold   = 5
-#     interval            = 60
-#     matcher             = "200"
-#     path                = "/"
-#     port                = "traffic-port"
-#     protocol            = "HTTP"
-#     timeout             = 30
-#     unhealthy_threshold = 3
-#   }
-# }
-
-# resource "aws_lb_target_group_attachment" "ec2" {
-#   target_group_arn = aws_lb_target_group.ec2.arn
-#   target_id        = module.prometheus_server.instance_id
-#   port             = 80
-# }

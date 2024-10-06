@@ -156,12 +156,12 @@ resource "aws_sns_topic_subscription" "lambda_mail" {
 # SNS
 ######################################################################
 resource "aws_sns_topic" "slack_alert" {
-  name = "slack-alert"
+  name     = "slack-alert"
   provider = aws.us-east-1
 }
 
 resource "aws_sns_topic_policy" "slack_alert" {
-  arn = aws_sns_topic.slack_alert.arn
+  arn      = aws_sns_topic.slack_alert.arn
   provider = aws.us-east-1
   policy = jsonencode({
     Version = "2012-10-17",
@@ -171,7 +171,7 @@ resource "aws_sns_topic_policy" "slack_alert" {
         Principal = {
           Service = "budgets.amazonaws.com"
         },
-        Action = "SNS:Publish",
+        Action   = "SNS:Publish",
         Resource = aws_sns_topic.slack_alert.arn,
         Condition = {
           StringEquals = {
@@ -189,22 +189,22 @@ resource "aws_sns_topic_policy" "slack_alert" {
 locals {
   slack_info = {
     notify_slack_workspace = {
-      name = "/slack/workspace_id/personal"
+      name        = "/slack/workspace_id/personal"
       description = "個人用のSlackワークスペースID"
     }
     notify_slack_channel = {
-      name  = "/slack/channel_id/aws_alert"
+      name        = "/slack/channel_id/aws_alert"
       description = "通知用のSlackチャンネルID"
     }
   }
 }
 
 resource "aws_ssm_parameter" "slack_info" {
-  for_each = { for k,v in local.slack_info : k => v }
-  name  = each.value.name
+  for_each    = { for k, v in local.slack_info : k => v }
+  name        = each.value.name
   description = each.value.description
-  type  = "SecureString"
-  value = "コンソール画面で設定する。"
+  type        = "SecureString"
+  value       = "コンソール画面で設定する。"
 
   lifecycle {
     ignore_changes = [value]
@@ -217,15 +217,15 @@ resource "aws_ssm_parameter" "slack_info" {
 locals {
   chatbots = {
     personal = {
-      name = "common-alert-notify"
+      name               = "common-alert-notify"
       slack_workspace_id = "T06PFGXUB2B" # personal 
-      slack_channel_id = "C07GTL63RDJ"  # aws_alert
+      slack_channel_id   = "C07GTL63RDJ" # aws_alert
     }
   }
 }
 
 resource "awscc_chatbot_slack_channel_configuration" "example" {
-  for_each = { for k,v in local.chatbots : k => v}
+  for_each           = { for k, v in local.chatbots : k => v }
   configuration_name = each.key
   iam_role_arn       = aws_iam_role.chatbot.arn
   guardrail_policies = [
@@ -233,13 +233,13 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   ]
   slack_channel_id   = each.value.slack_channel_id
   slack_workspace_id = each.value.slack_workspace_id
-  logging_level = "ERROR"
-  sns_topic_arns = [aws_sns_topic.slack_alert.arn]
+  logging_level      = "ERROR"
+  sns_topic_arns     = [aws_sns_topic.slack_alert.arn]
   user_role_required = true
 
   tags = [
     {
-      key = "Name"
+      key   = "Name"
       value = each.key
     }
   ]
@@ -269,16 +269,16 @@ resource "aws_budgets_budget" "notify_slack" {
     include_support = true
   }
 
-    # SNS,Eメールアドレスへの通知設定
+  # SNS,Eメールアドレスへの通知設定
   dynamic "notification" {
     for_each = { for k, v in local.monthly_budget : k => v }
     content {
-      comparison_operator = "GREATER_THAN"
-      notification_type   = "ACTUAL"
-      threshold           = notification.value
-      threshold_type      = "ABSOLUTE_VALUE"
-      subscriber_sns_topic_arns = [aws_sns_topic.slack_alert.arn]
-      subscriber_email_addresses = [module.value.my_gmail_address,module.value.company_mail_address]
+      comparison_operator        = "GREATER_THAN"
+      notification_type          = "ACTUAL"
+      threshold                  = notification.value
+      threshold_type             = "ABSOLUTE_VALUE"
+      subscriber_sns_topic_arns  = [aws_sns_topic.slack_alert.arn]
+      subscriber_email_addresses = [module.value.my_gmail_address, module.value.company_mail_address]
     }
   }
 }
@@ -289,8 +289,8 @@ resource "aws_budgets_budget" "notify_slack" {
 locals {
   common_delivery = {
     common_vpc_flow_logs = {
-      create = true
-      name = "delivery-vpc-flow-logs"
+      create     = true
+      name       = "delivery-vpc-flow-logs"
       index_name = "comon_vpc_flow_logs"
     }
   }
@@ -322,19 +322,19 @@ locals {
 #       log_stream_name = "DestinationDelivery"
 #     }
 
-    // データの配信前に処理が必要な場合は設定する。
-    # processing_configuration {
-    #   enabled = "true"
+// データの配信前に処理が必要な場合は設定する。
+# processing_configuration {
+#   enabled = "true"
 
-    #   processors {
-    #     type = "Lambda"
+#   processors {
+#     type = "Lambda"
 
-    #     parameters {
-    #       parameter_name  = "LambdaArn"
-    #       parameter_value = "${aws_lambda_function.lambda_processor.arn}:$LATEST"
-    #     }
-    #   }
-    # }
+#     parameters {
+#       parameter_name  = "LambdaArn"
+#       parameter_value = "${aws_lambda_function.lambda_processor.arn}:$LATEST"
+#     }
+#   }
+# }
 #   }
 # }
 
