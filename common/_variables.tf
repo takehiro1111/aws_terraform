@@ -250,9 +250,3 @@ variable "create_nat_gw" {
   type        = bool
   default     = false
 }
-
-variable "cdn_stg" {
-  description = "Create CloudFront from Resource Block"
-  type        = bool
-  default     = false
-}

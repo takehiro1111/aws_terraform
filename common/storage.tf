@@ -425,8 +425,8 @@ resource "aws_s3_bucket_policy" "static" {
           "s3:PutObject"
         ],
         "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.static.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.static.bucket}/*",
+          aws_s3_bucket.static.arn,
+          "${aws_s3_bucket.static.arn}/*",
         ]
       },
       {
@@ -439,12 +439,12 @@ resource "aws_s3_bucket_policy" "static" {
           "s3:GetObject"
         ],
         "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.static.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.static.bucket}/*",
+          aws_s3_bucket.static.arn,
+          "${aws_s3_bucket.static.arn}/*",
         ],
         "Condition" : {
           "StringEquals" : {
-            "AWS:SourceArn" : module.main_stg.cloudfront_distribution_arn
+            "AWS:SourceArn" : module.cdn_common.cloudfront_distribution_arn
           }
         }
       }

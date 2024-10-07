@@ -1003,7 +1003,7 @@ resource "aws_kms_key_policy" "s3" {
         "Resource" : "*",
         "Condition" : {
           "StringEquals" : {
-            "AWS:SourceArn" : module.main_stg.cloudfront_distribution_arn
+            "AWS:SourceArn" : module.cdn_common.cloudfront_distribution_arn
           }
         }
       },

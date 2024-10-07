@@ -73,8 +73,8 @@ resource "aws_route53_record" "cdn_tanaka_cloud_net" {
   type    = "A"
 
   alias {
-    name                   = module.main_stg.cloudfront_distribution_domain_name
-    zone_id                = module.main_stg.cloudfront_distribution_hosted_zone_id
+    name                   = module.cdn_common.cloudfront_distribution_domain_name
+    zone_id                = module.cdn_common.cloudfront_distribution_hosted_zone_id
     evaluate_target_health = false
   }
 }
@@ -131,167 +131,15 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "Managed-SecurityHeadersPolicy"
 }
 
-resource "aws_cloudfront_function" "stg" {
-  count = var.cdn_stg ? 1 : 0
-
-  name    = "test-sg"
-  runtime = "cloudfront-js-2.0"
-  comment = "my function"
-  publish = true
-  code    = file("../function/function.js")
-}
-
-resource "aws_cloudfront_origin_access_control" "stg" {
-  count = var.cdn_stg ? 1 : 0
-
-  description                       = "${aws_s3_bucket.static.id}-oac"
-  name                              = "${aws_s3_bucket.static.id}-oac"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
-
-resource "aws_cloudfront_distribution" "stg" {
-  count = var.cdn_stg ? 1 : 0
-
-  aliases = [
-    module.value.cdn_tanaka_cloud_net
-  ]
-
-  enabled         = true
-  is_ipv6_enabled = true
-  price_class     = "PriceClass_All"
-  #web_acl_id      = aws_wafv2_web_acl.region_count.arn
-
-  // ALB
-  origin {
-    domain_name = module.alb_common.dns_name
-    origin_id   = local.ecs_origin_id
-
-    custom_origin_config {
-      http_port                = 80
-      https_port               = 443
-      origin_protocol_policy   = "https-only"
-      origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      origin_keepalive_timeout = "5"
-      origin_read_timeout      = "30"
-    }
-  }
-
-  // S3
-  origin {
-    domain_name              = aws_s3_bucket.static.bucket_regional_domain_name
-    origin_id                = aws_s3_bucket.static.bucket_regional_domain_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.stg[0].id
-  }
-
-  ordered_cache_behavior {
-    path_pattern           = "/maintenance/*"
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = aws_s3_bucket.static.bucket_regional_domain_name
-    compress               = false
-    viewer_protocol_policy = "redirect-to-https"
-    cache_policy_id        = data.aws_cloudfront_cache_policy.managed_caching_optimized.id
-  }
-
-  ordered_cache_behavior {
-    path_pattern             = "/index.php"
-    allowed_methods          = ["GET", "HEAD"]
-    cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = local.ecs_origin_id
-    compress                 = false
-    viewer_protocol_policy   = "redirect-to-https"
-    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-  }
-
-  default_cache_behavior {
-    allowed_methods          = ["GET", "HEAD", "DELETE", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = local.ecs_origin_id
-    compress                 = true
-    viewer_protocol_policy   = "redirect-to-https"
-    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.stg[0].arn
-    }
-  }
-
-  logging_config {
-    include_cookies = false
-    bucket          = aws_s3_bucket.cdn_log.bucket_domain_name
-    prefix          = "stg"
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    acm_certificate_arn            = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
-    cloudfront_default_certificate = "false"
-    minimum_protocol_version       = "TLSv1.2_2021"
-    ssl_support_method             = "sni-only"
-  }
-
-  dynamic "custom_error_response" {
-    for_each = var.full_maintenance || var.half_maintenance ? [1] : [0]
-
-    content {
-      error_caching_min_ttl = 10
-      error_code            = 503
-      response_code         = 503
-      response_page_path    = "/maintenance/maintenance.html"
-    }
-  }
-
-  custom_error_response {
-    error_caching_min_ttl = 10
-    error_code            = 500
-    response_code         = 500
-    response_page_path    = "/maintenance/maintenance.html"
-  }
-
-  custom_error_response {
-    error_caching_min_ttl = 10
-    error_code            = 501
-    response_code         = 501
-    response_page_path    = "/maintenance/maintenance.html"
-  }
-
-  custom_error_response {
-    error_caching_min_ttl = 10
-    error_code            = 502
-    response_code         = 502
-    response_page_path    = "/maintenance/maintenance.html"
-  }
-
-  custom_error_response {
-    error_caching_min_ttl = 10
-    error_code            = 504
-    response_code         = 504
-    response_page_path    = "/maintenance/maintenance.html"
-  }
-
-  tags = {
-    "Name" : "common"
-  }
-}
-
 # reference: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
-module "main_stg" {
+module "cdn_common" {
   source  = "terraform-aws-modules/cloudfront/aws"
   version = "3.4.0"
 
+  # aws_cloudfront_origin_access_control
   create_origin_access_control = true
   origin_access_control = {
-    main-stg-oac = {
+    cdn_common_oac = {
       description      = "Official Module Used CDN",
       origin_type      = "s3",
       signing_behavior = "always",
@@ -299,15 +147,16 @@ module "main_stg" {
     }
   }
 
+  # aws_cloudfront_distribution
+  create_distribution = true
   aliases          = [module.value.cdn_tanaka_cloud_net]
-  comment          = "Official Module Used for Test"
+  comment          = "common"
   enabled          = true
   is_ipv6_enabled  = true
   price_class      = "PriceClass_All"
   retain_on_delete = false
   # web_acl_id =  WAF作成時にコメントイン予定
 
-  //S3bucket作成してからコメントイン予定
   logging_config = {
     bucket          = aws_s3_bucket.cdn_log.bucket_domain_name
     prefix          = local.logging_config_prefix
@@ -333,7 +182,7 @@ module "main_stg" {
     origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
       origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
-      origin_access_control = "main-stg-oac"
+      origin_access_control = element(module.cdn_common.cloudfront_origin_access_controls_ids,0)
 
 
       origin_shield = {
@@ -399,10 +248,8 @@ module "alb_common" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.11.0"
 
-  # handling ALB creation
-  create = true
-
   # aws_lb
+  create = false
   name                       = local.servicename
   load_balancer_type         = "application"
   internal                   = false
