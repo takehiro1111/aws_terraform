@@ -92,6 +92,15 @@ module "route53_zones" {
   }
 }
 
+module "route53_records_takehiro1111_com" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "4.1.0"
+
+  create = true
+  zone_name = module.value.takehiro1111_com
+
+}
+
 #####################################################
 # ACM
 #####################################################
