@@ -17,3 +17,8 @@ output "lb_tanaka_cloud_net" {
 output "gcp_tanaka_cloud_net" {
   value = "gcp.tanaka-cloud.net"
 }
+
+output "takehiro1111_com" {
+  description = "お名前.comで取得した検証用ドメイン"
+  value = "takehiro1111.com"
+}
