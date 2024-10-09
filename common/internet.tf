@@ -79,6 +79,19 @@ resource "aws_route53_record" "cdn_tanaka_cloud_net" {
   }
 }
 
+module "route53_zones" {
+  source  = "terraform-aws-modules/route53/aws//modules/zones"
+  version = "4.1.0"
+
+  create = true
+  zones = {
+    takehiro1111_com = {
+      force_destroy = true
+      domain_name = module.value.takehiro1111_com
+    }
+  }
+}
+
 #####################################################
 # ACM
 #####################################################
@@ -177,7 +190,7 @@ module "cdn_common" {
         origin_keepalive_timeout = 5
         origin_read_timeout      = 20
       }
-    }
+    },
 
     origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
@@ -249,7 +262,7 @@ module "alb_common" {
   version = "9.11.0"
 
   # aws_lb
-  create = false
+  create = true
   name                       = local.servicename
   load_balancer_type         = "application"
   internal                   = false
