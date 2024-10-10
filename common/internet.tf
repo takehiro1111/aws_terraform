@@ -87,7 +87,7 @@ module "route53_zones" {
   zones = {
     takehiro1111_com = {
       force_destroy = true
-      domain_name = module.value.takehiro1111_com
+      domain_name   = module.value.takehiro1111_com
     }
   }
 }
@@ -96,10 +96,37 @@ module "route53_records_takehiro1111_com" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "4.1.0"
 
-  create = true
+  create    = true
   zone_name = module.value.takehiro1111_com
 
+  records_jsonencoded = jsonencode([
+    {
+      name    = trimprefix(module.route53_zones.route53_zone_name.takehiro1111_com, module.value.takehiro1111_com)
+      type    = "NS"
+      ttl     = 300
+      records = module.route53_zones.route53_zone_name_servers.takehiro1111_com
+    },
+    {
+      name = trimprefix(module.route53_zones.route53_zone_name.takehiro1111_com, module.value.takehiro1111_com)
+      type = "SOA"
+      ttl  = 300
+      records = [
+        "${module.route53_zones.primary_name_server.takehiro1111_com} awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+      ]
+    }
+  ])
 }
+
+import {
+  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" NS"]
+  id = "Z00993222OF88Y1B7TMBE_takehiro1111.com_NS"
+}
+
+import {
+  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" SOA"]
+  id = "Z00993222OF88Y1B7TMBE_takehiro1111.com_SOA"
+}
+
 
 #####################################################
 # ACM
@@ -171,12 +198,12 @@ module "cdn_common" {
 
   # aws_cloudfront_distribution
   create_distribution = true
-  aliases          = [module.value.cdn_tanaka_cloud_net]
-  comment          = "common"
-  enabled          = true
-  is_ipv6_enabled  = true
-  price_class      = "PriceClass_All"
-  retain_on_delete = false
+  aliases             = [module.value.cdn_tanaka_cloud_net]
+  comment             = "common"
+  enabled             = true
+  is_ipv6_enabled     = true
+  price_class         = "PriceClass_All"
+  retain_on_delete    = false
   # web_acl_id =  WAF作成時にコメントイン予定
 
   logging_config = {
@@ -204,7 +231,7 @@ module "cdn_common" {
     origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
       origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
-      origin_access_control = element(module.cdn_common.cloudfront_origin_access_controls_ids,0)
+      origin_access_control = element(module.cdn_common.cloudfront_origin_access_controls_ids, 0)
 
 
       origin_shield = {
@@ -271,7 +298,7 @@ module "alb_common" {
   version = "9.11.0"
 
   # aws_lb
-  create = true
+  create                     = true
   name                       = local.servicename
   load_balancer_type         = "application"
   internal                   = false
