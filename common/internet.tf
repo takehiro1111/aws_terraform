@@ -21,8 +21,8 @@ module "route53_records_takehiro1111_com" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "4.1.0"
 
-  create  = true
-  zone_id = module.route53_zones.route53_zone_zone_id.takehiro1111_com
+  create    = true
+  zone_id   = module.route53_zones.route53_zone_zone_id.takehiro1111_com
   zone_name = module.route53_zones.route53_zone_name.takehiro1111_com
 
   records = [
@@ -41,11 +41,11 @@ module "route53_records_takehiro1111_com" {
       ]
     },
     {
-      name = trimsuffix(module.value.cdn_takehiro1111_com,".${module.value.takehiro1111_com}")
+      name = trimsuffix(module.value.cdn_takehiro1111_com, ".${module.value.takehiro1111_com}")
       type = "A"
       alias = {
-        name = module.cdn_takehiro1111_com.cloudfront_distribution_domain_name
-        zone_id = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        name                   = module.cdn_takehiro1111_com.cloudfront_distribution_domain_name
+        zone_id                = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
         evaluate_target_health = false
       }
     }
@@ -167,7 +167,7 @@ module "cdn_takehiro1111_com" {
     origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
       origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
-      origin_access_control = module.cdn_takehiro1111_com.cloudfront_origin_access_controls.oac_takehiro1111_com.name 
+      origin_access_control = module.cdn_takehiro1111_com.cloudfront_origin_access_controls.oac_takehiro1111_com.name
 
       origin_shield = {
         enabled              = true
