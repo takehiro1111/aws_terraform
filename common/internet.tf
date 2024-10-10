@@ -97,7 +97,6 @@ module "acm_takehiro1111_com_ap_northeast_1" {
   wait_for_validation = false
 }
 
-
 #####################################################
 # CloudFront
 #####################################################
