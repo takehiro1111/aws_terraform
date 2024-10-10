@@ -167,8 +167,7 @@ module "cdn_takehiro1111_com" {
     origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
       origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
-      origin_access_control = element(module.cdn_takehiro1111_com.cloudfront_origin_access_controls_ids, 0)
-
+      origin_access_control = module.cdn_takehiro1111_com.cloudfront_origin_access_controls.oac_takehiro1111_com.name 
 
       origin_shield = {
         enabled              = true
