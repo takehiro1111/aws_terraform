@@ -22,3 +22,8 @@ output "takehiro1111_com" {
   description = "お名前.comで取得した検証用ドメイン"
   value = "takehiro1111.com"
 }
+
+output "wildcard_takehiro1111_com" {
+  description = "お名前.comで取得した検証用ドメイン"
+  value = "*.takehiro1111.com"
+}
