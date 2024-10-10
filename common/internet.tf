@@ -117,17 +117,6 @@ module "route53_records_takehiro1111_com" {
   ])
 }
 
-import {
-  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" NS"]
-  id = "Z00993222OF88Y1B7TMBE_takehiro1111.com_NS"
-}
-
-import {
-  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" SOA"]
-  id = "Z00993222OF88Y1B7TMBE_takehiro1111.com_SOA"
-}
-
-
 #####################################################
 # ACM
 #####################################################
