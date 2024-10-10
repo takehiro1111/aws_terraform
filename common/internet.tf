@@ -2,83 +2,8 @@
 # Route53
 #####################################################
 /* 
- * tanaka-cloud.net
+ * takehiro1111.com
  */
-resource "aws_route53_zone" "tanaka_cloud_net" {
-  name = module.value.tanaka_cloud_net
-}
-
-resource "aws_route53_record" "tanaka_cloud_net_default_ns" {
-  allow_overwrite = true
-  name            = module.value.tanaka_cloud_net
-  type            = "NS"
-  zone_id         = aws_route53_zone.tanaka_cloud_net.id
-  ttl             = 172800
-
-  records = aws_route53_zone.tanaka_cloud_net.name_servers
-}
-
-resource "aws_route53_record" "tanaka_cloud_net_default_soa" {
-  name    = module.value.tanaka_cloud_net
-  type    = "SOA"
-  zone_id = aws_route53_zone.tanaka_cloud_net.id
-  ttl     = 900
-
-  records = [
-    "${aws_route53_zone.tanaka_cloud_net.primary_name_server}. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
-
-  ]
-}
-
-# ACM DNS Validation(ap-northeast-1)
-resource "aws_route53_record" "tanaka_cloud_net_ap_northeast_1" {
-  for_each = {
-    for dvo in aws_acm_certificate.tanaka_cloud_net.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  allow_overwrite = true // 既存のレコードがある場合は上書きする
-  name            = each.value.name
-  records         = [each.value.record]
-  type            = each.value.type
-  ttl             = 60
-  zone_id         = aws_route53_zone.tanaka_cloud_net.zone_id
-}
-
-# ACM DNS Validation(us-east-1)
-resource "aws_route53_record" "tanaka_cloud_net_us_east_1" {
-  for_each = {
-    for dvo in aws_acm_certificate.tanaka_cloud_net_us_east_1.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = aws_route53_zone.tanaka_cloud_net.zone_id
-}
-
-// CloudFrontへのエイリアスレコード
-resource "aws_route53_record" "cdn_tanaka_cloud_net" {
-  zone_id = aws_route53_zone.tanaka_cloud_net.zone_id
-  name    = module.value.cdn_tanaka_cloud_net
-  type    = "A"
-
-  alias {
-    name                   = module.cdn_common.cloudfront_distribution_domain_name
-    zone_id                = module.cdn_common.cloudfront_distribution_hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
 module "route53_zones" {
   source  = "terraform-aws-modules/route53/aws//modules/zones"
   version = "4.1.0"
@@ -98,8 +23,9 @@ module "route53_records_takehiro1111_com" {
 
   create  = true
   zone_id = module.route53_zones.route53_zone_zone_id.takehiro1111_com
+  zone_name = module.route53_zones.route53_zone_name.takehiro1111_com
 
-  records_jsonencoded = jsonencode([
+  records = [
     {
       name    = trimprefix(module.route53_zones.route53_zone_name.takehiro1111_com, module.value.takehiro1111_com)
       type    = "NS"
@@ -113,43 +39,22 @@ module "route53_records_takehiro1111_com" {
       records = [
         "${module.route53_zones.primary_name_server.takehiro1111_com} awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
       ]
+    },
+    {
+      name = trimsuffix(module.value.cdn_takehiro1111_com,".${module.value.takehiro1111_com}")
+      type = "A"
+      alias = {
+        name = module.cdn_takehiro1111_com.cloudfront_distribution_domain_name
+        zone_id = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        evaluate_target_health = false
+      }
     }
-  ])
+  ]
 }
 
 #####################################################
 # ACM
 #####################################################
-#for ALB
-resource "aws_acm_certificate" "tanaka_cloud_net" {
-  domain_name               = module.value.wildcard_tanaka_cloud_net
-  validation_method         = "DNS"
-  subject_alternative_names = [module.value.tanaka_cloud_net]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# for CloudFront
-resource "aws_acm_certificate" "tanaka_cloud_net_us_east_1" {
-  domain_name               = module.value.wildcard_tanaka_cloud_net
-  validation_method         = "DNS"
-  subject_alternative_names = [module.value.tanaka_cloud_net]
-  provider                  = aws.us-east-1
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# Common Use
-resource "aws_acm_certificate_validation" "tanaka_cloud_net_us_east_1" {
-  certificate_arn         = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
-  validation_record_fqdns = [for record in aws_route53_record.tanaka_cloud_net_us_east_1 : record.fqdn]
-  provider                = aws.us-east-1
-}
-
 ## us-east-1
 module "acm_takehiro1111_com_us_east_1" {
   source  = "terraform-aws-modules/acm/aws"
@@ -212,25 +117,24 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "Managed-SecurityHeadersPolicy"
 }
 
-# reference: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
-module "cdn_common" {
+module "cdn_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
   version = "3.4.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = true
   origin_access_control = {
-    cdn_common_oac = {
-      description      = "Official Module Used CDN",
-      origin_type      = "s3",
-      signing_behavior = "always",
+    oac_takehiro1111_com = {
+      description      = module.value.cdn_takehiro1111_com
+      origin_type      = "s3"
+      signing_behavior = "always"
       signing_protocol = "sigv4"
     }
   }
 
   # aws_cloudfront_distribution
   create_distribution = true
-  aliases             = [module.value.cdn_tanaka_cloud_net]
+  aliases             = [module.value.cdn_takehiro1111_com]
   comment             = "common"
   enabled             = true
   is_ipv6_enabled     = true
@@ -247,8 +151,8 @@ module "cdn_common" {
   // ALB
   origin = {
     origin_alb = {
-      domain_name = module.alb_common.dns_name
-      origin_id   = module.alb_common.dns_name
+      domain_name = module.alb_wildcard_takehiro1111_com.dns_name
+      origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
 
       custom_origin_config = {
         http_port                = 80
@@ -263,7 +167,7 @@ module "cdn_common" {
     origin_s3 = {
       domain_name           = aws_s3_bucket.static.bucket_regional_domain_name
       origin_id             = aws_s3_bucket.static.bucket_regional_domain_name
-      origin_access_control = element(module.cdn_common.cloudfront_origin_access_controls_ids, 0)
+      origin_access_control = element(module.cdn_takehiro1111_com.cloudfront_origin_access_controls_ids, 0)
 
 
       origin_shield = {
@@ -274,7 +178,7 @@ module "cdn_common" {
   }
 
   default_cache_behavior = {
-    target_origin_id       = module.alb_common.dns_name
+    target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
     cached_methods         = ["GET", "HEAD"]
@@ -304,7 +208,7 @@ module "cdn_common" {
   ]
 
   viewer_certificate = {
-    acm_certificate_arn            = aws_acm_certificate.tanaka_cloud_net_us_east_1.arn
+    acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
     cloudfront_default_certificate = "false"
     minimum_protocol_version       = "TLSv1.2_2021"
     ssl_support_method             = "sni-only"
@@ -317,15 +221,14 @@ module "cdn_common" {
   }
 
   tags = {
-    Name = "${local.servicename}-${local.env}"
+    Name = module.value.cdn_takehiro1111_com
   }
 }
 
 #####################################################
 # ALB
 #####################################################
-# ref: https://registry.terraform.io/modules/terraform-aws-modules/alb/aws/latest
-module "alb_common" {
+module "alb_wildcard_takehiro1111_com" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.11.0"
 
@@ -362,7 +265,7 @@ module "alb_common" {
       port            = 443
       protocol        = "HTTPS"
       ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-      certificate_arn = aws_acm_certificate.tanaka_cloud_net.arn
+      certificate_arn = module.acm_takehiro1111_com_ap_northeast_1.acm_certificate_arn
       fixed_response = {
         content_type = "text/html"
         message_body = "Fixed response "
@@ -375,7 +278,7 @@ module "alb_common" {
           conditions = [
             {
               host_header = {
-                values = [module.value.cdn_tanaka_cloud_net]
+                values = [module.value.cdn_takehiro1111_com]
               }
             },
             {
@@ -387,7 +290,7 @@ module "alb_common" {
           actions = [
             {
               type             = "forward"
-              target_group_arn = module.alb_common.target_groups.web.arn
+              target_group_arn = module.alb_wildcard_takehiro1111_com.target_groups.web.arn
             }
           ]
         }

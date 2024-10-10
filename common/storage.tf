@@ -444,7 +444,7 @@ resource "aws_s3_bucket_policy" "static" {
         ],
         "Condition" : {
           "StringEquals" : {
-            "AWS:SourceArn" : module.cdn_common.cloudfront_distribution_arn
+            "AWS:SourceArn" : module.cdn_takehiro1111_com.cloudfront_distribution_arn
           }
         }
       }

@@ -82,7 +82,7 @@ locals {
 
 // CloudFrontのロギング用バケットのPrefix設定
 locals {
-  processing            = replace(module.value.cdn_tanaka_cloud_net, ".", "_")
+  processing            = replace(module.value.cdn_takehiro1111_com, ".", "_")
   logging_config_prefix = replace(local.processing, "-", "_")
 }
 
