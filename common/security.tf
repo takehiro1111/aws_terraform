@@ -149,24 +149,13 @@ module "sg_mysql" {
       to_port     = 3306
       protocol    = "tcp"
       description = "MySQL access from VPC"
-      cidr_blocks = module.value.subnet_ip_common.a_private
-    },
-    {
-      from_port   = 3306
-      to_port     = 3306
-      protocol    = "tcp"
-      description = "MySQL access from VPC"
-      cidr_blocks = module.value.subnet_ip_common.c_private
-    },
-    {
-      from_port   = 3306
-      to_port     = 3306
-      protocol    = "tcp"
-      description = "MySQL access from VPC"
-      cidr_blocks = module.value.subnet_ip_common.d_private
-    },
+      cidr_blocks = join(",",[
+        module.value.subnet_ip_common.a_private,
+        module.value.subnet_ip_common.c_private,
+        module.value.subnet_ip_common.d_private
+      ]) 
+    }
   ]
-
   ingress_with_source_security_group_id = [
     {
       from_port                = 3306
@@ -176,8 +165,7 @@ module "sg_mysql" {
       source_security_group_id = aws_security_group.ecs_stg.id
     }
   ]
-
-  ingress_with_self = [
+  ingress_with_prefix_list_ids = [
     {
       from_port               = 443
       to_port                 = 443

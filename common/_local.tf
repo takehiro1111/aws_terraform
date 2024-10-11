@@ -187,10 +187,10 @@ locals {
       gateway_id             = aws_internet_gateway.common.id
     }
     nat = {
-      create                 = false
+      create                 = true
       route_table_id         = aws_route_table.common["private"].id
       destination_cidr_block = module.value.full_open_ip
-      nat_gateway_id         = aws_nat_gateway.common[*].id
+      nat_gateway_id         = aws_nat_gateway.common[0].id
     }
   }
 
