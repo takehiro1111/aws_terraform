@@ -237,17 +237,13 @@ module "alb_wildcard_takehiro1111_com" {
   internal                   = false
   enable_deletion_protection = false
 
-  vpc_id = aws_vpc.common.id
-  subnets = [
-    aws_subnet.common["public_a"].id,
-    aws_subnet.common["public_c"].id
-  ]
+  vpc_id = module.vpc_common.vpc_id
+  subnets = [join(",",module.vpc_common.public_subnets)]
 
   create_security_group = false
   security_groups = [
     aws_security_group.alb_stg.id,
     aws_security_group.alb_9000.id,
-    aws_vpc.common.default_security_group_id
   ]
 
   access_logs = {
@@ -304,7 +300,7 @@ module "alb_wildcard_takehiro1111_com" {
       protocol             = "HTTP"
       deregistration_delay = "60"
       proxy_protocol_v2    = false
-      vpc_id               = aws_vpc.common.id
+      vpc_id               = module.vpc_common.vpc_id
       target_type          = "ip"
       create_attachment    = false
 

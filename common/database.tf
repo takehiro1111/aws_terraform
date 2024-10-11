@@ -47,10 +47,7 @@ resource "aws_db_option_group" "mysql_8" {
 # Subnet Group ---------------------------------
 resource "aws_db_subnet_group" "mysql_8" {
   name = "mysql-8"
-  subnet_ids = [
-    aws_subnet.common["private_a"].id,
-    aws_subnet.common["private_c"].id
-  ]
+  subnet_ids = [join(",",module.vpc_common.public_subnets)]
 }
 
 # RDS Instance ---------------------------------
@@ -242,10 +239,7 @@ module "official_module_aurora" {
   ## DB Subnet Group
   create_db_subnet_group = true
   db_subnet_group_name   = "aurora-${local.env}"
-  subnets = [
-    aws_subnet.common["private_a"].id,
-    aws_subnet.common["private_c"].id,
-  ]
+  subnets = [join(",",module.vpc_common.public_subnets)]
 
   ## Cluster
   cluster_use_name_prefix = false
@@ -294,7 +288,7 @@ module "official_module_aurora" {
 
   ## Security Group
   security_group_use_name_prefix = false
-  vpc_id                         = aws_vpc.common.id
+  vpc_id                         = module.vpc_common.vpc_id
 
   security_group_rules = {
     ingress_rules = {

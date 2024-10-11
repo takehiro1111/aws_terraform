@@ -5,7 +5,7 @@
 resource "aws_security_group" "alb_stg" {
   name        = "alb-stg"
   description = "Allow inbound alb"
-  vpc_id      = aws_vpc.common.id
+  vpc_id      = module.vpc_common.vpc_id
 
   tags = {
     "Name" = "alb-stg"
@@ -39,7 +39,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_stg_eggress" {
 resource "aws_security_group" "alb_9000" {
   name        = "alb-9000"
   description = "Allow inbound alb"
-  vpc_id      = aws_vpc.common.id
+  vpc_id      = module.vpc_common.vpc_id
 
   tags = {
     "Name" = "alb-9000"
@@ -89,7 +89,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_9000_eggress" {
 resource "aws_security_group" "ecs_stg" {
   name        = "ecs-stg"
   description = "Allow inbound alb"
-  vpc_id      = aws_vpc.common.id
+  vpc_id      = module.vpc_common.vpc_id
 
   tags = {
     "Name" = "ecs-stg"
@@ -141,7 +141,7 @@ module "sg_mysql" {
   // SG本体
   name        = "aurora-mysql"
   description = "SecurityGroup for Aurora MySQL"
-  vpc_id      = aws_vpc.common.id
+  vpc_id      = module.vpc_common.vpc_id
   // ルール
   ingress_with_cidr_blocks = [
     {
@@ -211,7 +211,7 @@ module "vpc_endpoint" {
   // SG
   name        = "stats-fluentd"
   description = "SG for log routing"
-  vpc_id      = aws_vpc.common.id
+  vpc_id      = module.vpc_common.vpc_id
   // Rule
   ingress_with_source_security_group_id = [
     {

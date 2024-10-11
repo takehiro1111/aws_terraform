@@ -174,77 +174,36 @@ locals {
 }
 
 /* 
- * Route Tables Parameter
- */
-locals {
-  rtb = ["public", "private"]
-
-  route = {
-    igw = {
-      create                 = true
-      route_table_id         = aws_route_table.common["public"].id
-      destination_cidr_block = module.value.full_open_ip
-      gateway_id             = aws_internet_gateway.common.id
-    }
-    nat = {
-      create                 = false
-      route_table_id         = aws_route_table.common["private"].id
-      destination_cidr_block = module.value.full_open_ip
-      nat_gateway_id         = aws_nat_gateway.common[*].id
-    }
-  }
-
-  rtb_association = {
-    public_a = {
-      subnet_id      = aws_subnet.common["public_a"].id
-      route_table_id = aws_route_table.common["public"].id
-    }
-    public_c = {
-      subnet_id      = aws_subnet.common["public_c"].id
-      route_table_id = aws_route_table.common["public"].id
-    }
-    private_a = {
-      subnet_id      = aws_subnet.common["private_a"].id
-      route_table_id = aws_route_table.common["private"].id
-    }
-    private_a = {
-      subnet_id      = aws_subnet.common["private_c"].id
-      route_table_id = aws_route_table.common["private"].id
-    }
-  }
-}
-
-/* 
  * VPC Endpoint Parameter
  */
-locals {
-  vpce_interface = {
-    ecr_dkr = {
-      create             = false
-      subnet_ids         = [aws_subnet.common["private_c"].id]
-      service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
-      security_group_ids = [module.vpc_endpoint.security_group_id]
-    }
-    ecr_api = {
-      create             = false
-      subnet_ids         = [aws_subnet.common["private_c"].id]
-      service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
-      security_group_ids = [module.vpc_endpoint.security_group_id]
-    }
-    logs = {
-      create             = false
-      subnet_ids         = [aws_subnet.common["private_c"].id]
-      service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
-      security_group_ids = [module.vpc_endpoint.security_group_id]
-    }
-    # td_agent = {
-    #   create = false
-    #   subnet_ids = [aws_subnet.common["private_a"].id,aws_subnet.common["private_c"].id]
-    #   service_name      = data.terraform_remote_state.stats_stg.outputs.td_vpc_endpoint_service_service_name
-    #   security_group_ids = [module.vpc_endpoint.security_group_id]
-    # }
-  }
-}
+# locals {
+#   vpce_interface = {
+#     ecr_dkr = {
+#       create             = false
+#       subnet_ids         = [aws_subnet.common["private_c"].id]
+#       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
+#       security_group_ids = [module.vpc_endpoint.security_group_id]
+#     }
+#     ecr_api = {
+#       create             = false
+#       subnet_ids         = [aws_subnet.common["private_c"].id]
+#       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
+#       security_group_ids = [module.vpc_endpoint.security_group_id]
+#     }
+#     logs = {
+#       create             = false
+#       subnet_ids         = [aws_subnet.common["private_c"].id]
+#       service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
+#       security_group_ids = [module.vpc_endpoint.security_group_id]
+#     }
+#     # td_agent = {
+#     #   create = false
+#     #   subnet_ids = [aws_subnet.common["private_a"].id,aws_subnet.common["private_c"].id]
+#     #   service_name      = data.terraform_remote_state.stats_stg.outputs.td_vpc_endpoint_service_service_name
+#     #   security_group_ids = [module.vpc_endpoint.security_group_id]
+#     # }
+#   }
+# }
 
 /* 
  * EIP

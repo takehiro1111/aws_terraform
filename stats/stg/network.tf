@@ -44,7 +44,7 @@ module "vpc" {
 
   ### Subnet ###
   ## Shared
-    azs = [
+  azs = [
     module.value.ap_northeast_1.a,
     module.value.ap_northeast_1.c
   ]
