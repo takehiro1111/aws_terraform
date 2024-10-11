@@ -20,23 +20,6 @@ locals {
   api  = "api-ecs"
 }
 
-# AuroraのSGのInboundRuleで許可するIP群
-locals {
-  private_sb_ips = [
-    module.value.subnet_ip_common.a_private,
-    module.value.subnet_ip_common.c_private,
-    module.value.subnet_ip_common.d_private,
-  ]
-}
-
-locals {
-  private_sb_ips2 = [
-    module.value.subnet_ip_common.a_public,
-    module.value.subnet_ip_common.c_public,
-    module.value.subnet_ip_common.d_public,
-  ]
-}
-
 /* 
  * CloudFront
  */
@@ -146,30 +129,6 @@ locals {
     #   max_aggregation_interval = 60 // 1分単位でレコードがフローログに集約される。
     #   iam_role_arn         = aws_iam_role.flow_log.arn
     # }
-  }
-}
-
-/* 
- * Subnets Parameter
- */
-locals {
-  subnets = {
-    public_a = {
-      cidr_block = module.value.subnet_ip_common.a_public
-      az         = module.value.az.ap_northeast_1.a
-    }
-    public_c = {
-      cidr_block = module.value.subnet_ip_common.c_public
-      az         = module.value.az.ap_northeast_1.c
-    }
-    private_a = {
-      cidr_block = module.value.subnet_ip_common.a_private
-      az         = module.value.az.ap_northeast_1.a
-    }
-    private_c = {
-      cidr_block = module.value.subnet_ip_common.c_private
-      az         = module.value.az.ap_northeast_1.c
-    }
   }
 }
 

@@ -238,7 +238,7 @@ module "alb_wildcard_takehiro1111_com" {
   enable_deletion_protection = false
 
   vpc_id = module.vpc_common.vpc_id
-  subnets = [join(",",module.vpc_common.public_subnets)]
+  subnets = module.vpc_common.public_subnets
 
   create_security_group = false
   security_groups = [

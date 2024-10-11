@@ -6,7 +6,7 @@ resource "aws_instance" "common" {
   count = var.create_web_instance ? 1 : 0
 
   ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
-  subnet_id                   = module.vpc_common.public_subnets
+  subnet_id                   = module.vpc_common.private_subnets
   instance_type               = "t2.micro"
   vpc_security_group_ids      = [aws_security_group.ecs_stg.id]
   associate_public_ip_address = false // SessionManagerでのログインに絞りたいためGIPの付与は行わない。
@@ -110,7 +110,7 @@ resource "aws_ecs_cluster" "web" {
 // 名前空間
 resource "aws_service_discovery_private_dns_namespace" "web" {
   name = "web.service_discovery_private_dns_namespace"
-  vpc  = aws_vpc.common.id
+  vpc  = module.vpc_common.vpc_id
 }
 
 // サービスディスカバリ
@@ -149,7 +149,7 @@ resource "aws_ecs_service" "web_nginx" {
   }
 
   network_configuration {
-    subnets = [aws_subnet.common["private_c"].id]
+    subnets = module.vpc_common.private_subnets
     security_groups = [
       aws_security_group.ecs_stg.id,
     ]
