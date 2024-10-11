@@ -185,7 +185,7 @@ variable "ebs_add_1" {
 variable "nat" {
   description = "trueにするとNAT GW関連のリソースが作成される"
   type        = bool
-  default     = false
+  default     = true
 }
 
 # VPCエンドポイント ---------------------------------------------
@@ -248,5 +248,5 @@ variable "s3_gateway" {
 variable "create_nat_gw" {
   description = "Create Nat Gateway"
   type        = bool
-  default     = false
+  default     = true
 }

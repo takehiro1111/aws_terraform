@@ -2,10 +2,9 @@
 # Cloudwatch Logs
 #####################################################
 # ECS -----------------------------------------
-resource "aws_cloudwatch_log_group" "stg" {
+resource "aws_cloudwatch_log_group" "ecs_nginx" {
   retention_in_days = 7
-  name              = "/ecslogs/stg"
-  kms_key_id        = aws_kms_key.cloudwatch_logs.arn
+  name              = "/ecslogs/nginx"
 }
 
 resource "aws_cloudwatch_log_group" "stg_2" {
