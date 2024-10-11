@@ -92,17 +92,17 @@ resource "aws_ecs_cluster" "web" {
 
   configuration {
     execute_command_configuration {
-      logging    = "OVERRIDE"
+      logging = "OVERRIDE"
 
       log_configuration {
         s3_bucket_name = aws_s3_bucket.logging.id
-        s3_key_prefix = "ecs_exec"
+        s3_key_prefix  = "ecs_exec"
       }
     }
   }
 
   setting {
-    name = "containerInsights"
+    name  = "containerInsights"
     value = "disabled"
   }
 }
@@ -115,7 +115,7 @@ resource "aws_service_discovery_private_dns_namespace" "web" {
 
 // サービスディスカバリ
 resource "aws_service_discovery_service" "web" {
-  name = aws_service_discovery_private_dns_namespace.web.name
+  name          = aws_service_discovery_private_dns_namespace.web.name
   force_destroy = true
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.web.id
@@ -128,7 +128,7 @@ resource "aws_service_discovery_service" "web" {
     routing_policy = "MULTIVALUE"
   }
 
-  health_check_custom_config  {
+  health_check_custom_config {
     failure_threshold = 1
   }
 }
@@ -158,7 +158,7 @@ resource "aws_ecs_service" "web_nginx" {
 
   load_balancer {
     target_group_arn = module.alb_wildcard_takehiro1111_com.target_groups.web.arn // TGがALBのリスナールールに設定されていないとエラーになるので注意。
-    container_name   = "nginx-container"                  // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_name   = "nginx-container"                                          // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
     container_port   = 80
   }
 

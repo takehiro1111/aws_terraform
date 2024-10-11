@@ -149,11 +149,11 @@ module "sg_mysql" {
       to_port     = 3306
       protocol    = "tcp"
       description = "MySQL access from VPC"
-      cidr_blocks = join(",",[
+      cidr_blocks = join(",", [
         module.value.subnet_ip_common.a_private,
         module.value.subnet_ip_common.c_private,
         module.value.subnet_ip_common.d_private
-      ]) 
+      ])
     }
   ]
   ingress_with_source_security_group_id = [
