@@ -104,6 +104,29 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
   target_id = "ecs-event-notify"
   rule      = aws_cloudwatch_event_rule.ecs_event.name
   arn       = module.sns_notify_chatbot.topic_arn
+
+  input_transformer {
+    input_paths = {
+      "account": "$.account",
+      "availabilityZone": "$.detail.availabilityZone",
+      "clusterArn": "$.detail.clusterArn",
+      "resource": "$.resources[0]",
+      "stoppedAt": "$.detail.stoppedAt",
+      "stopCode": "$.detail.stopCode",
+      "stoppedReason": "$.detail.stoppedReason"
+    }
+    input_template = <<END
+    {
+      "version": "1.0",
+      "source": "custom",
+      "content": {
+        "textType": "client-markdown",
+        "title": ":warning: ECS のタスクが停止されました :warning:",
+        "description": "overview\n・ACCOUNT_ID: `<account>`\n・AZ: `<availabilityZone>`\n・Task: `<resource>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
+      }
+    }
+    END
+  }
 }
 
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {

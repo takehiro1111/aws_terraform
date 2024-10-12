@@ -1,0 +1,97 @@
+{
+	"version": "0",
+	"id": "dcfeb05f-8046-d26b-0250-22353be17ed5",
+	"detail-type": "ECS Task State Change",
+	"source": "aws.ecs",
+	"account": "123456789012",
+	"time": "2021-08-11T09:15:14Z",
+	"region": "ap-northeast-1",
+	"resources": [
+		"arn:aws:ecs:ap-northeast-1:123456789012:task/hato-ecs-cluster/866773c124284ea6bc488f7a3be8c3c2"
+	],
+	"detail": {
+		"attachments": [
+			{
+				"id": "ddd8dec3-6a67-42cc-b869-6eb050a4ba8b",
+				"type": "eni",
+				"status": "DELETED",
+				"details": [
+					{
+						"name": "subnetId",
+						"value": "subnet-01234567890123456"
+					},
+					{
+						"name": "networkInterfaceId",
+						"value": "eni-09449af85d9145c2f"
+					},
+					{
+						"name": "macAddress",
+						"value": "00:11:22:33:44:55"
+					},
+					{
+						"name": "privateDnsName",
+						"value": "ip-10-0-0-1.ap-northeast-1.compute.internal"
+					},
+					{
+						"name": "privateIPv4Address",
+						"value": "10.0.0.1"
+					}
+				]
+			}
+		],
+		"availabilityZone": "ap-northeast-1a",
+		"clusterArn": "arn:aws:ecs:ap-northeast-1:123456789012:cluster/hato-ecs-cluster",
+		"connectivity": "CONNECTED",
+		"connectivityAt": "2021-08-11T09:01:48.973Z",
+		"containers": [
+			{
+				"containerArn": "arn:aws:ecs:ap-northeast-1:123456789012:container/hato-ecs-cluster/866773c124284ea6bc488f7a3be8c3c2/96574b15-39b9-41fb-b2ea-2362089cd242",
+				"exitCode": 0,
+				"lastStatus": "STOPPED",
+				"name": "nginx",
+				"image": "nginx:stable",
+				"runtimeId": "123456c124284ea6bc488f7a3be8c3c2-2531612879",
+				"taskArn": "arn:aws:ecs:ap-northeast-1:123456789012:task/hato-ecs-cluster/866773c124284ea6bc488f7a3be8c3c2",
+				"networkInterfaces": [
+					{
+						"attachmentId": "ddd8dec3-6a67-42cc-b869-6eb050a4ba8b",
+						"privateIpv4Address": "10.0.0.1"
+					}
+				],
+				"cpu": "0"
+			}
+		],
+		"cpu": "256",
+		"createdAt": "2021-08-11T09:01:41.903Z",
+		"desiredStatus": "STOPPED",
+		"enableExecuteCommand": false,
+		"ephemeralStorage": {
+			"sizeInGiB": 20
+		},
+		"executionStoppedAt": "2021-08-11T09:14:51.927Z",
+		"group": "service:hato-ecs-service",
+		"launchType": "FARGATE",
+		"lastStatus": "STOPPED",
+		"memory": "512",
+		"overrides": {
+			"containerOverrides": [
+				{
+					"name": "nginx"
+				}
+			]
+		},
+		"platformVersion": "1.4.0",
+		"pullStartedAt": "2021-08-11T09:01:58.639Z",
+		"pullStoppedAt": "2021-08-11T09:02:05.671Z",
+		"startedAt": "2021-08-11T09:02:06.509Z",
+		"startedBy": "ecs-svc/4197414922177771410",
+		"stoppingAt": "2021-08-11T09:14:40.449Z",
+		"stoppedAt": "2021-08-11T09:15:14.753Z",
+		"stoppedReason": "Task stopped by user",
+		"stopCode": "UserInitiated",
+		"taskArn": "arn:aws:ecs:ap-northeast-1:123456789012:task/hato-ecs-cluster/866773c124284ea6bc488f7a3be8c3c2",
+		"taskDefinitionArn": "arn:aws:ecs:ap-northeast-1:123456789012:task-definition/hato-ecs-task:9",
+		"updatedAt": "2021-08-11T09:15:14.753Z",
+		"version": 6
+	}
+}

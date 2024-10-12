@@ -701,7 +701,10 @@ data "aws_iam_policy_document" "chatbot" {
     actions = [
       "cloudwatch:Describe*",
       "cloudwatch:Get*",
-      "cloudwatch:List*"
+      "cloudwatch:List*",
+      "sns:*",
+      "event:*",
+      "*"
     ]
     effect    = "Allow"
     resources = ["*"]
