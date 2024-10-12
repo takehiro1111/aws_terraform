@@ -68,6 +68,44 @@ resource "aws_ssm_parameter" "slack_webhook_url" {
 #####################################################
 # EventBridge
 #####################################################
+# variable "ecs_cluster_arn" {
+#   description = "ECS Cluster ARN"
+#   type = list(string)
+#   default = [
+#     aws_ecs_cluster.web.arn
+#   ]
+# }
+
+resource "aws_cloudwatch_event_rule" "ecs_event" {
+  state       = "ENABLED"
+  name        = "ecs-event-notify"
+  description = "${local.env} ecs alert notification rule"
+  event_bus_name = "default"
+
+  event_pattern = <<END
+    {
+      "source": ["aws.ecs"],
+      "detail-type": [
+        "ECS Task State Change"
+      ],
+      "detail": {
+        "lastStatus": [
+          "STOPPED"
+        ],
+        "clusterArn": [
+          "${join(",", [aws_ecs_cluster.web.arn])}"
+        ]
+      }
+    }
+  END
+}
+
+resource "aws_cloudwatch_event_target" "ecs_event" {
+  target_id = "ecs-event-notify"
+  rule      = aws_cloudwatch_event_rule.ecs_event.name
+  arn       = module.sns_notify_chatbot.topic_arn
+}
+
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {
 #   name        = "update_waf_rule"
 #   description = "Trigger Lambda function on UpdateWebACL for specific WAF rule"
@@ -182,6 +220,62 @@ resource "aws_sns_topic_policy" "slack_alert" {
   })
 }
 
+module "sns_notify_chatbot" {
+  source  = "terraform-aws-modules/sns/aws"
+  version = "6.1.1"
+
+  create = true
+  name = "slack_notify"
+  display_name = "slack_notify"
+
+  create_topic_policy = false
+  topic_policy = data.aws_iam_policy_document.sns_notify_chatbot.json
+}
+
+data "aws_iam_policy_document" "sns_notify_chatbot" {
+  statement {
+    actions = [
+      "SNS:GetTopicAttributes",
+      "SNS:SetTopicAttributes",
+      "SNS:AddPermission",
+      "SNS:RemovePermission",
+      "SNS:DeleteTopic",
+      "SNS:Subscribe",
+      "SNS:Receive",
+      "SNS:ListSubscriptionsByTopic",
+      "SNS:Publish",
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceOwner"
+      values = [data.aws_caller_identity.current.account_id]
+    }
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    resources = [
+      "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.current.account_id}:slack_notify"
+    ]
+    sid = "__default_statement_ID"
+  }
+  statement {
+    actions = [
+      "sns:Publish",
+    ]
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+    resources = [
+      "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.current.account_id}:slack_notify"
+    ]
+    sid = "AWSEvents_EcsEvent"
+  }
+}
+
 ######################################################################
 # SSM ParameterStore
 ######################################################################
@@ -210,6 +304,10 @@ resource "aws_ssm_parameter" "slack_info" {
   }
 }
 
+data "aws_ssm_parameter" "notify_slack_channel" {
+  name = "/slack/channel_id/aws_alert"
+}
+
 ######################################################################
 # Chatbot
 ######################################################################
@@ -229,11 +327,16 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   iam_role_arn       = aws_iam_role.chatbot.arn
   guardrail_policies = [
     "arn:aws:iam::aws:policy/ReadOnlyAccess",
+    # "arn:aws:iam::aws:policy/aws-service-role/AWSChatbotServiceLinkedRolePolicy"
+    "arn:aws:iam::aws:policy/AdministratorAccess"
   ]
   slack_channel_id   = each.value.slack_channel_id
   slack_workspace_id = each.value.slack_workspace_id
   logging_level      = "ERROR"
-  sns_topic_arns     = [aws_sns_topic.slack_alert.arn]
+  sns_topic_arns     = [
+    aws_sns_topic.slack_alert.arn,
+    module.sns_notify_chatbot.topic_arn
+  ]
   user_role_required = true
 
   tags = [
