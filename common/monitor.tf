@@ -93,7 +93,7 @@ resource "aws_cloudwatch_event_rule" "ecs_event" {
           "STOPPED"
         ],
         "clusterArn": [
-          "${join(",", [aws_ecs_cluster.web.arn])}"
+          "${aws_ecs_cluster.web.arn}"
         ]
       }
     }
@@ -123,7 +123,7 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
       "content": {
         "textType": "client-markdown",
         "title": ":warning: ECS のタスクが停止されました :warning:",
-        "description": "overview\n・ACCOUNT_ID: `<account>`\n・AZ: `<availabilityZone>`\n ・service:`<group>`\n・Task: `<resource>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
+        "description": "overview\n・ACCOUNT_ID: `<account>`\n・AZ: `<availabilityZone>`\n ・Service:`<group>`\n・Task: `<resource>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
       }
     }
     END
@@ -258,45 +258,16 @@ module "sns_notify_chatbot" {
 
 data "aws_iam_policy_document" "sns_notify_chatbot" {
   statement {
-    actions = [
-      "SNS:GetTopicAttributes",
-      "SNS:SetTopicAttributes",
-      "SNS:AddPermission",
-      "SNS:RemovePermission",
-      "SNS:DeleteTopic",
-      "SNS:Subscribe",
-      "SNS:Receive",
-      "SNS:ListSubscriptionsByTopic",
-      "SNS:Publish",
-    ]
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceOwner"
-      values = [data.aws_caller_identity.current.account_id]
-    }
-    effect = "Allow"
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-    resources = [
-      "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.current.account_id}:slack_notify"
-    ]
-    sid = "__default_statement_ID"
-  }
-  statement {
-    actions = [
-      "sns:Publish",
-    ]
+    sid = "AWSEvents_EcsEvent"
     effect = "Allow"
     principals {
       type        = "Service"
       identifiers = ["events.amazonaws.com"]
     }
+    actions = ["sns:Publish"]
     resources = [
       "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.current.account_id}:slack_notify"
     ]
-    sid = "AWSEvents_EcsEvent"
   }
 }
 
