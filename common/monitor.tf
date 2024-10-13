@@ -110,6 +110,7 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
       "account": "$.account",
       "availabilityZone": "$.detail.availabilityZone",
       "clusterArn": "$.detail.clusterArn",
+      "group": "$.detail.group",
       "resource": "$.resources[0]",
       "stoppedAt": "$.detail.stoppedAt",
       "stopCode": "$.detail.stopCode",
@@ -122,7 +123,7 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
       "content": {
         "textType": "client-markdown",
         "title": ":warning: ECS のタスクが停止されました :warning:",
-        "description": "overview\n・ACCOUNT_ID: `<account>`\n・AZ: `<availabilityZone>`\n・Task: `<resource>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
+        "description": "overview\n・ACCOUNT_ID: `<account>`\n・AZ: `<availabilityZone>`\n ・service:`<group>`\n・Task: `<resource>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
       }
     }
     END
@@ -350,7 +351,6 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   iam_role_arn       = aws_iam_role.chatbot.arn
   guardrail_policies = [
     "arn:aws:iam::aws:policy/ReadOnlyAccess",
-    # "arn:aws:iam::aws:policy/aws-service-role/AWSChatbotServiceLinkedRolePolicy"
     "arn:aws:iam::aws:policy/AdministratorAccess"
   ]
   slack_channel_id   = each.value.slack_channel_id
