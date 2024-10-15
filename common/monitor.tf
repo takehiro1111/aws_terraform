@@ -143,7 +143,7 @@ resource "aws_cloudwatch_event_target" "ecs_event_2" {
   target_id = "ecs-event-notify-cwlogs"
   rule      = aws_cloudwatch_event_rule.ecs_event.name
   arn       = aws_cloudwatch_log_group.ecs_event.arn
-  role_arn  = 
+  # role_arn  = // CloudwatchLogsに吐き出す際に設定したい。
 }
 
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {
