@@ -13,6 +13,12 @@ resource "aws_cloudwatch_log_group" "stg_2" {
   kms_key_id        = aws_kms_key.cloudwatch_logs.arn
 }
 
+resource "aws_cloudwatch_log_group" "ecs_event" {
+  retention_in_days = 0
+  name              = "/ecs_event/nginx"
+}
+
+
 # EC2 ------------------------------------------
 resource "aws_cloudwatch_log_group" "public_instance" {
   name              = "/compute/ec2/public"
@@ -111,10 +117,13 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
       "availabilityZone": "$.detail.availabilityZone",
       "clusterArn": "$.detail.clusterArn",
       "group": "$.detail.group",
-      "resource": "$.resources[0]",
+      "taskDefinitionArn": "$.detail.taskDefinitionArn",
       "stoppedAt": "$.detail.stoppedAt",
       "stopCode": "$.detail.stopCode",
-      "stoppedReason": "$.detail.stoppedReason"
+      "stoppedReason": "$.detail.stoppedReason",
+      "containerExitCode": "$.detail.containers[0].exitCode",
+      "containerReason": "$.detail.containers[0].reason",
+      
     }
     input_template = <<END
     {
@@ -122,12 +131,19 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
       "source": "custom",
       "content": {
         "textType": "client-markdown",
-        "title": ":warning: ECS のタスクが停止されました :warning:",
-        "description": "overview\n・ACCOUNT_ID: `<account>`\n・AZ: `<availabilityZone>`\n ・Service:`<group>`\n・Task: `<resource>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
+        "title": ":warning: ECSタスクが停止されました :warning:",
+        "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`\n・containerExitCode:`<containerExitCode>`\n・containerReason:`<containerReason>`"
       }
     }
     END
   }
+}
+
+resource "aws_cloudwatch_event_target" "ecs_event_2" {
+  target_id = "ecs-event-notify-cwlogs"
+  rule      = aws_cloudwatch_event_rule.ecs_event.name
+  arn       = aws_cloudwatch_log_group.ecs_event.arn
+  role_arn  = 
 }
 
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {

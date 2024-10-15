@@ -1556,12 +1556,3 @@ module "athena_query_result_for_vpc_flow_log" {
     }
   ]
 }
-
-resource "aws_s3_object" "athena_query_result_for_vpc_flow_log" {
-  bucket = module.athena_query_result_for_vpc_flow_log.s3_bucket_id
-  key    = "output/"
-
-  tags = {
-    "Lifecycle" = "keep"
-  }
-}

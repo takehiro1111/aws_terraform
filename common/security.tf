@@ -196,6 +196,7 @@ module "vpc_endpoint" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "5.1.2"
 
+
   name        = "stats-fluentd"
   description = "SG for log routing"
   vpc_id      = module.vpc_common.vpc_id
