@@ -18,7 +18,6 @@ resource "aws_cloudwatch_log_group" "ecs_event" {
   name              = "/ecs_event/nginx"
 }
 
-
 # EC2 ------------------------------------------
 resource "aws_cloudwatch_log_group" "public_instance" {
   name              = "/compute/ec2/public"
@@ -132,18 +131,42 @@ resource "aws_cloudwatch_event_target" "ecs_event" {
       "content": {
         "textType": "client-markdown",
         "title": ":warning: ECSタスクが停止されました :warning:",
-        "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`\n・containerExitCode:`<containerExitCode>`\n・containerReason:`<containerReason>`"
+        "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>(UTC)`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`\n・containerExitCode:`<containerExitCode>`\n・containerReason:`<containerReason>`"
       }
     }
     END
   }
 }
-
 resource "aws_cloudwatch_event_target" "ecs_event_2" {
   target_id = "ecs-event-notify-cwlogs"
   rule      = aws_cloudwatch_event_rule.ecs_event.name
   arn       = aws_cloudwatch_log_group.ecs_event.arn
-  # role_arn  = // CloudwatchLogsに吐き出す際に設定したい。
+
+  input_transformer {
+    input_paths = {
+      "account": "$.account",
+      "availabilityZone": "$.detail.availabilityZone",
+      "clusterArn": "$.detail.clusterArn",
+      "group": "$.detail.group",
+      "taskDefinitionArn": "$.detail.taskDefinitionArn",
+      "stoppedAt": "$.detail.stoppedAt",
+      "stopCode": "$.detail.stopCode",
+      "stoppedReason": "$.detail.stoppedReason",
+      "containerExitCode": "$.detail.containers[0].exitCode",
+      "containerReason": "$.detail.containers[0].reason"
+    }
+    input_template = <<END
+    {
+      "Service": "<group>",
+      "Task": "<taskDefinitionArn>",
+      "StoppedAt": "<stoppedAt>",
+      "StopCode": "<stopCode>",
+      "StoppedReason": "<stoppedReason>",
+      "ContainerExitCode": "<containerExitCode>",
+      "ContainerReason": "<containerReason>"
+    }
+    END
+  }
 }
 
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {

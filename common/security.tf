@@ -261,14 +261,10 @@ data "aws_iam_policy_document" "flow_log" {
   }
 }
 
-resource "aws_iam_policy" "flow_log" {
-  name   = "cloudwatch-logs-create-put"
+resource "aws_iam_role_policy" "flow_log" {
+  name   = aws_iam_role.flow_log.name
+  role   = aws_iam_role.flow_log.name
   policy = data.aws_iam_policy_document.flow_log.json
-}
-
-resource "aws_iam_role_policy_attachment" "flow_log" {
-  role       = aws_iam_role.flow_log.name
-  policy_arn = aws_iam_policy.flow_log.arn
 }
 
 #ECS Task用ロール--------------------------------------------------------
