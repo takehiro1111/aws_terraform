@@ -7,22 +7,22 @@ module "vpc_common" {
   version = "5.13.0"
 
   ## tags
-  name = format("%s-%s",local.servicename,local.repository)
+  name = format("%s-%s", local.servicename, local.repository)
 
   ### VPC ###
-  cidr = module.value.vpc_ip.hcl
-  instance_tenancy = "default"
-  enable_dns_support = true
-  enable_dns_hostnames = true
+  cidr                                 = module.value.vpc_ip.hcl
+  instance_tenancy                     = "default"
+  enable_dns_support                   = true
+  enable_dns_hostnames                 = true
   enable_network_address_usage_metrics = false
 
   ### IGW ###
   create_igw = true
 
   ### NAT GW ###
-  enable_nat_gateway = false // Will be changed to true when using compute resources.
-  single_nat_gateway = true // To reduce costs, each private subnet points to a single NAT GW.
-  one_nat_gateway_per_az = true // Place NAT GW in a single AZ for cost reasons. Because Accept reduced availability.
+  enable_nat_gateway     = false // Will be changed to true when using compute resources.
+  single_nat_gateway     = true  // To reduce costs, each private subnet points to a single NAT GW.
+  one_nat_gateway_per_az = true  // Place NAT GW in a single AZ for cost reasons. Because Accept reduced availability.
 
   ### Subnet ###
   ## Shared
@@ -37,7 +37,7 @@ module "vpc_common" {
     module.value.subnet_ip_common.c_public
   ]
 
-  map_public_ip_on_launch  = false
+  map_public_ip_on_launch                           = false
   public_subnet_private_dns_hostname_type_on_launch = "ip-name"
 
   ## Private 
@@ -56,10 +56,10 @@ module "vpc_common" {
   ## Private
   // Created when a NAT GW is created.
 
-  manage_default_vpc = false
+  manage_default_vpc            = false
   manage_default_security_group = false
-  manage_default_network_acl = false
-  manage_default_route_table  = false
+  manage_default_network_acl    = false
+  manage_default_route_table    = false
 }
 
 #####################################################
@@ -70,35 +70,35 @@ module "vpce_common" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
   version = "5.13.0"
 
-  vpc_id             = module.vpc_common.vpc_id
+  vpc_id = module.vpc_common.vpc_id
   endpoints = {
     s3_gateway = {
-      create = false
-      service_name = "com.amazonaws.${data.aws_region.default.name}.s3"
-      service_type = "Gateway"
+      create          = false
+      service_name    = "com.amazonaws.${data.aws_region.default.name}.s3"
+      service_type    = "Gateway"
       route_table_ids = module.vpc_common.private_route_table_ids
-      tags                = { Name = "s3-vpce-gateway" }
+      tags            = { Name = "s3-vpce-gateway" }
     }
     ecr_dkr = {
       create             = false
       subnet_ids         = module.vpc_common.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
       security_group_ids = [module.vpc_endpoint.security_group_id]
-      tags                = { Name = "ecr-docker-vpce-interface" }
+      tags               = { Name = "ecr-docker-vpce-interface" }
     }
     ecr_api = {
       create             = false
       subnet_ids         = module.vpc_common.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
       security_group_ids = [module.vpc_endpoint.security_group_id]
-      tags                = { Name = "ecr-api-vpce-interface" }
+      tags               = { Name = "ecr-api-vpce-interface" }
     }
     logs = {
       create             = false
       subnet_ids         = module.vpc_common.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
       security_group_ids = [module.vpc_endpoint.security_group_id]
-      tags                = { Name = "logs-vpce-interface" }
+      tags               = { Name = "logs-vpce-interface" }
     }
   }
 }

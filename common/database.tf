@@ -46,7 +46,7 @@ resource "aws_db_option_group" "mysql_8" {
 
 # Subnet Group ---------------------------------
 resource "aws_db_subnet_group" "mysql_8" {
-  name = "mysql-8"
+  name       = "mysql-8"
   subnet_ids = module.vpc_common.private_subnets
 }
 
@@ -239,7 +239,7 @@ module "official_module_aurora" {
   ## DB Subnet Group
   create_db_subnet_group = true
   db_subnet_group_name   = "aurora-${local.env}"
-  subnets = module.vpc_common.private_subnets
+  subnets                = module.vpc_common.private_subnets
 
   ## Cluster
   cluster_use_name_prefix = false

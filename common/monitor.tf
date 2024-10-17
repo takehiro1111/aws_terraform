@@ -34,17 +34,17 @@ module "event_bridge_ecs_stopped" {
   source  = "terraform-aws-modules/eventbridge/aws"
   version = "3.11.0"
 
-  create = true
-  create_role = false
-  create_bus = false
+  create              = true
+  create_role         = false
+  create_bus          = false
   append_rule_postfix = false
   rules = {
     ecs-event-notify = {
-      name = "ecs-event-notify"
-      bus_name = "default"
+      name          = "ecs-event-notify"
+      bus_name      = "default"
       enabled       = "ENABLED"
       description   = "${local.env} ecs alert notification rule"
-      event_pattern =  <<END
+      event_pattern = <<END
         {
           "source": ["aws.ecs"],
           "detail-type": [
@@ -63,16 +63,16 @@ module "event_bridge_ecs_stopped" {
     }
   }
   targets = {
-    ecs-event-notify  = [{
-      name              = "ecs-event-notify"
-      arn               = module.sns_notify_chatbot.topic_arn
+    ecs-event-notify = [{
+      name = "ecs-event-notify"
+      arn  = module.sns_notify_chatbot.topic_arn
       input_transformer = {
         input_paths = {
-          "group": "$.detail.group",
-          "taskDefinitionArn": "$.detail.taskDefinitionArn",
-          "stoppedAt": "$.detail.stoppedAt",
-          "stopCode": "$.detail.stopCode",
-          "stoppedReason": "$.detail.stoppedReason",
+          "group" : "$.detail.group",
+          "taskDefinitionArn" : "$.detail.taskDefinitionArn",
+          "stoppedAt" : "$.detail.stoppedAt",
+          "stopCode" : "$.detail.stopCode",
+          "stoppedReason" : "$.detail.stoppedReason",
         }
         input_template = <<END
         {
@@ -158,17 +158,17 @@ module "sns_notify_chatbot" {
   source  = "terraform-aws-modules/sns/aws"
   version = "6.1.1"
 
-  create = true
-  name = "slack_notify"
+  create       = true
+  name         = "slack_notify"
   display_name = "slack_notify"
 
   create_topic_policy = false
-  topic_policy = data.aws_iam_policy_document.sns_notify_chatbot.json
+  topic_policy        = data.aws_iam_policy_document.sns_notify_chatbot.json
 }
 
 data "aws_iam_policy_document" "sns_notify_chatbot" {
   statement {
-    sid = "AWSEvents_EcsEvent"
+    sid    = "AWSEvents_EcsEvent"
     effect = "Allow"
     principals {
       type        = "Service"
@@ -205,7 +205,7 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   slack_channel_id   = each.value.slack_channel_id
   slack_workspace_id = each.value.slack_workspace_id
   logging_level      = "ERROR"
-  sns_topic_arns     = [
+  sns_topic_arns = [
     aws_sns_topic.slack_alert.arn,
     module.sns_notify_chatbot.topic_arn
   ]
