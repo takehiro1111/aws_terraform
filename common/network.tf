@@ -1,91 +1,10 @@
-#####################################################
-# VPC
-#####################################################
-# # VPCフローログ ----------------------------
-# resource "aws_flow_log" "common" {
-#   for_each = { for k, v in local.flow_logs : k => v if v.create }
-
-#   iam_role_arn         = aws_iam_role.flow_log.arn
-#   log_destination_type = each.value.log_destination_type
-#   log_destination      = each.value.log_destination
-#   log_format           = each.value.log_format
-#   traffic_type         = each.value.traffic_type
-#   vpc_id               = module.vpc_common.vpc_id
-
-#   tags = {
-#     Name = each.key
-#   }
-
-#   depends_on = [aws_vpc.common]
-# }
-
-# resource "aws_eip" "common" {
-#   for_each = { for k, v in local.eip : k => v if v.create }
-#   domain   = "vpc"
-
-#   depends_on = [
-#     aws_internet_gateway.common
-#   ]
-
-#   tags = {
-#     Name = each.key
-#   }
-# }
-
-# resource "aws_eip_association" "common" {
-#   for_each = { for k, v in local.eip : k => v if v.create }
-
-#   instance_id   = each.value.instance_id
-#   allocation_id = aws_eip.common[each.key].id
-# }
-
-#####################################################
-# VPC Endpoint
-#####################################################
-// S3だけではなく、他のDynamoDBも想定した書き方にする。
-# resource "aws_vpc_endpoint" "s3_gateway" {
-#   count = var.s3_gateway ? 1 : 0
-
-#   vpc_id            = module.vpc_common.vpc_id
-#   service_name      = "com.amazonaws.${data.aws_region.default.name}.s3"
-#   route_table_ids   = [aws_route_table.common["private"].id]
-#   vpc_endpoint_type = "Gateway"
-
-#   tags = {
-#     "Name" = "s3-common"
-#   }
-# }
-
-# resource "aws_vpc_endpoint_route_table_association" "s3_gateway" {
-#   count = var.s3_gateway ? 1 : 0
-
-#   route_table_id  = aws_route_table.common["private"].id
-#   vpc_endpoint_id = aws_vpc_endpoint.s3_gateway[0].id
-# }
-
-# resource "aws_vpc_endpoint" "interface" {
-#   for_each           = { for k, v in local.vpce_interface : k => v if v.create }
-#   vpc_id             = module.vpc_common.vpc_id
-#   subnet_ids         = each.value.subnet_ids
-#   service_name       = each.value.service_name
-#   vpc_endpoint_type  = "Interface"
-#   security_group_ids = each.value.security_group_ids
-
-#   private_dns_enabled = true
-
-#   tags = {
-#     "Name" = each.key
-#   }
-# }
-
-
 #################################################
 # Network Resources
 #################################################
-# https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
+# ref:https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
 module "vpc_common" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.8.1"
+  version = "5.13.0"
 
   ## tags
   name = format("%s-%s",local.servicename,local.repository)
@@ -142,3 +61,85 @@ module "vpc_common" {
   manage_default_network_acl = false
   manage_default_route_table  = false
 }
+
+#####################################################
+# VPC Endpoint
+#####################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest/submodules/vpc-endpoints
+module "vpce_common" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "5.13.0"
+
+  vpc_id             = module.vpc_common.vpc_id
+  endpoints = {
+    s3_gateway = {
+      create = false
+      service_name = "com.amazonaws.${data.aws_region.default.name}.s3"
+      service_type = "Gateway"
+      route_table_ids = module.vpc_common.private_route_table_ids
+      tags                = { Name = "s3-vpce-gateway" }
+    },
+    ecr_dkr = {
+      create             = false
+      subnet_ids         = module.vpc_common.private_subnets
+      service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
+      security_group_ids = [module.vpc_endpoint.security_group_id]
+      tags                = { Name = "ecr-docker-vpce-interface" }
+    }
+    ecr_api = {
+      create             = false
+      subnet_ids         = module.vpc_common.private_subnets
+      service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
+      security_group_ids = [module.vpc_endpoint.security_group_id]
+      tags                = { Name = "ecr-api-vpce-interface" }
+    }
+    logs = {
+      create             = false
+      subnet_ids         = module.vpc_common.private_subnets
+      service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
+      security_group_ids = [module.vpc_endpoint.security_group_id]
+      tags                = { Name = "logs-vpce-interface" }
+    }
+  }
+}
+
+#####################################################
+# VPC FlowLogs
+#####################################################
+# # VPCフローログ ----------------------------
+# resource "aws_flow_log" "common" {
+#   for_each = { for k, v in local.flow_logs : k => v if v.create }
+
+#   iam_role_arn         = aws_iam_role.flow_log.arn
+#   log_destination_type = each.value.log_destination_type
+#   log_destination      = each.value.log_destination
+#   log_format           = each.value.log_format
+#   traffic_type         = each.value.traffic_type
+#   vpc_id               = module.vpc_common.vpc_id
+
+#   tags = {
+#     Name = each.key
+#   }
+
+#   depends_on = [aws_vpc.common]
+# }
+
+# resource "aws_eip" "common" {
+#   for_each = { for k, v in local.eip : k => v if v.create }
+#   domain   = "vpc"
+
+#   depends_on = [
+#     aws_internet_gateway.common
+#   ]
+
+#   tags = {
+#     Name = each.key
+#   }
+# }
+
+# resource "aws_eip_association" "common" {
+#   for_each = { for k, v in local.eip : k => v if v.create }
+
+#   instance_id   = each.value.instance_id
+#   allocation_id = aws_eip.common[each.key].id
+# }

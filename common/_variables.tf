@@ -231,22 +231,3 @@ variable "repo_list" {
     "actions-deploy",
   ]
 }
-
-# Listener Rule ---------------------------------------
-variable "blue" {
-  description = "ALB Listener Rule"
-  type        = bool
-  default     = true
-}
-
-variable "s3_gateway" {
-  description = "Create VPC Endpoint S3 Gateway"
-  type        = bool
-  default     = false
-}
-
-variable "create_nat_gw" {
-  description = "Create Nat Gateway"
-  type        = bool
-  default     = true
-}
