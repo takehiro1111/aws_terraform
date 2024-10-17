@@ -23,12 +23,6 @@ resource "aws_cloudwatch_log_group" "flow_log" {
   retention_in_days = 7
 }
 
-# fluent-bitのログ収集 ----------------------------
-# resource "aws_cloudwatch_log_group" "for_ecs" {
-#   name              = "ecs/fluent-bit/test"
-#   retention_in_days = 30
-# }
-
 #####################################################
 # EventBridge
 #####################################################
