@@ -78,7 +78,7 @@ module "vpce_common" {
       service_type = "Gateway"
       route_table_ids = module.vpc_common.private_route_table_ids
       tags                = { Name = "s3-vpce-gateway" }
-    },
+    }
     ecr_dkr = {
       create             = false
       subnet_ids         = module.vpc_common.private_subnets

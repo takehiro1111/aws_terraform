@@ -29,54 +29,68 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 /* 
  * ECS Task STOPPED Event 
  */
-resource "aws_cloudwatch_event_rule" "ecs_event" {
-  state       = "ENABLED"
-  name        = "ecs-event-notify"
-  description = "${local.env} ecs alert notification rule"
-  event_bus_name = "default"
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
+module "event_bridge_ecs_stopped" {
+  source  = "terraform-aws-modules/eventbridge/aws"
+  version = "3.11.0"
 
-  event_pattern = <<END
-    {
-      "source": ["aws.ecs"],
-      "detail-type": [
-        "ECS Task State Change"
-      ],
-      "detail": {
-        "lastStatus": [
-          "STOPPED"
-        ],
-        "clusterArn": [
-          "${aws_ecs_cluster.web.arn}"
-        ]
+  create = true
+  create_role = false
+  create_bus = false
+  append_rule_postfix = false
+  rules = {
+    ecs-event-notify = {
+      name = "ecs-event-notify"
+      bus_name = "default"
+      enabled       = "ENABLED"
+      description   = "${local.env} ecs alert notification rule"
+      event_pattern =  <<END
+        {
+          "source": ["aws.ecs"],
+          "detail-type": [
+            "ECS Task State Change"
+          ],
+          "detail": {
+            "lastStatus": [
+              "STOPPED"
+            ],
+            "clusterArn": [
+              "${aws_ecs_cluster.web.arn}"
+            ]
+          }
+        }
+      END
+    }
+  }
+  targets = {
+    ecs-event-notify  = [{
+      name              = "ecs-event-notify"
+      arn               = module.sns_notify_chatbot.topic_arn
+      input_transformer = {
+        input_paths = {
+          "group": "$.detail.group",
+          "taskDefinitionArn": "$.detail.taskDefinitionArn",
+          "stoppedAt": "$.detail.stoppedAt",
+          "stopCode": "$.detail.stopCode",
+          "stoppedReason": "$.detail.stoppedReason",
+        }
+        input_template = <<END
+        {
+          "version": "1.0",
+          "source": "custom",
+          "content": {
+            "textType": "client-markdown",
+            "title": ":warning: ECSタスクが停止されました :warning:",
+            "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>(UTC)`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
+          }
+        }
+        END
       }
-    }
-  END
-}
+    }]
+  }
 
-resource "aws_cloudwatch_event_target" "ecs_event" {
-  target_id = "ecs-event-notify"
-  rule      = aws_cloudwatch_event_rule.ecs_event.name
-  arn       = module.sns_notify_chatbot.topic_arn
-
-  input_transformer {
-    input_paths = {
-      "group": "$.detail.group",
-      "taskDefinitionArn": "$.detail.taskDefinitionArn",
-      "stoppedAt": "$.detail.stoppedAt",
-      "stopCode": "$.detail.stopCode",
-      "stoppedReason": "$.detail.stoppedReason",
-    }
-    input_template = <<END
-    {
-      "version": "1.0",
-      "source": "custom",
-      "content": {
-        "textType": "client-markdown",
-        "title": ":warning: ECSタスクが停止されました :warning:",
-        "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>(UTC)`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
-      }
-    }
-    END
+  tags = {
+    Name = "ecs-event-stopped-notify"
   }
 }
 
