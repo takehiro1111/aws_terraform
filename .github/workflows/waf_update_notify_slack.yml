@@ -79,7 +79,7 @@ jobs:
         run: terraform plan -var 'waf_rule_regional_limit=false' -target='aws_wafv2_web_acl.region_count[0]' -out=tfplan
 
       - name: Send Slack notification for confirmation
-        uses: rtCamp/action-slack-notify@v2.3.0
+        uses: rtCamp/action-slack-notify@v2.3.1
         with:
           webhook_url: ${{ secrets.SLACK_WEBHOOK_LAMBDA_NOTIFY }}
           message: |
@@ -187,7 +187,7 @@ jobs:
           fi
       
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.3.0
+        uses: rtCamp/action-slack-notify@v2.3.1
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ steps.conclusion.outputs.conclusion }}
