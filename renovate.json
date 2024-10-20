@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":label(renovate)",
+    ":timezone(Asia/Tokyo)"
+  ],
+  "configMigration": true,
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
+  "schedule": [
+    "* 8-23,0-2 * * *"
+  ],
+  "assignAutomerge": true,
+  "assignees": [
+    "takehiro1111"
+  ],
+  "autoApprove": true,
+  "automerge":true,
+  "packageRules": [
+    {
+      "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
+      "additionalBranchPrefix": "{{packageFileDir}}-",
+      "commitMessageSuffix": "({{packageFileDir}})",
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "terraform",
+      "automerge": true,
+      "major": {
+        "automerge": false
+      },
+      "automergeType":"pr",
+      "automergeStrategy":"auto"
+    }
+  ],
+  "rebaseWhen": "conflicted",
+  "dependencyDashboard": true
+}
