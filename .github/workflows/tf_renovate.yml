@@ -1,5 +1,5 @@
-name: tf_plan
-run-name: ${{ github.workflow }} triggered by ${{ github.actor }}
+name: tf_renovate_auto_merge
+run-name: ${{ github.workflow }} by @${{ github.actor }}
 
 on:
   pull_request:
@@ -12,8 +12,6 @@ on:
 
 env:
   AWS_REGION: ap-northeast-1
-  TF_VERSION: 1.9.1
-  SLACK_ICON: terraform_logo.png
 
 permissions:
   id-token: write
@@ -23,6 +21,13 @@ jobs:
   plan:
     name: terraform_ci
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        directory: [common, stats/stg ,my_account/prod, lambda]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,7 +48,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
 
       - name: Init
         id: init
@@ -54,19 +59,3 @@ jobs:
         id: validate
         run: |
           terraform validate
-
-      - name: Fmt
-        id: fmt
-        run: |
-          terraform fmt
-    
-      - name: Plan
-        id: plan
-        run: |
-          terraform plan | tee plan_output.txt
-
-      # planの結果を環境変数に格納
-      - name: Extract terraform plan result
-        run: |
-          PLAN_RESULT=$(grep -e "No changes." -e "Plan:" plan_output.txt | sed 's/\x1B\[[0-9;]*[mK]//g')
-          echo "PLAN_RESULT=${PLAN_RESULT}" >> $GITHUB_ENV
