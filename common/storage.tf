@@ -574,7 +574,7 @@ module "config_log" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_alb_accesslog" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "alb-accesslog-${data.aws_caller_identity.current.account_id}"
@@ -682,7 +682,7 @@ module "s3_alb_accesslog" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_inventory_dist" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "s3-inventory-dist-${data.aws_caller_identity.current.account_id}"
@@ -766,7 +766,7 @@ module "s3_inventory_dist" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_batch_operation_dist" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "s3-batch-operation-dist-${data.aws_caller_identity.current.account_id}"
@@ -855,7 +855,7 @@ module "s3_batch_operation_dist" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_batch_operation_report_dist" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "s3-batch-operation-report-dist-${data.aws_caller_identity.current.account_id}"
@@ -947,7 +947,7 @@ module "s3_batch_operation_report_dist" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "cloudwatchlogs_to_s3" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "cloudwatchlogs-to-s3-${data.aws_caller_identity.current.account_id}"
@@ -1183,7 +1183,7 @@ resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "sam_deploy" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "sam-deploy-${data.aws_caller_identity.current.account_id}"
@@ -1296,7 +1296,7 @@ module "sam_deploy" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "firehose_delivery_logs" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
   #   providers = {
   #   aws = aws.us-east-1
   # }
@@ -1410,7 +1410,7 @@ module "firehose_delivery_logs" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_for_vpc_flow_log_stg" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "forward-vpc-flow-logs-${local.env}-${data.aws_caller_identity.current.account_id}"
@@ -1500,7 +1500,7 @@ module "s3_for_vpc_flow_log_stg" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "athena_query_result_for_vpc_flow_log" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "athena-result-vpc-flow-logs-${data.aws_caller_identity.current.account_id}"

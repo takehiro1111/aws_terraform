@@ -136,7 +136,7 @@ resource "aws_vpc_security_group_egress_rule" "ecs_stg_egress" {
 #MySQL ------------------------------------- 
 module "sg_mysql" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.1.2"
+  version = "5.2.0"
 
   // SG本体
   name        = "aurora-mysql"
@@ -194,7 +194,7 @@ resource "aws_vpc_security_group_ingress_rule" "mysql_stg_cdn" {
 
 module "vpc_endpoint" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.1.2"
+  version = "5.2.0"
 
 
   name        = "stats-fluentd"
