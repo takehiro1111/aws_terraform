@@ -27,10 +27,7 @@
       "additionalBranchPrefix": "{{packageFileDir}}-",
       "commitMessageSuffix": "({{packageFileDir}})",
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "terraform",
-      "major": {
-        "automerge": false
-      }
+      "groupName": "terraform"
     }
   ]
 }
