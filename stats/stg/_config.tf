@@ -12,7 +12,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "terraform-state-hashicorp"
+    bucket         = "terraform-state-421643133281"
     key            = "stats"
     region         = "ap-northeast-1"
     acl            = "private"
