@@ -4,7 +4,7 @@
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "lambda_event" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.2"
+  version = "4.2.1"
 
   # aws_s3_bucket
   bucket              = "lambda-event-${data.aws_caller_identity.current.account_id}"
