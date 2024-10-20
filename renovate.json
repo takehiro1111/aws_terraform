@@ -19,6 +19,8 @@
   "automerge":true,
   "automergeType":"pr",
   "automergeStrategy":"auto",
+  "rebaseWhen": "conflicted",
+  "dependencyDashboard": true,
   "packageRules": [
     {
       "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
@@ -30,7 +32,5 @@
         "automerge": false
       }
     }
-  ],
-  "rebaseWhen": "conflicted",
-  "dependencyDashboard": true
+  ]
 }
