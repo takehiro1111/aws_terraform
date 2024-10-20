@@ -35,7 +35,6 @@ jobs:
           aws-region: ${{env.AWS_REGION}}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
           role-session-name: GithubActions_AssumeRole
-          #CloudTrailログ等の監査ログでどのセッションがどの操作を行ったのかを追跡するために設定。
             
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
