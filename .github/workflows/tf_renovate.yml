@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        directory: [common, stats/stg ,my_account/prod, lambda]
+        directory: [common, stats/stg, lambda]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
