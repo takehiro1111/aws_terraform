@@ -22,10 +22,10 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
 
       - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
         with:
           aws-region: ${{env.AWS_REGION}}
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
@@ -33,7 +33,7 @@ jobs:
           #CloudTrailログ等の監査ログでどのセッションがどの操作を行ったのかを追跡するために設定。
             
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
@@ -67,7 +67,7 @@ jobs:
 
       - if: always()
         name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.3.1
+        uses: rtCamp/action-slack-notify@65e6fc1ce697e2df8149d9ae9909acc5ec5599ce # v2.3.1
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_NAME }}
           SLACK_COLOR: ${{ job.status }}
