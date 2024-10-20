@@ -89,3 +89,6 @@ tf_logo.png
 my_account/**/localdir/**
 
 certs/**
+
+modules/variable/mails.tf
+modules/variable/home_ips.tf
