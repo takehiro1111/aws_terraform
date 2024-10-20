@@ -188,8 +188,8 @@ locals {
   chatbots = {
     personal = {
       name               = "common-alert-notify"
-      slack_workspace_id = "T06PFGXUB2B" # personal 
-      slack_channel_id   = "C07GTL63RDJ" # aws_alert
+      slack_workspace_id = module.value.slack_workspace_id
+      slack_channel_id   = module.value.aws_alert_slack_channel_id
     }
   }
 }
