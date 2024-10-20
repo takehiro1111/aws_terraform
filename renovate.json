@@ -17,6 +17,8 @@
   ],
   "autoApprove": true,
   "automerge":true,
+  "automergeType":"pr",
+  "automergeStrategy":"auto",
   "packageRules": [
     {
       "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
@@ -24,12 +26,9 @@
       "commitMessageSuffix": "({{packageFileDir}})",
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "terraform",
-      "automerge": true,
       "major": {
         "automerge": false
-      },
-      "automergeType":"pr",
-      "automergeStrategy":"auto"
+      }
     }
   ],
   "rebaseWhen": "conflicted",
