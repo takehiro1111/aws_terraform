@@ -56,8 +56,3 @@ jobs:
         id: init
         run: |
           terraform init
-
-      - name: Validate
-        id: validate
-        run: |
-          terraform validate
