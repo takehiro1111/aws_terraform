@@ -58,7 +58,7 @@ module "route53_records_takehiro1111_com" {
 ## us-east-1
 module "acm_takehiro1111_com_us_east_1" {
   source  = "terraform-aws-modules/acm/aws"
-  version = "5.1.0"
+  version = "5.1.1"
 
   # aws_acm_certificate
   create_certificate        = true
@@ -81,7 +81,7 @@ module "acm_takehiro1111_com_us_east_1" {
 ## ap-northeast-1
 module "acm_takehiro1111_com_ap_northeast_1" {
   source  = "terraform-aws-modules/acm/aws"
-  version = "5.1.0"
+  version = "5.1.1"
 
   # aws_acm_certificate
   create_certificate        = true
@@ -118,7 +118,7 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
 
 module "cdn_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "3.4.0"
+  version = "3.4.1"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = true
@@ -228,7 +228,7 @@ module "cdn_takehiro1111_com" {
 #####################################################
 module "alb_wildcard_takehiro1111_com" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "9.11.0"
+  version = "9.11.1"
 
   # aws_lb
   create                     = true
