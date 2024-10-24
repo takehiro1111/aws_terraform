@@ -16,3 +16,8 @@ output "cdn_takehiro1111_com" {
   value = "cdn.takehiro1111.com"
 }
 
+output "api_takehiro1111_com" {
+  description = "CloudFrontのaliasで設定"
+  value = "api.takehiro1111.com"
+}
+

@@ -138,7 +138,7 @@ resource "aws_ecs_service" "web_nginx" {
   name                              = "nginx-service-stg"
   cluster                           = aws_ecs_cluster.web.arn
   task_definition                   = "nginx-task-define"
-  desired_count                     = 1
+  desired_count                     = 0
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 60

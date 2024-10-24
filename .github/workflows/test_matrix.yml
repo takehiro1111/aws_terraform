@@ -1,0 +1,61 @@
+name: tf_apply_expand
+run-name: ${{ github.workflow }} triggered by ${{ github.actor }}
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-1
+  AWS_ASSUME_ROLE: ${{ secrets.AWS_ASSUME_ROLE }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  tf_apply:
+    name: terraform_apply
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - directory: "common"
+            role_arn: arn:aws:iam::421643133281:role/deploy-github-actions
+          - directory: "stats/stg"
+            role_arn: arn:aws:iam::421643133281:role/deploy-github-actions
+          - directory: "lambda"
+            role_arn: arn:aws:iam::421643133281:role/deploy-github-actions
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{env.AWS_REGION}}
+          role-to-assume: ${{ matrix.role_arn }}
+          role-session-name: GithubActions_AssumeRole_${{ github.workflow }}
+
+      - name: Get Terraform version
+        id: get_tf_version
+        run: |
+          TF_VERSION=$(cat .terraform-version)
+          echo TF_VERSION=$TF_VERSION >> $GITHUB_OUTPUT
+            
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
+
+      - name: Init
+        id: init
+        run: |
+          terraform init
+    
+      # - name: Plan
+      #   id: plan
+      #   run: |
+      #     terraform plan

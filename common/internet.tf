@@ -48,7 +48,16 @@ module "route53_records_takehiro1111_com" {
         zone_id                = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
         evaluate_target_health = false
       }
-    }
+    },
+    {
+      name = trimsuffix(module.value.api_takehiro1111_com, ".${module.value.takehiro1111_com}")
+      type = "A"
+      alias = {
+        name                   = module.cloudfront_api_takehiro1111_com.cloudfront_distribution_domain_name
+        zone_id                = module.cloudfront_api_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        evaluate_target_health = false
+      }
+    },
   ]
 }
 
@@ -222,6 +231,119 @@ module "cdn_takehiro1111_com" {
     Name = module.value.cdn_takehiro1111_com
   }
 }
+
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
+module "cloudfront_api_takehiro1111_com" {
+  source  = "terraform-aws-modules/cloudfront/aws"
+  version = "3.4.1"
+
+  # aws_cloudfront_origin_access_control
+  create_origin_access_control = false
+
+  # aws_cloudfront_distribution
+  create_distribution = true
+  aliases             = [module.value.api_takehiro1111_com]
+  comment             = "common"
+  enabled             = true
+  is_ipv6_enabled     = true
+  price_class         = "PriceClass_All"
+  retain_on_delete    = false
+  # web_acl_id =  WAF作成時にコメントイン予定
+
+  logging_config = {
+    bucket          = aws_s3_bucket.cdn_log.bucket_domain_name
+    prefix          = local.logging_config_prefix
+    include_cookies = false
+  }
+
+  // API GW
+  origin = {
+    origin_api_gw = {
+      domain_name = "ezwfdyn08k.execute-api.ap-northeast-1.amazonaws.com"
+      origin_id   = "API-Gateway-Origin"
+      origin_path = "/stg"
+
+      custom_origin_config = {
+        http_port                = 80
+        https_port               = 443
+        origin_protocol_policy   = "https-only"
+        origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+        origin_keepalive_timeout = 5
+        origin_read_timeout      = 20
+      }
+    }
+  }
+
+  default_cache_behavior = {
+    target_origin_id       = "API-Gateway-Origin"
+    viewer_protocol_policy = "https-only"
+    allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
+    compress               = false // WebSocketでの通信のため圧縮しない
+    use_forwarded_values   = true
+    query_string = false
+    headers      = ["Authorization"]
+    cookies_forward = "none"
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
+  }
+
+  viewer_certificate = {
+    acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
+    cloudfront_default_certificate = "false"
+    minimum_protocol_version       = "TLSv1.2_2021"
+    ssl_support_method             = "sni-only"
+  }
+
+  # custom_error_response = concat(local.custom_error_responses, local.conditional_custom_error_responses)
+
+  geo_restriction = {
+    restriction_type = "none"
+  }
+
+  tags = {
+    Name = module.value.api_takehiro1111_com
+  }
+}
+
+# resource "aws_cloudfront_origin_request_policy" "header_whitelist_authorization" {
+#   name    = "example-policy"
+#   comment = "example comment"
+#   cookies_config {
+#     cookie_behavior = "none"
+#   }
+#   headers_config {
+#     header_behavior = "whitelist"
+#     headers {
+#       items = ["Authorization"]
+#     }
+#   }
+#   query_strings_config {
+#     query_string_behavior = "none"
+#   }
+# }
+
+# resource "aws_cloudfront_cache_policy" "header_whitelist_authorization" {
+#   name        = "example-policy"
+#   comment     = "test comment"
+#   default_ttl = 0
+#   max_ttl     = 0
+#   min_ttl     = 0
+#   parameters_in_cache_key_and_forwarded_to_origin {
+#     cookies_config {
+#       cookie_behavior = "none"
+#     }
+#     headers_config {
+#       header_behavior = "whitelist"
+#       headers {
+#         items = ["Authorization"]
+#       }
+#     }
+#     query_strings_config {
+#       query_string_behavior = "none"
+#     }
+#   }
+# }
 
 #####################################################
 # ALB
