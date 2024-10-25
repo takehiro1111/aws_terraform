@@ -788,6 +788,81 @@ resource "aws_iam_role_policy" "glue_crawler_vpc_flow_logs" {
   })
 }
 
+
+resource "aws_iam_role" "test_1" {
+  assume_role_policy = jsonencode(
+    {
+      Statement = [
+        {
+          Action = "sts:AssumeRole"
+          Effect = "Allow"
+          Principal = {
+            Service = "chatbot.amazonaws.com"
+          }
+        },
+      ]
+      Version = "2012-10-17"
+    }
+  )
+  description           = "AWS Chatbot Execution Role"
+  force_detach_policies = false
+  # managed_policy_arns = [
+  #   "arn:aws:iam::aws:policy/AlexaForBusinessReadOnlyAccess",
+  # ]
+  max_session_duration = 3600
+  name                 = "AwsChatbotRole"
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "test_1" {
+  role_name   = aws_iam_role.test_1.name
+  policy_arns = [
+    "arn:aws:iam::aws:policy/AlexaForBusinessReadOnlyAccess",
+    "arn:aws:iam::aws:policy/AdministratorAccess"
+  ]
+}
+
+resource "aws_iam_role" "test_2" {
+  assume_role_policy = jsonencode(
+    {
+      Statement = [
+        {
+          Action = "sts:AssumeRole"
+          Effect = "Allow"
+          Principal = {
+            Service = "chatbot.amazonaws.com"
+          }
+        },
+      ]
+      Version = "2012-10-17"
+    }
+  )
+  description           = "AWS Chatbot Execution Role"
+  force_detach_policies = false
+  # managed_policy_arns = [
+  #   "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  # ]
+  max_session_duration = 3600
+  name                 = "exclusive-import-test"
+}
+
+import {
+  to = aws_iam_role.test_2
+  id = "exclusive-import-test"
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "test_2" {
+  role_name   = aws_iam_role.test_2.name
+  policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  ]
+}
+
+import {
+  to = aws_iam_role_policy_attachments_exclusive.test_2
+  id = "exclusive-import-test"
+}
+
+
 #####################################################
 # KMS
 #####################################################
