@@ -350,7 +350,7 @@ module "cloudfront_api_takehiro1111_com" {
 #####################################################
 module "alb_wildcard_takehiro1111_com" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "9.11.2"
+  version = "9.12.0"
 
   # aws_lb
   create                     = true
