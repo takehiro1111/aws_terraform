@@ -32,7 +32,7 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_stopped" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.11.0"
+  version = "3.12.0"
 
   create              = true
   create_role         = false
