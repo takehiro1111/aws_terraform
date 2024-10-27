@@ -28,7 +28,6 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Name       = local.name
       Repository = local.repo
       Directory  = local.dir
     }
@@ -42,7 +41,6 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Name       = local.name
       Repository = local.repo
       Directory  = local.dir
     }

@@ -65,28 +65,3 @@ module "s3_bucket_tfstate" {
     ]
   })
 }
-
-resource "aws_s3_object" "tfstate_1" {
-  bucket                 = module.s3_bucket_tfstate.s3_bucket_id
-  key                    = "state/"
-  server_side_encryption = "AES256"
-  acl                    = "private"
-  storage_class          = "STANDARD"
-
-  lifecycle {
-    ignore_changes = [tags_all]
-  }
-}
-
-resource "aws_s3_object" "tfstate_2" {
-  bucket                 = module.s3_bucket_tfstate.s3_bucket_id
-  key                    = "services/"
-  server_side_encryption = "AES256"
-  acl                    = "private"
-  storage_class          = "STANDARD"
-
-  lifecycle {
-    ignore_changes = [tags_all]
-  }
-}
-
