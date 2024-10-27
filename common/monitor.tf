@@ -146,7 +146,7 @@ resource "aws_sns_topic_policy" "slack_alert" {
         Resource = aws_sns_topic.slack_alert.arn,
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
           }
         }
       }
@@ -176,7 +176,7 @@ data "aws_iam_policy_document" "sns_notify_chatbot" {
     }
     actions = ["sns:Publish"]
     resources = [
-      "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.current.account_id}:slack_notify"
+      "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.self.account_id}:slack_notify"
     ]
   }
 }

@@ -4,7 +4,7 @@ locals {
   repository  = "aws_terraform"
   directory   = "aws_terraform/common"
 
-  accounnt_id = data.aws_caller_identity.current.id
+  accounnt_id = data.aws_caller_identity.self.id
 
   # CloudFront Origin ID
   ecs_origin_id = "ALB-ecs"
@@ -86,9 +86,9 @@ locals {
         { days = 365, storage_class = "DEEP_ARCHIVE" }
       ]
 
-      noncurrent_version_transition = {
-        newer_noncurrent_versions = 1
-        noncurrent_days           = 30
+      nonself_version_transition = {
+        newer_nonself_versions = 1
+        nonself_days           = 30
         storage_class             = "DEEP_ARCHIVE"
       }
     }

@@ -383,7 +383,7 @@ data "aws_iam_policy_document" "deploy_github_actions" {
     sid       = "GithubActions"
     effect    = "Allow"
     actions   = ["sts:*"]
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/myaccount_actions"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.self.account_id}:role/myaccount_actions"]
   }
   statement {
     sid    = "GetItem"
@@ -392,7 +392,7 @@ data "aws_iam_policy_document" "deploy_github_actions" {
       "dynamodb:GetItem",
       "dynamodb:PutItem",
     ]
-    resources = ["arn:aws:dynamodb:ap-northeast-1:${data.aws_caller_identity.current.account_id}:table/tfstate-locks"]
+    resources = ["arn:aws:dynamodb:ap-northeast-1:${data.aws_caller_identity.self.account_id}:table/tfstate-locks"]
   }
   statement {
     sid       = "PushECR"
@@ -411,8 +411,8 @@ data "aws_iam_policy_document" "deploy_github_actions" {
     effect  = "Allow"
     actions = ["iam:PassRole"]
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole",
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/secure-ecs-tasks-stg@common"
+      "arn:aws:iam::${data.aws_caller_identity.self.account_id}:role/ecsTaskExecutionRole",
+      "arn:aws:iam::${data.aws_caller_identity.self.account_id}:role/secure-ecs-tasks-stg@common"
     ]
   }
   statement {
@@ -468,7 +468,7 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
       "wafv2:CreateRule",
       "wafv2:ListTagsForResource",
     ]
-    resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.current.account_id}:global/webacl/*/*"]
+    resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.self.account_id}:global/webacl/*/*"]
   }
   statement {
     effect = "Allow"
@@ -604,14 +604,14 @@ data "aws_iam_policy_document" "lambda_execute" {
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
-    resources = ["arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:log-group:*:*"]
+    resources = ["arn:aws:logs:*:${data.aws_caller_identity.self.account_id}:log-group:*:*"]
   }
   statement {
     effect = "Allow"
     actions = [
       "sns:Publish"
     ]
-    resources = ["arn:aws:sns:*:${data.aws_caller_identity.current.account_id}:*"]
+    resources = ["arn:aws:sns:*:${data.aws_caller_identity.self.account_id}:*"]
   }
 }
 
@@ -646,7 +646,7 @@ data "aws_iam_policy_document" "s3_batch_operation" {
     actions = [
       "kms:Decrypt",
     ]
-    resources = ["arn:aws:kms:${data.aws_region.default.name}:${data.aws_caller_identity.current.account_id}:key/*"]
+    resources = ["arn:aws:kms:${data.aws_region.default.name}:${data.aws_caller_identity.self.account_id}:key/*"]
   }
   statement {
     effect = "Allow"
@@ -729,7 +729,7 @@ resource "aws_iam_role" "firehose_delivery_role" {
       "Action": "sts:AssumeRole",
       "Condition": {
         "StringEquals": {
-          "sts:ExternalId": "${data.aws_caller_identity.current.account_id}"
+          "sts:ExternalId": "${data.aws_caller_identity.self.account_id}"
         }
       }
     }
@@ -937,7 +937,7 @@ resource "aws_kms_key_policy" "s3" {
         "Sid" : "Enable IAM User Permissions",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root"
         },
         "Action" : "kms:*",
         "Resource" : "*"

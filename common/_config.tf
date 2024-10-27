@@ -53,24 +53,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
-provider "aws" {
-  alias  = "ap-southeast-1"
-  region = "ap-southeast-1"
-}
-
-provider "aws" {
-  alias  = "eu-central-1"
-  region = "eu-central-1"
-
-  default_tags {
-    tags = {
-      Name       = "hashicorp"
-      repository = "hcl"
-    }
-  }
-}
-
 provider "awscc" {
+  alias  = "us-east-1"
   region = "us-east-1"
 }
 
@@ -84,7 +68,7 @@ module "value" {
 #####################################################
 # Data Block
 #####################################################
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "self" {}
 
 data "aws_partition" "current" {}
 

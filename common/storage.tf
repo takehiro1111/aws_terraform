@@ -26,7 +26,7 @@ resource "aws_ecr_repository_policy" "common" {
           "Sid": "AllowALL",
           "Effect": "Allow",
           "Principal": {
-            "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            "AWS": "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root"
           },
           "Action": [
             "ecr:*"
@@ -79,7 +79,7 @@ resource "aws_ecr_lifecycle_policy" "common" {
 #####################################################
 #tfsatate-------------------------------------
 resource "aws_s3_bucket" "tfstate" {
-  bucket = "terraform-state-${data.aws_caller_identity.current.account_id}"
+  bucket = "terraform-state-${data.aws_caller_identity.self.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "tfstate" {
@@ -131,7 +131,7 @@ resource "aws_s3_bucket_policy" "tfstate" {
       {
         "Sid" : "sekigaku-user_Aloow",
         "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.id}:root" },
+        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
         "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",
@@ -155,7 +155,7 @@ resource "aws_s3_bucket_logging" "tfstate" {
 
 #logging------------------------------------------------------
 resource "aws_s3_bucket" "logging" {
-  bucket = "logging-${data.aws_caller_identity.current.account_id}"
+  bucket = "logging-${data.aws_caller_identity.self.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "logging" {
@@ -207,7 +207,7 @@ resource "aws_s3_bucket_policy" "logging" {
       {
         "Sid" : "sekigaku-user_Aloow",
         "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.id}:root" },
+        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
         "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",
@@ -258,7 +258,7 @@ resource "aws_s3_bucket_policy" "logging" {
  * CloudFront用のアクセスログ
  */
 resource "aws_s3_bucket" "cdn_log" {
-  bucket   = "cdn-log-${data.aws_caller_identity.current.account_id}"
+  bucket   = "cdn-log-${data.aws_caller_identity.self.account_id}"
   provider = aws.us-east-1
 }
 
@@ -339,10 +339,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "cdn_log" {
         }
       }
 
-      noncurrent_version_transition {
-        newer_noncurrent_versions = rule.value.noncurrent_version_transition.newer_noncurrent_versions
-        noncurrent_days           = rule.value.noncurrent_version_transition.noncurrent_days
-        storage_class             = rule.value.noncurrent_version_transition.storage_class
+      nonself_version_transition {
+        newer_nonself_versions = rule.value.nonself_version_transition.newer_nonself_versions
+        nonself_days           = rule.value.nonself_version_transition.nonself_days
+        storage_class             = rule.value.nonself_version_transition.storage_class
       }
     }
   }
@@ -357,7 +357,7 @@ resource "aws_s3_bucket_policy" "cdn_log" {
       {
         "Sid" : "sekigaku-user_Aloow",
         "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.id}:root" },
+        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
         "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",
@@ -387,7 +387,7 @@ resource "aws_s3_bucket_policy" "cdn_log" {
         ]
         "Condition" : {
           "StringLike" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/*"
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.self.account_id}:distribution/*"
           }
         }
       }
@@ -398,7 +398,7 @@ resource "aws_s3_bucket_policy" "cdn_log" {
 
 # Static -----------------------------
 resource "aws_s3_bucket" "static" {
-  bucket = "static-${data.aws_caller_identity.current.account_id}"
+  bucket = "static-${data.aws_caller_identity.self.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "static" {
@@ -458,7 +458,7 @@ resource "aws_s3_bucket_policy" "static" {
       {
         "Sid" : "sekigaku-user_Aloow",
         "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.current.id}:root" },
+        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
         "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",
@@ -498,7 +498,7 @@ resource "aws_s3_bucket_policy" "static" {
 #::memo::
 # #フローログのバケットポリシーはデフォルトで動的に作成されるため、ユーザー側での作成は不要。
 resource "aws_s3_bucket" "flow_log" {
-  bucket = "vpc-flow-log-${data.aws_caller_identity.current.account_id}"
+  bucket = "vpc-flow-log-${data.aws_caller_identity.self.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "flow_log" {
@@ -553,7 +553,7 @@ resource "aws_s3_bucket_logging" "flow_log" {
  * Athena
  */
 resource "aws_s3_bucket" "athena" {
-  bucket = "athena-${data.aws_caller_identity.current.account_id}"
+  bucket = "athena-${data.aws_caller_identity.self.account_id}"
 }
 
 resource "aws_s3_bucket_ownership_controls" "athena" {
@@ -608,7 +608,7 @@ resource "aws_s3_bucket_logging" "athena" {
 module "config_log" {
   source = "../modules/s3/config"
 
-  bucket_name    = "config-${data.aws_caller_identity.current.account_id}"
+  bucket_name    = "config-${data.aws_caller_identity.self.account_id}"
   bucket_logging = aws_s3_bucket.logging.bucket
 }
 
@@ -619,7 +619,7 @@ module "s3_alb_accesslog" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "alb-accesslog-${data.aws_caller_identity.current.account_id}"
+  bucket              = "alb-accesslog-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -675,7 +675,7 @@ module "s3_alb_accesslog" {
         Effect = "Allow"
         Principal = {
           AWS = [
-            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+            "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root",
             "arn:aws:iam::582318560864:root" // 東京リージョンにおけるALBのログ配信を管理するために使用される内部的なAWSアカウント
           ]
           Service = "logdelivery.elasticloadbalancing.amazonaws.com"
@@ -684,7 +684,7 @@ module "s3_alb_accesslog" {
           "s3:PutObject"
         ]
         Resource = [
-          "${module.s3_alb_accesslog.s3_bucket_arn}/common/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+          "${module.s3_alb_accesslog.s3_bucket_arn}/common/AWSLogs/${data.aws_caller_identity.self.account_id}/*",
         ]
       },
     ]
@@ -704,7 +704,7 @@ module "s3_alb_accesslog" {
 # resource "aws_s3_bucket_inventory" "athena" {
 #   bucket = aws_s3_bucket.athena.id
 #   name   = "AthenaBucket-Inventory"
-#   included_object_versions = "Current" // 現在のバージョンのみを対象。
+#   included_object_versions = "self" // 現在のバージョンのみを対象。
 #   schedule {
 #     frequency = "Daily" // 日次でのレポート送信
 #   }
@@ -727,7 +727,7 @@ module "s3_inventory_dist" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "s3-inventory-dist-${data.aws_caller_identity.current.account_id}"
+  bucket              = "s3-inventory-dist-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -790,7 +790,7 @@ module "s3_inventory_dist" {
         ]
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id,
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id,
             "s3:x-amz-acl"      = "bucket-owner-full-control"
           },
           ArnLike = {
@@ -811,7 +811,7 @@ module "s3_batch_operation_dist" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "s3-batch-operation-dist-${data.aws_caller_identity.current.account_id}"
+  bucket              = "s3-batch-operation-dist-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -881,11 +881,11 @@ module "s3_batch_operation_dist" {
         ]
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
           },
           ArnLike = {
             "aws:SourceArn" = [
-              "arn:aws:s3::${data.aws_caller_identity.current.account_id}:job/*"
+              "arn:aws:s3::${data.aws_caller_identity.self.account_id}:job/*"
             ]
           }
         }
@@ -900,7 +900,7 @@ module "s3_batch_operation_report_dist" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "s3-batch-operation-report-dist-${data.aws_caller_identity.current.account_id}"
+  bucket              = "s3-batch-operation-report-dist-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -970,11 +970,11 @@ module "s3_batch_operation_report_dist" {
         ]
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
           },
           ArnLike = {
             "aws:SourceArn" = [
-              "arn:aws:s3::${data.aws_caller_identity.current.account_id}:job/*"
+              "arn:aws:s3::${data.aws_caller_identity.self.account_id}:job/*"
             ]
           }
         }
@@ -992,7 +992,7 @@ module "cloudwatchlogs_to_s3" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "cloudwatchlogs-to-s3-${data.aws_caller_identity.current.account_id}"
+  bucket              = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -1056,11 +1056,11 @@ module "cloudwatchlogs_to_s3" {
         ]
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
           }
           ArnLike = {
             "aws:SourceArn" = [
-              "arn:aws:logs:${data.aws_region.default.name}:${data.aws_caller_identity.current.account_id}:log-group:*"
+              "arn:aws:logs:${data.aws_region.default.name}:${data.aws_caller_identity.self.account_id}:log-group:*"
             ]
           }
         }
@@ -1106,7 +1106,7 @@ module "cloudwatchlogs_to_s3" {
 // 公式Moduleだとデフォルトリージョンでしか作成できないためresourceブロックで作成。
 // aws_s3_bucket_loggingについては、クロスリージョンのロギングが出来ないため未設定。
 resource "aws_s3_bucket" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = "cloudwatchlogs-to-s3-${data.aws_caller_identity.current.account_id}-us-east-1"
+  bucket   = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}-us-east-1"
   provider = aws.us-east-1
 }
 
@@ -1206,11 +1206,11 @@ resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
         ]
         Condition = {
           StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
           }
           ArnLike = {
             "aws:SourceArn" = [
-              "arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:log-group:*"
+              "arn:aws:logs:us-east-1:${data.aws_caller_identity.self.account_id}:log-group:*"
             ]
           }
         }
@@ -1228,7 +1228,7 @@ module "sam_deploy" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "sam-deploy-${data.aws_caller_identity.current.account_id}"
+  bucket              = "sam-deploy-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -1280,7 +1280,7 @@ module "sam_deploy" {
       {
         Effect = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.id}:root"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.self.id}:root"
         },
         Action = [
           "s3:GetBucketAcl",
@@ -1293,7 +1293,7 @@ module "sam_deploy" {
         ]
         # Condition = {
         #   StringEquals = {
-        #     "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+        #     "aws:SourceAccount" = data.aws_caller_identity.self.account_id
         #   }
         # }
       }
@@ -1344,7 +1344,7 @@ module "firehose_delivery_logs" {
   # }
 
   # aws_s3_bucket
-  bucket              = "firehose-delivery-logs-${data.aws_caller_identity.current.account_id}"
+  bucket              = "firehose-delivery-logs-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -1455,7 +1455,7 @@ module "s3_for_vpc_flow_log_stg" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "forward-vpc-flow-logs-${local.env}-${data.aws_caller_identity.current.account_id}"
+  bucket              = "forward-vpc-flow-logs-${local.env}-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // 一時的な検証用に使用するバケットのため
   object_lock_enabled = false
 
@@ -1545,7 +1545,7 @@ module "athena_query_result_for_vpc_flow_log" {
   version = "4.2.1"
 
   # aws_s3_bucket
-  bucket              = "athena-result-vpc-flow-logs-${data.aws_caller_identity.current.account_id}"
+  bucket              = "athena-result-vpc-flow-logs-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // 一時的な検証用に使用するバケットのため
   object_lock_enabled = false
 

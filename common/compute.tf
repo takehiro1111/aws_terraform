@@ -186,7 +186,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
   container_definitions = jsonencode([
     {
       name      = "nginx-container"
-      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:latest"
+      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:latest"
       cpu       = 256
       memory    = 512
       essential = true
