@@ -9,15 +9,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "5.73.0"
     }
-    awscc = {
-      source  = "hashicorp/awscc"
-      version = "1.18.0"
-    }
   }
 
   backend "s3" {
     bucket  = "tfstate-685339645368"
-    key     = "prod/state_prod"
+    key     = "state/state_prod"
     region  = "ap-northeast-1"
     profile = "my_account"
   }
@@ -32,10 +28,9 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Name        = local.name
-      Environment = local.env
-      Repository  = local.repo
-      Directory   = local.dir
+      Name       = local.name
+      Repository = local.repo
+      Directory  = local.dir
     }
   }
 }
@@ -47,17 +42,11 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Name        = local.name
-      Environment = local.env
-      Repository  = local.repo
-      Directory   = local.dir
+      Name       = local.name
+      Repository = local.repo
+      Directory  = local.dir
     }
   }
-}
-
-provider "awscc" {
-  region  = "us-east-1"
-  profile = "my_account"
 }
 
 #####################################################

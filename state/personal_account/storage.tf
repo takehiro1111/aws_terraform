@@ -5,7 +5,7 @@
  * tfstate
  */
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "tfstate" {
+module "s3_bucket_tfstate" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
 
@@ -58,17 +58,17 @@ module "tfstate" {
           "s3:PutObject"
         ],
         "Resource" : [
-          module.tfstate.s3_bucket_arn,
-          "${module.tfstate.s3_bucket_arn}/*"
+          module.s3_bucket_tfstate.s3_bucket_arn,
+          "${module.s3_bucket_tfstate.s3_bucket_arn}/*"
         ]
       }
     ]
   })
 }
 
-resource "aws_s3_object" "tfstate" {
-  bucket                 = module.tfstate.s3_bucket_id
-  key                    = "prod/state_prod"
+resource "aws_s3_object" "tfstate_1" {
+  bucket                 = module.s3_bucket_tfstate.s3_bucket_id
+  key                    = "state/"
   server_side_encryption = "AES256"
   acl                    = "private"
   storage_class          = "STANDARD"
@@ -77,3 +77,16 @@ resource "aws_s3_object" "tfstate" {
     ignore_changes = [tags_all]
   }
 }
+
+resource "aws_s3_object" "tfstate_2" {
+  bucket                 = module.s3_bucket_tfstate.s3_bucket_id
+  key                    = "services/"
+  server_side_encryption = "AES256"
+  acl                    = "private"
+  storage_class          = "STANDARD"
+
+  lifecycle {
+    ignore_changes = [tags_all]
+  }
+}
+
