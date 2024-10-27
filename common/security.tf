@@ -477,7 +477,7 @@ data "aws_iam_policy_document" "github_actions_for_waf" {
       "s3:PutObject",
       "s3:ListBucket",
     ]
-    resources = ["${aws_s3_bucket.tfstate.arn}/*"]
+    resources = ["${data.terraform_remote_state.state_personal_account.outputs.state_s3_bucket_id}/*"]
   }
   statement {
     effect = "Allow"

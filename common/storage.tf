@@ -1,8 +1,7 @@
 #####################################################
 # ECR
 #####################################################
-# KMSでの暗号化は行わない。
-#trivy:ignore:AVD-AWS-0033
+#trivy:ignore:AVD-AWS-0033 // KMSでの暗号化は行わない。
 resource "aws_ecr_repository" "common" {
   for_each = toset(var.repo_list)
 
@@ -77,81 +76,6 @@ resource "aws_ecr_lifecycle_policy" "common" {
 #####################################################
 # S3
 #####################################################
-#tfsatate-------------------------------------
-resource "aws_s3_bucket" "tfstate" {
-  bucket = "terraform-state-${data.aws_caller_identity.self.account_id}"
-}
-
-resource "aws_s3_bucket_ownership_controls" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-  acl    = "private"
-
-  depends_on = [aws_s3_bucket.tfstate]
-}
-
-resource "aws_s3_bucket_public_access_block" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_versioning" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.bucket
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256" # "aws:kms"
-      #kms_master_key_id = aws_kms_key.s3.arn
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "tfstate" {
-  bucket = aws_s3_bucket.tfstate.id
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "sekigaku-user_Aloow",
-        "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
-        "Action" : [
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:GetObject",
-          "s3:PutBucketAcl",
-        ],
-        "Resource" : [
-          aws_s3_bucket.tfstate.arn,
-          "${aws_s3_bucket.tfstate.arn}/*",
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_s3_bucket_logging" "tfstate" {
-  bucket        = aws_s3_bucket.tfstate.id
-  target_bucket = aws_s3_bucket.logging.id
-  target_prefix = "${aws_s3_bucket.tfstate.id}/log/"
-}
 
 #logging------------------------------------------------------
 resource "aws_s3_bucket" "logging" {

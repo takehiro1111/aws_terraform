@@ -2,10 +2,6 @@ output "account_id" {
   value = data.aws_caller_identity.self.account_id
 }
 
-output "tfstate_arn" {
-  value = aws_s3_bucket.tfstate.arn
-}
-
 output "tfstate_locks_name" {
   value = aws_dynamodb_table.tfstate_locks.id
 }

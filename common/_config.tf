@@ -104,14 +104,13 @@ data "aws_ec2_managed_prefix_list" "s3" {
   name = "com.amazonaws.ap-northeast-1.s3"
 }
 
-# data "terraform_remote_state" "stats_stg" {
-#   backend = "s3"
-#   config = {
-#     bucket         = "terraform-state-hashicorp"
-#     key            = "stats"
-#     region         = "ap-northeast-1"
-#     acl            = "private"
-#     encrypt        = true
-#     dynamodb_table = "tfstate-locks"
-#   }
-# }
+data "terraform_remote_state" "state_personal_account" {
+  backend = "s3"
+  config = {
+    bucket         = "tfstate-685339645368"
+    key            = "state/state_prod"
+    region         = "ap-northeast-1"
+    # acl            = "private"
+    # encrypt        = true
+  }
+}
