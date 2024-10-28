@@ -42,6 +42,7 @@ provider "aws" {
 
   default_tags {
     tags = {
+      Name       = local.service_name
       Repository = local.repo
       Directory  = local.dir
     }
@@ -65,12 +66,3 @@ data "aws_partition" "current" {}
 data "aws_region" "default" {
   name = "ap-northeast-1"
 }
-
-# data "terraform_remote_state" "state_personal_account" {
-#   backend = "s3"
-#   config = {
-#     bucket         = "tfstate-685339645368"
-#     key            = "state/state_prod"
-#     region         = data.aws_region.default.name
-#   }
-# }
