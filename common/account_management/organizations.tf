@@ -3,35 +3,35 @@
 #########################################################
 resource "aws_organizations_organization" "org" {
   aws_service_access_principals = local.aws_service_access_principals
-  enabled_policy_types = ["SERVICE_CONTROL_POLICY", "TAG_POLICY"]
-  feature_set = "ALL"
+  enabled_policy_types          = ["SERVICE_CONTROL_POLICY", "TAG_POLICY"]
+  feature_set                   = "ALL"
 }
 
 resource "aws_organizations_account" "org_member_account" {
-  for_each =  { 
-    for key, value in local.members : key => { 
-      for inner_key, inner_value in value : inner_key => inner_value 
+  for_each = {
+    for key, value in local.members : key => {
+      for inner_key, inner_value in value : inner_key => inner_value
     }
   }
 
-  name  = each.value.name
-  email = each.value.email
-  parent_id = each.value.parent_id
+  name                       = each.value.name
+  email                      = each.value.email
+  parent_id                  = each.value.parent_id
   iam_user_access_to_billing = "DENY"
-  role_name = "OrganizationAccountAccessRole"
+  role_name                  = "OrganizationAccountAccessRole"
 
   tags = {
-    Name = substr(module.value.my_gmail_alias_address.member_1,14,12)
+    Name = substr(module.value.my_gmail_alias_address.member_1, 14, 12)
   }
 }
 
-resource "aws_organizations_organizational_unit" "ou"{
-  for_each =  { 
-    for key, value in local.ou : key => { 
-      for inner_key, inner_value in value : inner_key => inner_value 
+resource "aws_organizations_organizational_unit" "ou" {
+  for_each = {
+    for key, value in local.ou : key => {
+      for inner_key, inner_value in value : inner_key => inner_value
     }
   }
 
-  name = each.value.name
+  name      = each.value.name
   parent_id = aws_organizations_organization.org.roots[0].id
 }

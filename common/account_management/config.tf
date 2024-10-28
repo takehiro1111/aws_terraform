@@ -23,21 +23,21 @@ terraform {
 # Provider Block
 #####################################################
 provider "aws" {
-  region = "ap-northeast-1"
+  region  = "ap-northeast-1"
   profile = "my_account"
 
   default_tags {
     tags = {
-      Name        = local.service_name
-      repository  = local.repo
-      directory   = local.dir
+      Name       = local.service_name
+      repository = local.repo
+      directory  = local.dir
     }
   }
 }
 
 provider "aws" {
-  alias  = "us-east-1"
-  region = "us-east-1"
+  alias   = "us-east-1"
+  region  = "us-east-1"
   profile = "my_account"
 
   default_tags {
