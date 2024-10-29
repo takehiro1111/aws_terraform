@@ -21,12 +21,16 @@
   "automergeStrategy":"auto",
   "rebaseWhen": "conflicted",
   "dependencyDashboard": true,
+  "ignoreReviewers": ["@takehiro1111"],
   "packageRules": [
     {
       "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
       "additionalBranchPrefix": "{{packageFileDir}}-",
       "commitMessageSuffix": "({{packageFileDir}})",
       "matchUpdateTypes": ["major", "minor", "patch"],
+      "major": {
+        "automerge": false
+      },
       "groupName": "terraform"
     }
   ]
