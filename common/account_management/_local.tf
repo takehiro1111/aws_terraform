@@ -49,5 +49,6 @@ locals {
     "compute-optimizer.amazonaws.com",
     "guardduty.amazonaws.com",
     "malware-protection.guardduty.amazonaws.com",
+    "account.amazonaws.com",
   ]
 }
