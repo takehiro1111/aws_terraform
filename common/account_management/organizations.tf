@@ -21,7 +21,7 @@ resource "aws_organizations_account" "org_member_account" {
   role_name                  = "OrganizationAccountAccessRole"
 
   tags = {
-    Name = substr(module.value.my_gmail_alias_address.member_1, 14, 12)
+    Name = each.value.name
   }
 }
 
