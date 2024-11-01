@@ -21,7 +21,7 @@ resource "aws_organizations_account" "org_member_account" {
   role_name                  = "OrganizationAccountAccessRole"
 
   tags = {
-    Name = substr(module.value.my_gmail_alias_address.member_1, 14, 12)
+    Name = each.value.name
   }
 }
 
@@ -33,5 +33,5 @@ resource "aws_organizations_organizational_unit" "ou" {
   }
 
   name      = each.value.name
-  parent_id = aws_organizations_organization.org.roots[0].id
+  parent_id = each.value.parent_id
 }
