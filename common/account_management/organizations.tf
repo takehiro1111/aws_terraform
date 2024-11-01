@@ -39,7 +39,7 @@ resource "aws_organizations_organizational_unit" "ou" {
 /* 
  * 委任管理アカウントの指定
  */
-// 
+// IAM Identity Centerで管理後にapply予定(2024/11/1)
 # resource "aws_organizations_delegated_administrator" "security_hub" {
 #   for_each = {
 #     for key, value in local.members : key => {
