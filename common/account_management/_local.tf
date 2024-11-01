@@ -16,6 +16,7 @@ locals {
       name      = substr(module.value.my_gmail_alias_address.member_1, 14, 14)
       email     = module.value.my_gmail_alias_address.member_1
       parent_id = aws_organizations_organizational_unit.ou["ou_2"].id
+      account_id = "685339645368" // 一時的にハードコード
     }
   }
 

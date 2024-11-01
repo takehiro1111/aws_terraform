@@ -35,3 +35,18 @@ resource "aws_organizations_organizational_unit" "ou" {
   name      = each.value.name
   parent_id = each.value.parent_id
 }
+
+/* 
+ * 委任管理アカウントの指定
+ */
+// 
+# resource "aws_organizations_delegated_administrator" "security_hub" {
+#   for_each = {
+#     for key, value in local.members : key => {
+#       for inner_key, inner_value in value : inner_key => inner_value
+#     }
+#   }
+
+#   account_id        = each.value.account_id
+#   service_principal = "securityhub.amazonaws.com"
+# }
