@@ -12,11 +12,11 @@ locals {
  */
 locals {
   members = {
-    member_1 = {
-      name       = substr(module.value.my_gmail_alias_address.member_1, 14, 14)
-      email      = module.value.my_gmail_alias_address.member_1
+    dev= {
+      name       = "development"
+      email      = module.value.my_gmail_alias_address.dev_takehiro11111
       parent_id  = aws_organizations_organizational_unit.ou["ou_2"].id
-      account_id = "886436969838" // 一時的にハードコード
+      account_id = "650251692423" // 一時的にハードコード
     }
   }
 
@@ -64,11 +64,4 @@ locals {
       policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
     }
   }
-
-  # customer_managed_policy_reference = {
-  #   custome_1 = {
-  #     create = true
-  #     　
-  #   }
-  # }
 }

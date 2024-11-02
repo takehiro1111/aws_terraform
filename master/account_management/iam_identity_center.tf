@@ -45,10 +45,10 @@ module "iam_identity_center_permissionset" {
       principal_id = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
       account_id = data.aws_caller_identity.self.account_id
     }
-    administrator_dev_1 = {
+    administrator_dev = {
       permission_set_arn = module.iam_identity_center_permissionset.permission_set_arn.administrator
       principal_id = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
-      account_id = "886436969838"
+      account_id = "650251692423"
     }
   }
 }
