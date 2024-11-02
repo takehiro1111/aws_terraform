@@ -38,51 +38,52 @@ module "iam_identity_center_permissionset" {
       }
     }
   }
+
+  ssoadmin_account_assignment = {
+    administrator_main = {
+      permission_set_arn = module.iam_identity_center_permissionset.permission_set_arn.administrator
+      principal_id = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
+      account_id = data.aws_caller_identity.self.account_id
+    }
+    administrator_dev_1 = {
+      permission_set_arn = module.iam_identity_center_permissionset.permission_set_arn.administrator
+      principal_id = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
+      account_id = "886436969838"
+    }
+  }
 }
 
+################################################################################
+# Associating users and groups with permissionsets
+################################################################################
+module "iam_identity_center_user_group_association" {
+  source             = "../../modules/iam_identity_center/membership"
+  identity_store_id  = tolist(data.aws_ssoadmin_instances.sso.identity_store_ids)[0]
 
-# resource "aws_ssoadmin_permissions_boundary_attachment" "managed_policy" {
-#   instance_arn       = aws_ssoadmin_permission_set.sso.instance_arn
-#   permission_set_arn = aws_ssoadmin_permission_set.sso.arn
-#   permissions_boundary {
+  groups = {
+    administrator = {
+      name = "Admin"
+      description = "Repository Manager"
+    }
+    support_user = {
+      name = "SupportUser"
+      description = "Repository Manager"
+    }
+  }
 
-#     dynamic "customer_managed_policy_reference" {
-#       for_each = { for k, v in local.customer_managed_policy_reference : k => v if v.create }
-#       content {
-#         name = aws_iam_policy.example.name
-#         path = "/"
-#       }
-#     }
-#   }
-# }
+  users = {
+    takehiro1111 = {
+      name = {
+        family_name = substr(module.value.name_takehiro1111, 9, 8)
+        given_name  = substr(module.value.name_takehiro1111, 0, 8)
+      }
+      eamils = [
+        module.value.my_gmail_address
+      ]
+    }
+  }
 
-/* 
- * Assign a permission set to a user or group
- */
-# resource "aws_ssoadmin_account_assignment" "sso" {
-#   instance_arn       = tolist(data.aws_ssoadmin_instances.sso.arns)[0]
-#   permission_set_arn = aws_ssoadmin_permission_set.sso.arn
-
-#   principal_id   = data.aws_identitystore_group.example.group_id
-#   principal_type = "GROUP"
-
-#   target_id   = "123456789012"
-#   target_type = "AWS_ACCOUNT"
-# }
-
-
-
-// IDPとしてCognitoを先に作成したい。(2024/10/30)
-# resource "aws_ssoadmin_application" "sso" {
-#   name                     = "example"
-#   application_provider_arn = "arn:aws:sso::aws:applicationProvider/custom"
-#   instance_arn             = tolist(data.aws_ssoadmin_instances.sso.arns)[0]
-
-#   portal_options {
-#     visibility = "ENABLED"
-#     sign_in_options {
-#       application_url = "http://example.com"
-#       origin          = "APPLICATION"
-#     }
-#   }
-# }
+  memberships = {
+    takehiro1111 = ["administrator","support_user"]
+  }
+}

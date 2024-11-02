@@ -90,3 +90,4 @@ my_account/**/localdir/**
 
 modules/variable/mails.tf
 modules/variable/home_ips.tf
+modules/variable/user.tf

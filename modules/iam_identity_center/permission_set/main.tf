@@ -48,16 +48,14 @@ resource "aws_ssoadmin_customer_managed_policy_attachment" "this" {
   }
 }
 
-resource "aws_iam_policy" "customer_managed_policy" {
-    for_each = {
-    for k,v in var.permission_sets : k => v
-    if v.customer_managed_policy != null
-  }
+resource "aws_ssoadmin_account_assignment" "this" {
+  for_each = { for k,v in var.ssoadmin_account_assignment : k => v }
 
-  name        = each.value.customer_managed_policy.name
-  description = each.value.customer_managed_policy.description
-  policy = jsonencode({
-    Version   = "2012-10-17"
-    Statement = each.value.customer_managed_policy.policy_statement
-  })
+  instance_arn       = var.identity_store_arn
+  permission_set_arn = each.value.permission_set_arn
+  principal_id       = each.value.principal_id
+  principal_type     = "GROUP"
+
+  target_id   = each.value.account_id
+  target_type = "AWS_ACCOUNT"
 }

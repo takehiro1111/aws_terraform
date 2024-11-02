@@ -1,27 +1,30 @@
 variable "identity_store_id" {
-  type        = string
   description = "The identity store ID for AWS IAM Identity Center"
+  type        = string
+  
 }
 
 variable "groups" {
-  type        = map(object({
+  description = "Map of groups to create in the identity store"
+  type = map(object({
     name        = string
     description = string
   }))
-  description = "Map of groups to create in the identity store"
 }
 
 variable "users" {
-  type = map(object({
-    name = object({
-      given_name  = string
-      family_name = string
-    })
-  }))
   description = "Map of users to create in the identity store"
+  type = map(object({
+    
+    name = object({
+      family_name = string
+      given_name  = string
+    })
+    emails = optional(list(string), [])
+  }))
 }
 
-variable "users_groups_membership" {
-  type        = map(object({ group = string, user = string }))
-  description = "Map of user-group memberships to create in the identity store"
+variable "memberships" {
+  description = "Map of user-group memberships"
+  type = map(list(string))  # 各ユーザーをキーに、所属するグループのリストを値として持つ
 }
