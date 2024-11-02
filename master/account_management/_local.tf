@@ -13,20 +13,20 @@ locals {
 locals {
   members = {
     member_1 = {
-      name      = substr(module.value.my_gmail_alias_address.member_1, 14, 14)
-      email     = module.value.my_gmail_alias_address.member_1
-      parent_id = aws_organizations_organizational_unit.ou["ou_2"].id
-      account_id = "685339645368" // 一時的にハードコード
+      name       = substr(module.value.my_gmail_alias_address.member_1, 14, 14)
+      email      = module.value.my_gmail_alias_address.member_1
+      parent_id  = aws_organizations_organizational_unit.ou["ou_2"].id
+      account_id = "886436969838" // 一時的にハードコード
     }
   }
 
   ou = {
     ou_1 = {
-      name      = trimsuffix(local.dir, "/account_management")
+      name      = "Master"
       parent_id = aws_organizations_organization.org.roots[0].id
     }
     ou_2 = {
-      name      = "member"
+      name      = "Development"
       parent_id = aws_organizations_organization.org.roots[0].id
     }
   }
@@ -52,4 +52,23 @@ locals {
     "malware-protection.guardduty.amazonaws.com",
     "account.amazonaws.com",
   ]
+
+  permission_sets = {
+    administorator = {
+      name = "Administorator"
+    }
+  }
+
+  sso_managed_policy = {
+    administorator = {
+      policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+    }
+  }
+
+  # customer_managed_policy_reference = {
+  #   custome_1 = {
+  #     create = true
+  #     　
+  #   }
+  # }
 }
