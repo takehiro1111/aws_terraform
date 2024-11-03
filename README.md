@@ -51,7 +51,7 @@
 ```
 
 ## Setup and Usage
-1. **Clone & Move Directory**
+### 1. **Clone & Move Directory**
 ```zsh
 git clone https://github.com/takehiro1111/aws_terraform.git
 cd aws_terraform/{hoge_hoge}
@@ -80,7 +80,7 @@ terraform apply
 <strong>注意</strong>: 適切なAWS認証情報とアクセス権限が必要です。
 </div>
 
-2. **Terraformの認証情報を`direnv`で自動取得する手順**
+### 2. **Terraformの認証情報を`direnv`で自動取得する手順**
 
 1-1.手動での設定
   - cdコマンドでTerraformファイルのあるディレクトリに移動し、direnv allowを実行して環境変数を読み込みます。
