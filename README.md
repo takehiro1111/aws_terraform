@@ -97,8 +97,8 @@ source allow_envrc.sh
 
 1-3.IAM Identity Centerへのログイン
   - IAM Identity Center）を使ってログインし、Terraformで認証できるようにします。
-``
+```
 aws sso login --profile $AWS_PROFILE
 ```
-
-Reference: https://zenn.dev/takehiro1111/articles/direnv_20240203
+  - Reference
+   https://zenn.dev/takehiro1111/articles/direnv_20240203
