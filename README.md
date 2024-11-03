@@ -41,8 +41,9 @@
 ## Setup and Usage
 1. **Clone & Move Directory**:
 ```zsh
-   git clone https://github.com/takehiro1111/aws_terraform.git
-   cd aws_terraform/{hoge_hoge}
+git clone https://github.com/takehiro1111/aws_terraform.git
+cd aws_terraform/{hoge_hoge}
+
 ```
 
 2.init:
@@ -54,13 +55,13 @@ terraform init
 3.Plan:
 ```zsh
 terraform plan
-
 ```
 
 
 4.Deploy:
 ```zsh
 terraform apply
+
 ```
 
 <div style="padding: 10px; border-left: 4px solid #f39c12; background-color: #fef9e7;">
