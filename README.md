@@ -52,26 +52,26 @@
 
 ## Setup and Usage
 ### 1. **Clone & Move Directory**
-- リポジトリをローカル環境へクローンする。
+#### 1-1.リポジトリをローカル環境へクローンする。
 ```zsh
 git clone https://github.com/takehiro1111/aws_terraform.git
 cd aws_terraform/{hoge_hoge}
 
 ```
 
-- プロジェクトの初期化
+#### 1-2.プロジェクトの初期化
 ```zsh
 terraform init
 
 ```
 
-- hclで記述したコードと実際の設定との差分を確認
+#### 1-3.hclで記述したコードと実際の設定との差分を確認
 ```zsh
 terraform plan
 ```
 
 
-- 差分が問題なければ、Deployの実施
+#### 1-4.差分が問題なければ、Deployの実施
 ```zsh
 terraform apply
 
@@ -83,20 +83,20 @@ terraform apply
 
 ### 2. **Terraformの認証情報を`direnv`で自動取得する手順**
 
-1-1.手動での設定
+#### 2-1.手動での設定
   - cdコマンドでTerraformファイルのあるディレクトリに移動し、direnv allowを実行して環境変数を読み込みます。
 ```
 cd {tfファイルのカレントdir}
 direnv allow
 ```
 
-1-2.自動での設定
+#### 2-2.自動での設定
   - allow_envrc.shスクリプトを用意している場合は、以下のコマンドで自動的に環境設定を適用できます。
 ```
 source allow_envrc.sh
 ```
 
-1-3.IAM Identity Centerへのログイン
+#### 2-3.IAM Identity Centerへのログイン
   - IAM Identity Center）を使ってログインし、Terraformで認証できるようにします。
 ```
 aws sso login --profile $AWS_PROFILE
