@@ -18,7 +18,7 @@
 - **AWS Organizations**: 複数のアカウントを一元管理し、異なるOrganizational Units (OUs) によるグルーピングを行います。
 - **MFA**: 各アカウントへのアクセス前にMFA認証を必要とし、セキュリティを強化します。
 
-![Architecture Diagram](../../decs/img/account_management.png)
+![Architecture Diagram](../../docs/img/account_management.png)
 
 ## Features
 - **集中管理されたアイデンティティ管理**: IAM Identity Centerは、全AWSアカウントに対する単一のアイデンティティ管理ポイントを提供します。
