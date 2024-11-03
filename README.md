@@ -52,6 +52,7 @@
 
 ## Setup and Usage
 ### 1. **Clone & Move Directory**
+- リポジトリをローカル環境へクローンする。
 ```zsh
 git clone https://github.com/takehiro1111/aws_terraform.git
 cd aws_terraform/{hoge_hoge}
