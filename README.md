@@ -100,4 +100,4 @@ source allow_envrc.sh
 ``
 aws sso login --profile $AWS_PROFILE
 ```
-<strong>Reference</strong>: https://zenn.dev/takehiro1111/articles/direnv_20240203
+Reference: https://zenn.dev/takehiro1111/articles/direnv_20240203
