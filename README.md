@@ -1,7 +1,6 @@
 # AWS Infrastructure as Code with Terraform
 ![Terraform](https://img.shields.io/badge/Terraform-v1.0+-623ce4?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-Ready-FF9900?logo=amazonaws&logoColor=white)
-![AWS](https://img.shields.io/badge/GithubActions-#181717?logo=amazonaws&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Enabled-2088FF?logo=github-actions&logoColor=white)
 
 
