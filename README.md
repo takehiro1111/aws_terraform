@@ -58,19 +58,19 @@ cd aws_terraform/{hoge_hoge}
 
 ```
 
-2.init:
+- プロジェクトの初期化
 ```zsh
 terraform init
 
 ```
 
-3.Plan:
+- hclで記述したコードと実際の設定との差分を確認
 ```zsh
 terraform plan
 ```
 
 
-4.Deploy:
+- 差分が問題なければ、Deployの実施
 ```zsh
 terraform apply
 
