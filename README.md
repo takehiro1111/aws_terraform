@@ -42,7 +42,7 @@
 1. **クローン**:
 ```zsh
    git clone https://github.com/takehiro1111/aws_terraform.git
-   cd aws_terraform
+   cd aws_terraform/{hoge_hoge}
 ```
 
 2.Terraformの初期化:
@@ -53,7 +53,6 @@ terraform init
 
 3.計画の作成:
 ```zsh
-cd environments/dev  # dev環境を例に
 terraform plan
 
 ```
