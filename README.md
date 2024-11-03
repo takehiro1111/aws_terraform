@@ -51,7 +51,7 @@
 ```
 
 ## Setup and Usage
-1. **Clone & Move Directory**:
+1. **Clone & Move Directory**
 ```zsh
 git clone https://github.com/takehiro1111/aws_terraform.git
 cd aws_terraform/{hoge_hoge}
@@ -79,3 +79,25 @@ terraform apply
 <div style="padding: 10px; border-left: 4px solid #f39c12; background-color: #fef9e7;">
 <strong>注意</strong>: 適切なAWS認証情報とアクセス権限が必要です。
 </div>
+
+2. **Terraformの認証情報を`direnv`で自動取得する手順**
+
+1-1.手動での設定
+  - cdコマンドでTerraformファイルのあるディレクトリに移動し、direnv allowを実行して環境変数を読み込みます。
+```
+cd {tfファイルのカレントdir}
+direnv allow
+```
+
+1-2.自動での設定
+  - allow_envrc.shスクリプトを用意している場合は、以下のコマンドで自動的に環境設定を適用できます。
+```
+source allow_envrc.sh
+```
+
+1-3.IAM Identity Centerへのログイン
+  - IAM Identity Center）を使ってログインし、Terraformで認証できるようにします。
+``
+aws sso login --profile $AWS_PROFILE
+```
+<strong>Reference</strong>: https://zenn.dev/takehiro1111/articles/direnv_20240203
