@@ -1,7 +1,1 @@
-* @takehiro1111
-**/**/.terraform-version
-**/**/.terraform.lock.hcl
-**/**/.tflint.hcl
-**/**/_config.tf
-**/**/config.tf
-aqua.yaml
+
