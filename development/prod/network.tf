@@ -4,7 +4,7 @@
 # ref:https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
 module "vpc_common" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.14.0"
+  version = "5.15.0"
 
   ## tags
   name = format("%s-%s", local.servicename, local.repository)
@@ -68,7 +68,7 @@ module "vpc_common" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest/submodules/vpc-endpoints
 module "vpce_common" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
-  version = "5.14.0"
+  version = "5.15.0"
 
   vpc_id = module.vpc_common.vpc_id
   endpoints = {
