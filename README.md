@@ -1,6 +1,8 @@
 # AWS Infrastructure as Code with Terraform
 
 [![Terraform](https://img.shields.io/badge/Terraform-v1.x-blueviolet)](https://www.terraform.io/)
+![Terraform](https://img.shields.io/badge/Terraform-v1.0+-623ce4?logo=terraform&logoColor=white)
+
 
 ## Overview
 
