@@ -45,20 +45,20 @@
    cd aws_terraform/{hoge_hoge}
 ```
 
-2.Terraformの初期化:
+2.init:
 ```zsh
 terraform init
 
 ```
 
-3.計画の作成:
+3.Plan:
 ```zsh
 terraform plan
 
 ```
 
 
-4.デプロイ:
+4.Deploy:
 ```zsh
 terraform apply
 ```
