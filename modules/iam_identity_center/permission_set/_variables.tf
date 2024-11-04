@@ -17,9 +17,7 @@ variable "permission_sets" {
     managed_policy_arns      = optional(string)
     customer_managed_policy  = optional(object({
       name             = string
-      description      = string
-      path = optional(string, "/")
-      policy_statement = list(any)
+      path             = optional(string, "/")
     }))
   }))
 }

@@ -26,15 +26,9 @@ module "iam_identity_center_permissionset" {
       description              = "Permissions for SupportUser"
       permissions_boundary_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
       managed_policy_arns      = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-      supportUser_custom_policy = {
-        name        = "SupportUser_CustomPolicy"
-        description = "Custom policy for SupportUser"
+      customer_managed_policy = {
+        name        = aws_iam_policy.support_user_customer_managed_policy.name
         path        = "/"
-        policy_statement = [{
-          Action   = "s3:*",
-          Effect   = "Allow",
-          Resource = "*"
-        }]
       }
     }
   }
