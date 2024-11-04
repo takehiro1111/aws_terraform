@@ -1,7 +1,6 @@
 #!/bin/zsh
 PROJECTS=($(find . -type f -name ".envrc"))
 MAIN_DIR=$(pwd)
-RETURN_DIR=..
 
 for project in "${PROJECTS[@]}" ; do
     # .envrcファイルのあるディレクトリに移動
