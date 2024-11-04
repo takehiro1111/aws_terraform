@@ -15,6 +15,7 @@ terraform {
     bucket  = "tfstate-685339645368"
     key     = "state/state_prod"
     region  = "ap-northeast-1"
+    profile = "master_administrator"
   }
 }
 
@@ -23,18 +24,7 @@ terraform {
 #####################################################
 provider "aws" {
   region  = "ap-northeast-1"
-
-  default_tags {
-    tags = {
-      Repository = local.repo
-      Directory  = local.dir
-    }
-  }
-}
-
-provider "aws" {
-  alias   = "us-east-1"
-  region  = "us-east-1"
+  profile = "master_administrator"
 
   default_tags {
     tags = {

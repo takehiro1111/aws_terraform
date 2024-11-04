@@ -15,6 +15,7 @@ terraform {
     bucket  = "tfstate-685339645368"
     key     = "account_management/tfstate"
     region  = "ap-northeast-1"
+    profile = "master_administrator"
   }
 }
 
@@ -23,25 +24,13 @@ terraform {
 #####################################################
 provider "aws" {
   region  = "ap-northeast-1"
+  profile = "master_administrator"
 
   default_tags {
     tags = {
       Name       = local.service_name
       repository = local.repo
       directory  = local.dir
-    }
-  }
-}
-
-provider "aws" {
-  alias   = "us-east-1"
-  region  = "us-east-1"
-
-  default_tags {
-    tags = {
-      Name       = local.service_name
-      Repository = local.repo
-      Directory  = local.dir
     }
   }
 }
@@ -57,8 +46,6 @@ module "value" {
 # Data Block
 #####################################################
 data "aws_caller_identity" "self" {}
-
-data "aws_partition" "current" {}
 
 data "aws_region" "default" {
   name = "ap-northeast-1"
