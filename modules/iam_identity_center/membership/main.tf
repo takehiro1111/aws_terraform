@@ -2,7 +2,7 @@
 # Group
 ################################################################################
 resource "aws_identitystore_group" "this" {
-  for_each         = var.groups
+  for_each = var.groups
 
   identity_store_id = var.identity_store_id
   display_name      = each.value.name
@@ -48,6 +48,6 @@ resource "aws_identitystore_group_membership" "this" {
   }
 
   identity_store_id = var.identity_store_id
-  group_id  = aws_identitystore_group.this[each.value.group].group_id
-  member_id = aws_identitystore_user.this[each.value.user].user_id
+  group_id          = aws_identitystore_group.this[each.value.group].group_id
+  member_id         = aws_identitystore_user.this[each.value.user].user_id
 }

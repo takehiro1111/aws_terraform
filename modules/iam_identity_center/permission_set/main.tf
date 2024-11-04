@@ -11,8 +11,8 @@ resource "aws_ssoadmin_permission_set" "this" {
 }
 
 resource "aws_ssoadmin_permissions_boundary_attachment" "this" {
-  for_each =  {
-    for k,v in var.permission_sets : k => v 
+  for_each = {
+    for k, v in var.permission_sets : k => v
     if v.permissions_boundary_arn != null
   }
 
@@ -25,7 +25,7 @@ resource "aws_ssoadmin_permissions_boundary_attachment" "this" {
 
 resource "aws_ssoadmin_managed_policy_attachment" "this" {
   for_each = {
-    for k,v in var.permission_sets : k => v
+    for k, v in var.permission_sets : k => v
     if v.managed_policy_arns != null
   }
 
@@ -36,7 +36,7 @@ resource "aws_ssoadmin_managed_policy_attachment" "this" {
 
 resource "aws_ssoadmin_customer_managed_policy_attachment" "this" {
   for_each = {
-    for k,v in var.permission_sets : k => v
+    for k, v in var.permission_sets : k => v
     if v.customer_managed_policy != null
   }
 
@@ -49,7 +49,7 @@ resource "aws_ssoadmin_customer_managed_policy_attachment" "this" {
 }
 
 resource "aws_ssoadmin_account_assignment" "this" {
-  for_each = { for k,v in var.ssoadmin_account_assignment : k => v }
+  for_each = { for k, v in var.ssoadmin_account_assignment : k => v }
 
   instance_arn       = var.identity_store_arn
   permission_set_arn = each.value.permission_set_arn

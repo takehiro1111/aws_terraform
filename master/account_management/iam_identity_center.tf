@@ -27,22 +27,22 @@ module "iam_identity_center_permissionset" {
       permissions_boundary_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
       managed_policy_arns      = "arn:aws:iam::aws:policy/ReadOnlyAccess"
       customer_managed_policy = {
-        name        = aws_iam_policy.support_user_customer_managed_policy.name
-        path        = "/"
+        name = aws_iam_policy.support_user_customer_managed_policy.name
+        path = "/"
       }
     }
   }
 
   ssoadmin_account_assignment = {
-    administrator_master= {
+    administrator_master = {
       permission_set_arn = module.iam_identity_center_permissionset.permission_set_arn.administrator
-      principal_id = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
-      account_id = data.aws_caller_identity.self.account_id
+      principal_id       = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
+      account_id         = data.aws_caller_identity.self.account_id
     }
     administrator_development = {
       permission_set_arn = module.iam_identity_center_permissionset.permission_set_arn.administrator
-      principal_id = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
-      account_id = "650251692423"
+      principal_id       = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
+      account_id         = "650251692423"
     }
   }
 }
@@ -51,16 +51,16 @@ module "iam_identity_center_permissionset" {
 # Associating users and groups with permissionsets
 ################################################################################
 module "iam_identity_center_user_group_association" {
-  source             = "../../modules/iam_identity_center/membership"
-  identity_store_id  = tolist(data.aws_ssoadmin_instances.sso.identity_store_ids)[0]
+  source            = "../../modules/iam_identity_center/membership"
+  identity_store_id = tolist(data.aws_ssoadmin_instances.sso.identity_store_ids)[0]
 
   groups = {
     administrator = {
-      name = "Admin"
+      name        = "Admin"
       description = "Repository Manager"
     }
     support_user = {
-      name = "SupportUser"
+      name        = "SupportUser"
       description = "Repository Manager"
     }
   }
@@ -78,6 +78,6 @@ module "iam_identity_center_user_group_association" {
   }
 
   memberships = {
-    takehiro1111 = ["administrator","support_user"]
+    takehiro1111 = ["administrator", "support_user"]
   }
 }

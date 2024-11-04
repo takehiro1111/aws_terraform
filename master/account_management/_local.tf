@@ -12,7 +12,7 @@ locals {
  */
 locals {
   members = {
-    dev= {
+    dev = {
       name       = "development"
       email      = module.value.my_gmail_alias_address.dev_takehiro11111
       parent_id  = aws_organizations_organizational_unit.ou["ou_2"].id

@@ -54,8 +54,8 @@ data "aws_region" "default" {
 data "terraform_remote_state" "master_state_prod" {
   backend = "s3"
   config = {
-    bucket  = "tfstate-685339645368"
-    key     = "state/state_prod"
-    region  = "ap-northeast-1"
+    bucket = "tfstate-685339645368"
+    key    = "state/state_prod"
+    region = "ap-northeast-1"
   }
 }

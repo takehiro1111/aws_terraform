@@ -15,18 +15,18 @@ variable "permission_sets" {
     description              = string
     permissions_boundary_arn = optional(string)
     managed_policy_arns      = optional(string)
-    customer_managed_policy  = optional(object({
-      name             = string
-      path             = optional(string, "/")
+    customer_managed_policy = optional(object({
+      name = string
+      path = optional(string, "/")
     }))
   }))
 }
 
 variable "ssoadmin_account_assignment" {
   description = "aws_ssoadmin_account_assignment"
-  type        = map(object({
+  type = map(object({
     permission_set_arn = string
-    principal_id = string
-    account_id = string
+    principal_id       = string
+    account_id         = string
   }))
 }
