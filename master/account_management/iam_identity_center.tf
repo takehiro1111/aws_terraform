@@ -42,7 +42,7 @@ module "iam_identity_center_permissionset" {
     administrator_development = {
       permission_set_arn = module.iam_identity_center_permissionset.permission_set_arn.administrator
       principal_id       = module.iam_identity_center_user_group_association.identitystore_group_arn.administrator
-      account_id         = "650251692423"
+      account_id         = data.terraform_remote_state.development_state.outputs.account_id
     }
   }
 }

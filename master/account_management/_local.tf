@@ -16,7 +16,7 @@ locals {
       name       = "development"
       email      = module.value.my_gmail_alias_address.dev_takehiro11111
       parent_id  = aws_organizations_organizational_unit.ou["ou_2"].id
-      account_id = "650251692423" // 一時的にハードコード
+      account_id = data.terraform_remote_state.development_state.outputs.account_id
     }
   }
 
