@@ -269,7 +269,7 @@ resource "aws_iam_role_policy" "flow_log" {
 
 #ECS Task用ロール--------------------------------------------------------
 module "ecs_task_stg" {
-  source     = "../modules/iam/assume_role"
+  source     = "../../modules/iam/assume_role"
   name       = "secure-ecs-tasks-stg@common"
   policy     = data.aws_iam_policy_document.ecs_task.json
   identifier = "ecs-tasks.amazonaws.com"
@@ -331,13 +331,13 @@ resource "aws_iam_role_policy" "ecs_task_execute" {
 
 # CodeDeploy for ECS ----------------------------------------------------------------
 module "codedeploy_for_ecs_role" {
-  source = "../modules/iam/codedeploy_for_ecs"
+  source = "../../modules/iam/codedeploy_for_ecs"
 }
 
 # Github Actions --------------------------------------------------------------------
 # OIDCプロバイダ
 module "oidc" {
-  source = "../modules/iam/oidc"
+  source = "../../modules/iam/oidc"
 }
 
 # GithubActions用のIAMロール,ポリシー --------------------------------------------------
@@ -668,48 +668,6 @@ resource "aws_iam_role_policy" "s3_batch_operation" {
   policy = data.aws_iam_policy_document.s3_batch_operation.json
 }
 
-# Chatbot ---------------------------------------------------------------------
-resource "aws_iam_role" "chatbot" {
-  name                  = "AWSChatbot-role"
-  description           = "AWS Chatbot Execution Role"
-  path                  = "/service-role/"
-  force_detach_policies = false
-  max_session_duration  = 3600
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "chatbot.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# 想定外のエラーにならないよう、デフォルトのテンプレートポリシーに沿った設定しているためワイルドーカードで定義している。
-#tfsec:ignore:aws-iam-no-policy-wildcards
-data "aws_iam_policy_document" "chatbot" {
-  statement {
-    actions = [
-      "cloudwatch:Describe*",
-      "cloudwatch:Get*",
-      "cloudwatch:List*",
-    ]
-    effect    = "Allow"
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_role_policy" "chatbot" {
-  name   = aws_iam_role.chatbot.name
-  role   = aws_iam_role.chatbot.name
-  policy = data.aws_iam_policy_document.chatbot.json
-}
-
 /**
  * For Firehose
  */
@@ -1001,138 +959,6 @@ resource "aws_kms_key_policy" "s3" {
     ]
   })
 }
-
-#####################################################
-# WAF
-#####################################################
-resource "aws_wafv2_web_acl" "region_count" {
-  count = var.waf_region_count ? 1 : 0
-
-  name        = "common-web-acl"
-  scope       = "CLOUDFRONT"
-  description = "ACL for allowing specific regions"
-  provider    = aws.us-east-1
-
-  default_action {
-    allow {}
-  }
-
-  dynamic "rule" {
-    for_each = var.waf_rule_regional_limit ? [1] : []
-    content {
-      name     = "RegionalLimit"
-      priority = 1
-
-      action {
-        block {}
-      }
-
-      statement {
-        not_statement {
-          statement {
-            geo_match_statement {
-              country_codes = ["JP", "US", "SG"]
-            }
-          }
-        }
-      }
-
-      visibility_config {
-        cloudwatch_metrics_enabled = true
-        metric_name                = "RegionalLimit"
-        sampled_requests_enabled   = true
-      }
-    }
-  }
-
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "exampleWebACL"
-    sampled_requests_enabled   = true
-  }
-}
-
-resource "aws_wafv2_web_acl" "regional_limit" {
-  count = var.waf_regional_limit ? 1 : 0
-
-  name        = "regionallimit"
-  description = "Example WebACL"
-  scope       = "CLOUDFRONT"
-  provider    = aws.us-east-1
-
-  default_action {
-    allow {}
-  }
-
-  rule {
-    name     = "RegionalLimit"
-    priority = 0
-
-    override_action {
-      none {}
-    }
-
-    statement {
-      rule_group_reference_statement {
-        arn = aws_wafv2_rule_group.regional_limit[0].arn
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "RegionalLimit"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "regionallimit"
-    sampled_requests_enabled   = true
-  }
-}
-
-# ルールグループの作成
-resource "aws_wafv2_rule_group" "regional_limit" {
-  count = var.waf_regional_limit ? 1 : 0
-
-  name     = "RegionalLimit"
-  scope    = "CLOUDFRONT"
-  capacity = 50
-  provider = aws.us-east-1
-
-  rule {
-    name     = "RegionalLimit"
-    priority = 0
-
-    action {
-      block {}
-    }
-
-    statement {
-      not_statement {
-        statement {
-          geo_match_statement {
-            country_codes = ["JP", "US", "SG"]
-          }
-        }
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "RegionalLimit"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "RegionalLimit"
-    sampled_requests_enabled   = true
-  }
-}
-
 
 #####################################################
 # IAM

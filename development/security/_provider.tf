@@ -26,9 +26,9 @@
 
       default_tags {
         tags = {
-          repository = aws_terraform
-          directory  = "development/."
-          service    = "."
+          repository = "aws_terraform"
+          directory  = "development/security"
+          service    = "security"
         }
       }
     }

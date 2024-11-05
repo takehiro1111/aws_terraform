@@ -5,9 +5,6 @@ locals {
   # AuroraのCluster識別子
   idetifier_aurora_cluster = "aurora-cluster"
 
-  # AMIを参照する際に使用
-  aws_owner = "137112412989"
-
   # ECS
   main = "main-ecs"
   api  = "api-ecs"

@@ -99,6 +99,11 @@ data "aws_ami" "amazon_linux" {
   owners = [local.aws_owner] # Amazonの所有者ID
 }
 
+locals {
+    # AMIを参照する際に使用
+  aws_owner = "137112412989"
+}
+
 data "aws_ec2_managed_prefix_list" "cdn" {
   name = "com.amazonaws.global.cloudfront.origin-facing"
 }
