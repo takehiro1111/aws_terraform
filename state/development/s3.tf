@@ -52,7 +52,8 @@ module "s3_bucket_tfstate" {
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutBucketAcl",
-          "s3:PutObject"
+          "s3:PutBucketPolicy",
+          "s3:PutObject",
         ],
         "Resource" : [
           module.s3_bucket_tfstate.s3_bucket_arn,

@@ -1,11 +1,4 @@
 locals {
-  servicename = "common"
-  env         = "stg"
-  repository  = "aws_terraform"
-  directory   = "aws_terraform/common"
-
-  accounnt_id = data.aws_caller_identity.self.id
-
   # CloudFront Origin ID
   ecs_origin_id = "ALB-ecs"
 
