@@ -1,4 +1,4 @@
 locals {
   repo = "aws_terraform"
-  dir  = "state/master"
+  dir  = "state/development"
 }
