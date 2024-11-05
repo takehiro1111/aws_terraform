@@ -24,11 +24,12 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "terraform-state-421643133281"
+    bucket  = "tfstate-650251692423"
     key     = "common/state_common"
     region  = "ap-northeast-1"
     acl     = "private"
     encrypt = true
+    profile = "development_administrator"
     # dynamodb_table = "tfstate-locks"
   }
 }
@@ -38,6 +39,8 @@ terraform {
 #####################################################
 provider "aws" {
   region = "ap-northeast-1"
+  profile = "development_administrator"
+  
   default_tags {
     tags = {
       Name        = local.servicename
