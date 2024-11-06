@@ -79,12 +79,27 @@ generate "provider" {
 locals {
   environment = "development"
   repository = "aws_terraform"
+  env = "dev"
 }
 
 inputs = {
   environment = local.environment
-  project     = local.project
 }
+
+#####################################################
+# Module
+#####################################################
+generate "modules" {
+  path = "_modules.tf"
+  if_exists = "overwrite"
+
+  contents = <<EOF
+    module "value" {
+      source = "../modules/variable"
+    }
+  EOF
+}
+
 
 #####################################################
 # Data Block

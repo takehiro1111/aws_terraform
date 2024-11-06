@@ -27,7 +27,7 @@
       default_tags {
         tags = {
           repository = "aws_terraform"
-          directory  = "development/."
+          directory  = "dev/."
           service    = "."
         }
       }
