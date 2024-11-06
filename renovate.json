@@ -12,9 +12,6 @@
     "* 8-23,0-2 * * *"
   ],
   "assignAutomerge": true,
-  "assignees": [
-    "takehiro1111"
-  ],
   "autoApprove": true,
   "automerge":true,
   "automergeType":"pr",

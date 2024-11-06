@@ -6,7 +6,7 @@ remote_state {
 
   config = {
     bucket = "tfstate-650251692423"
-    key    = "development/${path_relative_to_include()}.tfstate"
+    key    = "development/${path_relative_to_include()}/tfstate"
     region = "ap-northeast-1"
     profile = "development_administrator"
   }
@@ -79,16 +79,29 @@ generate "provider" {
 locals {
   env = "development"
   repository = "aws_terraform"
+  servicename = "development"
 }
 
-#####################################################
-# variable
-#####################################################
-inputs = {
-  env = "development"  # 各環境共通の変数
-  repository = "aws_terraform"
-}
+# inputs = {
+#   servicename = local.servicename
+# }
 
+# # ルートのterragrunt.hcl
+# locals {
+#   environment = "development"
+#   project     = "my_project"
+# }
+
+generate "locals" {
+  path      = "_locals.tf"
+  if_exists = "overwrite"
+
+  contents = <<EOF
+    locals {
+      servicename = "${local.servicename}"
+    }
+  EOF
+}
 
 #####################################################
 # Data Block
