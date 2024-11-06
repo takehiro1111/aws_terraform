@@ -7,7 +7,7 @@ module "alb_wildcard_takehiro1111_com" {
 
   # aws_lb
   create                     = true
-  name                       = local.servicename
+  name                       = local.environment.locals.environment
   load_balancer_type         = "application"
   internal                   = false
   enable_deletion_protection = false
@@ -24,7 +24,7 @@ module "alb_wildcard_takehiro1111_com" {
   access_logs = {
     enabled = true
     bucket  = module.s3_alb_accesslog.s3_bucket_id
-    prefix  = local.servicename
+    prefix  = var.environment
   }
 
   # aws_lb_listener
@@ -70,7 +70,7 @@ module "alb_wildcard_takehiro1111_com" {
   # aws_lb_target_group
   target_groups = {
     web = {
-      name                 = "${local.servicename}-web"
+      name                 = "${local.environment.locals.environment}-web"
       port                 = 80
       protocol             = "HTTP"
       deregistration_delay = "60"

@@ -77,30 +77,13 @@ generate "provider" {
 # local
 #####################################################
 locals {
-  env = "development"
+  environment = "development"
   repository = "aws_terraform"
-  servicename = "development"
 }
 
-# inputs = {
-#   servicename = local.servicename
-# }
-
-# # ルートのterragrunt.hcl
-# locals {
-#   environment = "development"
-#   project     = "my_project"
-# }
-
-generate "locals" {
-  path      = "_locals.tf"
-  if_exists = "overwrite"
-
-  contents = <<EOF
-    locals {
-      servicename = "${local.servicename}"
-    }
-  EOF
+inputs = {
+  environment = local.environment
+  project     = local.project
 }
 
 #####################################################

@@ -7,7 +7,7 @@ module "vpc_common" {
   version = "5.15.0"
 
   ## tags
-  name = format("%s-%s", local.servicename, local.repository)
+  name = format("%s-%s", var.environment, local.repository)
 
   ### VPC ###
   cidr                                 = module.value.vpc_ip.hcl
