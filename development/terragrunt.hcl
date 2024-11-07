@@ -25,39 +25,44 @@ generate "provider" {
   if_exists = "overwrite"
 
   contents = <<EOF
-    terraform {
-      required_version = "1.9.8"
-      required_providers {
-        aws = {
-          version = "5.74.0"
-        }
-        random = {
-          source  = "hashicorp/random"
-          version = "3.6.3"
-        }
-        http = {
-          source  = "hashicorp/http"
-          version = "3.4.5"
-        }
-        awscc = {
-          source  = "hashicorp/awscc"
-          version = "1.19.0"
-        }
-      }
+terraform {
+  required_version = "1.9.8"
+  required_providers {
+    aws = {
+      version = "5.74.0"
     }
-
-    provider "aws" {
-      profile = "development_administrator"
-      region  = "ap-northeast-1"
-
-      default_tags {
-        tags = {
-          repository = "${local.repository}"
-          directory  = "${local.env}/${path_relative_to_include()}"
-          service    = "${path_relative_to_include()}"
-        }
-      }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.3"
     }
+    http = {
+      source  = "hashicorp/http"
+      version = "3.4.5"
+    }
+    awscc = {
+      source  = "hashicorp/awscc"
+      version = "1.19.0"
+    }
+  }
+}
+
+provider "aws" {
+  profile = "development_administrator"
+  region  = "ap-northeast-1"
+
+  default_tags {
+    tags = {
+      repository = "${local.repository}"
+      directory  = "${local.env}/${path_relative_to_include()}"
+      service    = "${path_relative_to_include()}"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+}
   EOF
 }
 
@@ -82,9 +87,9 @@ generate "modules" {
   if_exists = "overwrite"
 
   contents = <<EOF
-    module "value" {
-      source = "../../modules/variable"
-    }
+module "value" {
+  source = "../../modules/variable"
+}
   EOF
 }
 

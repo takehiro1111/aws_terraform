@@ -530,7 +530,7 @@ resource "aws_s3_bucket_logging" "athena" {
 
 # config log --------------------------------------------------
 module "config_log" {
-  source = "../modules/s3/config"
+  source = "../../modules/s3/config"
 
   bucket_name    = "config-${data.aws_caller_identity.self.account_id}"
   bucket_logging = aws_s3_bucket.logging.bucket
