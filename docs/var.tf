@@ -52,9 +52,6 @@ variable "map" {
   }
 }
 
-# =================================
-# STG環境
-# =================================
 variable "restriction_cloudfront_stg" {
   type        = map(string)
   description = "ALBへのアクセスを、CloudFront経由に限定するためのカスタムヘッダー"
@@ -135,67 +132,3 @@ variable "multi_array" {
   }
 }
 
-# EC2インスタンス -------------------------------------------
-variable "create_web_instance" {
-  description = "trueにするとwebサーバ用のEC2インスタンスが作成される"
-  type        = bool
-  default     = false
-}
-
-# EBS -----------------------------------------------------
-variable "ebs_add_1" {
-  description = "trueにすると単愛のEBSが作成される"
-  type        = bool
-  default     = false
-}
-
-# Nat Gateway ---------------------------------------------
-variable "nat" {
-  description = "trueにするとNAT GW関連のリソースが作成される"
-  type        = bool
-  default     = true
-}
-
-# VPCエンドポイント ---------------------------------------------
-variable "vpc_endpoint_gw" {
-  description = "trueにするゲートウェイ型のVPCエンドピント関連のリソースが作成される"
-  type        = bool
-  default     = false
-}
-
-variable "activation_vpc_endpoint" {
-  description = "Enabling a VPC endpoint for use with log forwarding"
-  type        = bool
-  default     = false
-}
-
-# IAM --------------------------------------------------
-variable "iam_user" {
-  type = list(string)
-  default = [
-    "tanaka",
-    "sato",
-    "suzuki",
-    "tanaka"
-  ]
-}
-
-variable "iam_user_map" {
-  type = map(string)
-  default = {
-    user1 = "tanaka",
-    user2 = "sato",
-    user3 = "suzuki",
-    user1 = "takahashi"
-  }
-}
-
-# ECR -------------------------------------------------
-variable "repo_list" {
-  description = "ECRリポジトリのリスト"
-  type        = list(string)
-  default = [
-    "nginx",
-    "actions-deploy",
-  ]
-}
