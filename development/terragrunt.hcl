@@ -58,18 +58,6 @@ generate "provider" {
         }
       }
     }
-
-    provider "aws" {
-      alias  = "us-east-1"
-      region = "us-east-1"
-      profile = "development_administrator"
-    }
-
-    provider "awscc" {
-      alias  = "us-east-1"
-      region = "us-east-1"
-      profile = "development_administrator"
-    }
   EOF
 }
 
