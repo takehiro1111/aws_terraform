@@ -83,7 +83,7 @@ generate "modules" {
 
   contents = <<EOF
     module "value" {
-      source = "../modules/variable"
+      source = "../../modules/variable"
     }
   EOF
 }
