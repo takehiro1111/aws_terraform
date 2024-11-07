@@ -132,3 +132,12 @@ variable "multi_array" {
   }
 }
 
+
+variable "names" {
+  type    = list(string)
+  default = ["neo", "trinity", "move"]
+}
+
+output "variables_name" {
+  value = "%{for v, value in var.names} (${v}) ${value}, %{endfor}"
+}
