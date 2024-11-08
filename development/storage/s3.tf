@@ -1,149 +1,60 @@
-#####################################################
-# ECR
-#####################################################
-#trivy:ignore:AVD-AWS-0033 // KMSでの暗号化は行わない。
-resource "aws_ecr_repository" "common" {
-  for_each = toset(var.repo_list)
+##################################################################################
+# AuditLog for AWS Config
+##################################################################################
+module "config_log" {
+  source = "../../modules/s3/config"
 
-  name                 = each.value
-  image_tag_mutability = "MUTABLE"
+  bucket_name    = "config-${data.aws_caller_identity.self.account_id}"
+  bucket_logging = module.s3_bucket_logging_target.s3_bucket_id
+}
 
-  image_scanning_configuration {
-    scan_on_push = true
+################################################################################
+# Logging TargetBucket
+################################################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "s3_bucket_logging_target" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.2.1"
+  create_bucket = true
+
+  # aws_s3_bucket
+  bucket              = "logging-target-${data.aws_caller_identity.self.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
   }
-}
 
-resource "aws_ecr_repository_policy" "common" {
-  for_each = toset(var.repo_list)
-  repository = each.value
-  depends_on = [aws_ecr_repository.common]
-  policy     = <<END
-    {
-      "Version": "2008-10-17",
-      "Statement": [
-        {
-          "Sid": "AllowALL",
-          "Effect": "Allow",
-          "Principal": {
-            "AWS": "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root"
-          },
-          "Action": [
-            "ecr:*"
-          ]
-        }
-      ]
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
     }
-  END
-}
-
-resource "aws_ecr_lifecycle_policy" "common" {
-  for_each = toset(var.repo_list)
-  repository = each.value
-  depends_on = [aws_ecr_repository.common]
-  policy     = <<END
-    {
-      "rules": [
-        {
-          "rulePriority": 1,
-          "description": "Expire images older than 180 days",
-          "selection": {
-            "tagStatus": "untagged",
-            "countType": "sinceImagePushed",
-            "countUnit": "days",
-            "countNumber": 180
-          },
-          "action": {
-            "type": "expire"
-          }
-        },
-        {
-          "rulePriority": 2,
-          "description": "Keep last 10 images",
-          "selection": {
-            "tagStatus": "any",
-            "countType": "imageCountMoreThan",
-            "countNumber": 10
-          },
-          "action": {
-            "type": "expire"
-          }
-        }
-      ]
-    }
-  END
-}
-
-#####################################################
-# S3
-#####################################################
-
-#logging------------------------------------------------------
-resource "aws_s3_bucket" "logging" {
-  bucket = "logging-${data.aws_caller_identity.self.account_id}"
-}
-
-resource "aws_s3_bucket_ownership_controls" "logging" {
-  bucket = aws_s3_bucket.logging.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
   }
-}
 
-resource "aws_s3_bucket_acl" "logging" {
-  bucket = aws_s3_bucket.logging.id
-  acl    = "private"
-
-  depends_on = [aws_s3_bucket.logging]
-}
-
-resource "aws_s3_bucket_public_access_block" "logging" {
-  bucket = aws_s3_bucket.logging.id
-
+  # aws_s3_bucket_public_access_block
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-}
 
-resource "aws_s3_bucket_versioning" "logging" {
-  bucket = aws_s3_bucket.logging.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "logging" {
-  bucket = aws_s3_bucket.logging.bucket
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3.arn
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "logging" {
-  bucket = aws_s3_bucket.logging.bucket
+  # aws_s3_bucket_policy
+  attach_policy = true
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
-      {
-        "Sid" : "sekigaku-user_Aloow",
-        "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
-        "Action" : [
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:GetObject",
-          "s3:PutBucketAcl",
-          "s3:PutObject"
-        ],
-        "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}/*"
-        ]
-      },
       {
         "Sid" : "CloudFront_logging_Allow",
         "Effect" : "Allow",
@@ -161,8 +72,8 @@ resource "aws_s3_bucket_policy" "logging" {
           "s3:PutObject"
         ],
         "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.logging.bucket}/*"
+          module.s3_bucket_logging_target.s3_bucket_arn,
+          "${module.s3_bucket_logging_target.s3_bucket_arn}/*"
         ]
       },
       {
@@ -172,392 +83,25 @@ resource "aws_s3_bucket_policy" "logging" {
           "Service" : "logging.s3.amazonaws.com"
         },
         "Action" : "s3:PutObject",
-        "Resource" : "${aws_s3_bucket.logging.arn}/*"
+        "Resource" : "${module.s3_bucket_logging_target.s3_bucket_arn}/*"
       }
     ]
   })
 }
 
-/* 
- * CloudFront用のアクセスログ
- */
-resource "aws_s3_bucket" "cdn_log" {
-  bucket   = "cdn-log-${data.aws_caller_identity.self.account_id}"
-  provider = aws.us-east-1
-}
-
-resource "aws_s3_bucket_ownership_controls" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.bucket
-  provider = aws.us-east-1
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.bucket
-  provider = aws.us-east-1
-  acl      = "private"
-
-  depends_on = [aws_s3_bucket.cdn_log]
-}
-
-resource "aws_s3_bucket_public_access_block" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.bucket
-  provider = aws.us-east-1
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_versioning" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.bucket
-  provider = aws.us-east-1
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.bucket
-  provider = aws.us-east-1
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_logging" "cdn_log" {
-  bucket        = aws_s3_bucket.cdn_log.bucket
-  target_bucket = aws_s3_bucket.cdn_log.bucket
-  target_prefix = "${aws_s3_bucket.cdn_log.bucket}/cdn_log/"
-  provider      = aws.us-east-1
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.id
-  provider = aws.us-east-1
-
-  dynamic "rule" {
-    for_each = local.lifecycle_configuration
-
-    content {
-      id     = rule.value.id
-      status = rule.value.status
-
-      filter {
-        prefix = rule.value.prefix
-      }
-
-      dynamic "transition" {
-        for_each = rule.value.transitions
-
-        content {
-          days          = transition.value.days
-          storage_class = transition.value.storage_class
-        }
-      }
-
-      nonself_version_transition {
-        newer_nonself_versions = rule.value.nonself_version_transition.newer_nonself_versions
-        nonself_days           = rule.value.nonself_version_transition.nonself_days
-        storage_class             = rule.value.nonself_version_transition.storage_class
-      }
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "cdn_log" {
-  bucket   = aws_s3_bucket.cdn_log.bucket
-  provider = aws.us-east-1
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "sekigaku-user_Aloow",
-        "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
-        "Action" : [
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:GetObject",
-          "s3:PutBucketAcl",
-          "s3:PutObject"
-        ],
-        "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.cdn_log.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.cdn_log.bucket}/*"
-        ]
-      },
-      {
-        "Sid" : "CloudFront_logging_Allow",
-        "Effect" : "Allow",
-        "Principal" : { "Service" : "cloudfront.amazonaws.com" },
-        "Action" : [
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:GetObject",
-          "s3:PutBucketAcl",
-          "s3:PutObject"
-        ]
-        "Resource" : [
-          "arn:aws:s3:::${aws_s3_bucket.cdn_log.bucket}",
-          "arn:aws:s3:::${aws_s3_bucket.cdn_log.bucket}/*"
-        ]
-        "Condition" : {
-          "StringLike" : {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.self.account_id}:distribution/*"
-          }
-        }
-      }
-    ]
-  })
-}
-
-
-# Static -----------------------------
-resource "aws_s3_bucket" "static" {
-  bucket = "static-${data.aws_caller_identity.self.account_id}"
-}
-
-resource "aws_s3_bucket_ownership_controls" "static" {
-  bucket = aws_s3_bucket.static.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "static" {
-  bucket = aws_s3_bucket.static.bucket
-  acl    = "private"
-
-  depends_on = [
-    aws_s3_bucket_ownership_controls.static,
-    aws_s3_bucket_public_access_block.static
-  ]
-}
-
-resource "aws_s3_bucket_versioning" "static" {
-  bucket = aws_s3_bucket.static.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "static" {
-  bucket                  = aws_s3_bucket.static.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "static" {
-  bucket = aws_s3_bucket.static.bucket
-  rule {
-    apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.s3.arn
-      sse_algorithm     = "aws:kms"
-    }
-  }
-}
-
-resource "aws_s3_bucket_logging" "static" {
-  bucket        = aws_s3_bucket.static.bucket
-  target_bucket = aws_s3_bucket.logging.bucket
-  target_prefix = "${local.env}/${local.repository}"
-}
-
-#ポリシーを確認
-resource "aws_s3_bucket_policy" "static" {
-  bucket = aws_s3_bucket.static.id
-  policy = jsonencode({
-    "Version" : "2008-10-17",
-    "Statement" : [
-      {
-        "Sid" : "sekigaku-user_Aloow",
-        "Effect" : "Allow",
-        "Principal" : { "AWS" : "arn:aws:iam::${data.aws_caller_identity.self.id}:root" },
-        "Action" : [
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:GetObject",
-          "s3:PutBucketAcl",
-          "s3:PutObject"
-        ],
-        "Resource" : [
-          aws_s3_bucket.static.arn,
-          "${aws_s3_bucket.static.arn}/*",
-        ]
-      },
-      {
-        "Sid" : "Allow Stg StaticSite",
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "cloudfront.amazonaws.com",
-        }
-        "Action" : [
-          "s3:GetObject"
-        ],
-        "Resource" : [
-          aws_s3_bucket.static.arn,
-          "${aws_s3_bucket.static.arn}/*",
-        ],
-        "Condition" : {
-          "StringEquals" : {
-            "AWS:SourceArn" : module.cdn_takehiro1111_com.cloudfront_distribution_arn
-          }
-        }
-      }
-    ]
-  })
-}
-
-# vpc-flow-log -----------------------------
-#::memo::
-# #フローログのバケットポリシーはデフォルトで動的に作成されるため、ユーザー側での作成は不要。
-resource "aws_s3_bucket" "flow_log" {
-  bucket = "vpc-flow-log-${data.aws_caller_identity.self.account_id}"
-}
-
-resource "aws_s3_bucket_ownership_controls" "flow_log" {
-  bucket = aws_s3_bucket.flow_log.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "flow_log" {
-  bucket = aws_s3_bucket.flow_log.bucket
-  acl    = "private"
-
-  depends_on = [
-    aws_s3_bucket_ownership_controls.flow_log,
-    aws_s3_bucket_public_access_block.flow_log
-  ]
-}
-
-resource "aws_s3_bucket_versioning" "flow_log" {
-  bucket = aws_s3_bucket.flow_log.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "flow_log" {
-  bucket                  = aws_s3_bucket.flow_log.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "flow_log" {
-  bucket = aws_s3_bucket.flow_log.bucket
-  rule {
-    apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.s3.arn
-      sse_algorithm     = "aws:kms"
-    }
-  }
-}
-
-resource "aws_s3_bucket_logging" "flow_log" {
-  bucket        = aws_s3_bucket.flow_log.bucket
-  target_bucket = aws_s3_bucket.logging.bucket
-  target_prefix = "${local.env}/${local.repository}"
-}
-
-/* 
- * Athena
- */
-resource "aws_s3_bucket" "athena" {
-  bucket = "athena-${data.aws_caller_identity.self.account_id}"
-}
-
-resource "aws_s3_bucket_ownership_controls" "athena" {
-  bucket = aws_s3_bucket.athena.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-resource "aws_s3_bucket_acl" "athena" {
-  bucket = aws_s3_bucket.athena.bucket
-  acl    = "private"
-
-  depends_on = [
-    aws_s3_bucket_ownership_controls.athena,
-    aws_s3_bucket_public_access_block.athena
-  ]
-}
-
-resource "aws_s3_bucket_versioning" "athena" {
-  bucket = aws_s3_bucket.athena.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "athena" {
-  bucket                  = aws_s3_bucket.athena.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "athena" {
-  bucket = aws_s3_bucket.athena.bucket
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.s3.arn
-    }
-  }
-}
-
-resource "aws_s3_bucket_logging" "athena" {
-  bucket        = aws_s3_bucket.athena.bucket
-  target_bucket = aws_s3_bucket.logging.bucket
-  target_prefix = "${local.env}/${local.repository}"
-}
-
-# config log --------------------------------------------------
-module "config_log" {
-  source = "../../modules/s3/config"
-
-  bucket_name    = "config-${data.aws_caller_identity.self.account_id}"
-  bucket_logging = aws_s3_bucket.logging.bucket
-}
-
-# ALB Access Log ----------------------------------------------
+##################################################################################
+# AccessLog for ALB
+##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_alb_accesslog" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = true
 
   # aws_s3_bucket
   bucket              = "alb-accesslog-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
-
-  # aws_s3_bucket_logging
-  logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "alb_access_log"
-
-    target_object_key_format = {
-      partitioned_prefix = {
-        partition_date_source = "EventTime"
-      }
-    }
-  }
 
   # aws_s3_bucket_ownership_controls
   control_object_ownership = true
@@ -618,6 +162,339 @@ module "s3_alb_accesslog" {
   # aws_s3_bucket_lifecycle_configuration
 }
 
+##################################################################################
+# AccessLog for CloudFront
+##################################################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "s3_bucket_cdn_log" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.2.1"
+  create_bucket = true
+
+  providers = {
+    aws = aws.us-east-1
+  }
+
+  # aws_s3_bucket
+  bucket              = "cdn-log-${data.aws_caller_identity.self.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  # aws_s3_bucket_policy
+  attach_policy = true
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "CloudFront_logging_Allow",
+        "Effect" : "Allow",
+        "Principal" : { "Service" : "cloudfront.amazonaws.com" },
+        "Action" : [
+          "s3:GetBucketLocation",
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutBucketAcl",
+          "s3:PutObject"
+        ]
+        "Resource" : [
+          module.s3_bucket_cdn_log.s3_bucket_arn,
+          "${module.s3_bucket_cdn_log.s3_bucket_arn}/*"
+        ]
+        "Condition" : {
+          "StringLike" : {
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.self.account_id}:distribution/*"
+          }
+        }
+      }
+    ]
+  })
+
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
+    {
+      id     = "log"
+      status = "Enabled"
+
+      transition = {
+        days          = 90
+        storage_class = "STANDARD_IA"
+      }
+
+      transition = {
+        days          = 180
+        storage_class = "GLACIER"
+      }
+
+      transition = {
+        days          = 365
+        storage_class = "DEEP_ARCHIVE"
+      }
+    },
+    {
+      id     = "delete_old_objects"
+      status = "Enabled"
+
+      expiration = {
+        days = 1825 // 5年
+      }
+    }
+  ]
+}
+
+# resource "aws_s3_bucket_lifecycle_configuration" "cdn_log" {
+#   bucket   = module.s3_bucket_cdn_log.s3_bucket_id
+#   provider = aws.us-east-1
+
+#   dynamic "rule" {
+#     for_each = local.lifecycle_configuration
+
+#     content {
+#       id     = rule.value.id
+#       status = rule.value.status
+
+#       filter {
+#         prefix = rule.value.prefix
+#       }
+
+#       dynamic "transition" {
+#         for_each = rule.value.transitions
+
+#         content {
+#           days          = transition.value.days
+#           storage_class = transition.value.storage_class
+#         }
+#       }
+
+#       noncurrent_version_transition {
+#         newer_noncurrent_versions = rule.value.nonself_version_transition.newer_nonself_versions
+#         noncurrent_days           = rule.value.nonself_version_transition.nonself_days
+#         storage_class             = rule.value.nonself_version_transition.storage_class
+#       }
+#     }
+#   }
+# }
+
+################################################################################
+# Static Site for Web
+################################################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "s3_bucket_static_site_web" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.2.1"
+  create_bucket = true
+
+  # aws_s3_bucket
+  bucket              = "static-site-web-${data.aws_caller_identity.self.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_static_site_web.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+
+  # aws_s3_bucket_policy
+  # attach_policy = true
+  # policy = jsonencode({
+  #   "Version" : "2008-10-17",
+  #   "Statement" : [
+  #     {
+  #       "Sid" : "Allow Stg StaticSite",
+  #       "Effect" : "Allow",
+  #       "Principal" : {
+  #         "Service" : "cloudfront.amazonaws.com",
+  #       }
+  #       "Action" : [
+  #         "s3:GetObject"
+  #       ],
+  #       "Resource" : [
+  #         module.s3_bucket_static_site_web.s3_bucket_arn,
+  #         "${module.s3_bucket_static_site_web.s3_bucket_arn}/*",
+  #       ],
+  #       "Condition" : {
+  #         "StringEquals" : {
+  #           "AWS:SourceArn" : module.cdn_takehiro1111_com.cloudfront_distribution_arn // 変更予定
+  #         }
+  #       }
+  #     }
+  #   ]
+  # })
+}
+
+##################################################################################
+# VPC FlowLogs
+##################################################################################
+#::memo::
+# VPCフローログのバケットポリシーはデフォルトで動的に作成されるため、ユーザー側での作成は不要。
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "s3_bucket_vpc_flow_logs" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.2.1"
+  create_bucket = false
+
+  # aws_s3_bucket
+  bucket              = "vpc-flow-logs-${data.aws_caller_identity.self.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_vpc_flow_logs.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+##################################################################################
+# Athena
+##################################################################################
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+module "s3_bucket_athena" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.2.1"
+  create_bucket = false
+
+  # aws_s3_bucket
+  bucket              = "athena-${data.aws_caller_identity.self.account_id}"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
+
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_athena.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime"
+      }
+    }
+  }
+
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
 
 #####################################################################
 # S3 Inventory Verification
@@ -649,6 +526,7 @@ module "s3_alb_accesslog" {
 module "s3_inventory_dist" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
   bucket              = "s3-inventory-dist-${data.aws_caller_identity.self.account_id}"
@@ -657,12 +535,11 @@ module "s3_inventory_dist" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "s3_inventory_dist"
-
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_inventory_dist.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "EventTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
@@ -720,7 +597,7 @@ module "s3_inventory_dist" {
           ArnLike = {
             "aws:SourceArn" = [
               // インベントリレポートの送信元バケットを記載。
-              aws_s3_bucket.athena.arn
+              module.s3_bucket_athena.s3_bucket_arn
             ]
           }
         }
@@ -733,6 +610,7 @@ module "s3_inventory_dist" {
 module "s3_batch_operation_dist" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
   bucket              = "s3-batch-operation-dist-${data.aws_caller_identity.self.account_id}"
@@ -741,12 +619,12 @@ module "s3_batch_operation_dist" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "s3_batch_operation_dist"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_batch_operation_dist.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "EventTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
@@ -822,6 +700,7 @@ module "s3_batch_operation_dist" {
 module "s3_batch_operation_report_dist" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
   bucket              = "s3-batch-operation-report-dist-${data.aws_caller_identity.self.account_id}"
@@ -830,12 +709,12 @@ module "s3_batch_operation_report_dist" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "s3_batch_operation_report_dist"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_batch_operation_report_dist.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "EventTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
@@ -911,9 +790,10 @@ module "s3_batch_operation_report_dist" {
 # Export logs from CloudwatchLogs to S3
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "cloudwatchlogs_to_s3" {
+module "s3_bucket_cloudwatchlogs_to_s3" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
   bucket              = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}"
@@ -922,12 +802,12 @@ module "cloudwatchlogs_to_s3" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "cloudwatchlogs_to_s3"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "EventTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
@@ -975,8 +855,8 @@ module "cloudwatchlogs_to_s3" {
           "s3:PutObject",
         ]
         Resource = [
-          module.cloudwatchlogs_to_s3.s3_bucket_arn,
-          "${module.cloudwatchlogs_to_s3.s3_bucket_arn}/*",
+          module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_arn,
+          "${module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_arn}/*",
         ]
         Condition = {
           StringEquals = {
@@ -1029,89 +909,62 @@ module "cloudwatchlogs_to_s3" {
  */
 // 公式Moduleだとデフォルトリージョンでしか作成できないためresourceブロックで作成。
 // aws_s3_bucket_loggingについては、クロスリージョンのロギングが出来ないため未設定。
-resource "aws_s3_bucket" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}-us-east-1"
-  provider = aws.us-east-1
-}
+module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.2.1"
+  create_bucket = false
 
-resource "aws_s3_bucket_ownership_controls" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider = aws.us-east-1
-  rule {
-    object_ownership = "BucketOwnerPreferred"
+  providers = {
+    aws = aws.us-east-1
   }
-}
 
-resource "aws_s3_bucket_acl" "cloudwatchlogs_to_s3_us_east_1" {
-  depends_on = [aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1]
-  bucket     = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider   = aws.us-east-1
-  acl        = "private"
-}
+  # aws_s3_bucket
+  bucket              = "cloudwatchlogs-to-s3-${data.aws_caller_identity.self.account_id}-us-east-1"
+  force_destroy       = true // オブジェクトが入っていても強制的に削除可能
+  object_lock_enabled = false
 
-resource "aws_s3_bucket_versioning" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider = aws.us-east-1
-  versioning_configuration {
-    status = "Enabled"
+  # aws_s3_bucket_logging
+  logging = {
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}-us-east-1"),"-","_")
+
+    target_object_key_format = {
+      partitioned_prefix = {
+        partition_date_source = "DeliveryTime"
+      }
+    }
   }
-}
 
-resource "aws_s3_bucket_public_access_block" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket                  = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider                = aws.us-east-1
+  # aws_s3_bucket_ownership_controls
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
+
+  # aws_s3_bucket_versioning
+  versioning = {
+    enabled = true
+  }
+
+  # aws_s3_bucket_server_side_encryption_configuration
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  # aws_s3_bucket_public_access_block
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-}
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider = aws.us-east-1
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider = aws.us-east-1
-  rule {
-    id     = "log"
-    status = "Enabled"
-
-    transition {
-      days          = 90
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = 180
-      storage_class = "GLACIER"
-    }
-
-    transition {
-      days          = 365
-      storage_class = "DEEP_ARCHIVE"
-    }
-  }
-
-  rule {
-    id     = "delete_old_objects"
-    status = "Enabled"
-
-    expiration {
-      days = 1825 // 5years
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
-  bucket   = aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.bucket
-  provider = aws.us-east-1
+  # aws_s3_bucket_policy
+  attach_policy = true
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -1125,8 +978,8 @@ resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
           "s3:PutObject",
         ]
         Resource = [
-          aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.arn,
-          "${aws_s3_bucket.cloudwatchlogs_to_s3_us_east_1.arn}/*",
+          module.s3_bucket_cloudwatchlogs_to_s3_us_east_1.s3_bucket_arn,
+          "${module.s3_bucket_cloudwatchlogs_to_s3_us_east_1.s3_bucket_arn}/*",
         ]
         Condition = {
           StringEquals = {
@@ -1141,15 +994,47 @@ resource "aws_s3_bucket_policy" "cloudwatchlogs_to_s3_us_east_1" {
       }
     ]
   })
+
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
+    {
+      id     = "log"
+      status = "Enabled"
+
+      transition = {
+        days          = 90
+        storage_class = "STANDARD_IA"
+      }
+
+      transition = {
+        days          = 180
+        storage_class = "GLACIER"
+      }
+
+      transition = {
+        days          = 365
+        storage_class = "DEEP_ARCHIVE"
+      }
+    },
+    {
+      id     = "delete_old_objects"
+      status = "Enabled"
+
+      expiration = {
+        days = 1825 // 5年
+      }
+    }
+  ]
 }
 
 ########################################################################
-# Common commands used in SAM CLI
+# SAM Templates
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "sam_deploy" {
+module "s3_bucket_sam_deploy" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
   bucket              = "sam-deploy-${data.aws_caller_identity.self.account_id}"
@@ -1158,12 +1043,11 @@ module "sam_deploy" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "sam_deploy"
-
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_sam_deploy.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "EventTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
@@ -1212,8 +1096,8 @@ module "sam_deploy" {
           "s3:ListBucket"
         ]
         Resource = [
-          module.sam_deploy.s3_bucket_arn,
-          "${module.sam_deploy.s3_bucket_arn}/*",
+          module.s3_bucket_sam_deploy.s3_bucket_arn,
+          "${module.s3_bucket_sam_deploy.s3_bucket_arn}/*",
         ]
         # Condition = {
         #   StringEquals = {
@@ -1263,9 +1147,11 @@ module "sam_deploy" {
 module "firehose_delivery_logs" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
-  #   providers = {
-  #   aws = aws.us-east-1
-  # }
+  create_bucket = false
+
+    providers = {
+    aws = aws.us-east-1
+  }
 
   # aws_s3_bucket
   bucket              = "firehose-delivery-logs-${data.aws_caller_identity.self.account_id}"
@@ -1274,8 +1160,8 @@ module "firehose_delivery_logs" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "firehose-delivery-logs"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.firehose_delivery_logs.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1313,30 +1199,30 @@ module "firehose_delivery_logs" {
   restrict_public_buckets = true
 
   # aws_s3_bucket_policy
-  attach_policy = true
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          AWS = aws_iam_role.firehose_delivery_role.arn
-        },
-        Action = [
-          "s3:AbortMultipartUpload",
-          "s3:GetBucketLocation",
-          "s3:GetObject",
-          "s3:ListBucket",
-          "s3:ListBucketMultipartUploads",
-          "s3:PutObject"
-        ]
-        Resource = [
-          module.firehose_delivery_logs.s3_bucket_arn,
-          "${module.firehose_delivery_logs.s3_bucket_arn}/*"
-        ]
-      }
-    ]
-  })
+  # attach_policy = true
+  # policy = jsonencode({
+  #   Version = "2012-10-17",
+  #   Statement = [
+  #     {
+  #       Effect = "Allow",
+  #       Principal = {
+  #         AWS = aws_iam_role.firehose_delivery_role.arn
+  #       },
+  #       Action = [
+  #         "s3:AbortMultipartUpload",
+  #         "s3:GetBucketLocation",
+  #         "s3:GetObject",
+  #         "s3:ListBucket",
+  #         "s3:ListBucketMultipartUploads",
+  #         "s3:PutObject"
+  #       ]
+  #       Resource = [
+  #         module.firehose_delivery_logs.s3_bucket_arn,
+  #         "${module.firehose_delivery_logs.s3_bucket_arn}/*"
+  #       ]
+  #     }
+  #   ]
+  # })
 
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
@@ -1377,16 +1263,17 @@ module "firehose_delivery_logs" {
 module "s3_for_vpc_flow_log_stg" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
-  bucket              = "forward-vpc-flow-logs-${local.env}-${data.aws_caller_identity.self.account_id}"
+  bucket              = "forward-vpc-flow-logs-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // 一時的な検証用に使用するバケットのため
   object_lock_enabled = false
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "${local.env}/${module.s3_for_vpc_flow_log_stg.s3_bucket_id}/"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_for_vpc_flow_log_stg.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1464,9 +1351,10 @@ module "s3_for_vpc_flow_log_stg" {
 # Athena Query Result
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "athena_query_result_for_vpc_flow_log" {
+module "s3_bucket_athena_query_result_for_vpc_flow_log" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
   bucket              = "athena-result-vpc-flow-logs-${data.aws_caller_identity.self.account_id}"
@@ -1475,8 +1363,8 @@ module "athena_query_result_for_vpc_flow_log" {
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = aws_s3_bucket.logging.bucket
-    target_prefix = "${local.env}/${module.s3_for_vpc_flow_log_stg.s3_bucket_id}/"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_athena_query_result_for_vpc_flow_log.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1523,24 +1411,28 @@ module "athena_query_result_for_vpc_flow_log" {
   ]
 }
 
+########################################################################
+# Lambda Event
+########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "lambda_event" {
+module "s3_bucket_lambda_event" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
+  create_bucket = false
 
   # aws_s3_bucket
-  bucket              = "lambda-event-${data.aws_caller_identity.current.account_id}"
+  bucket              = "lambda-event-${data.aws_caller_identity.self.account_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
   # aws_s3_bucket_logging
   logging = {
-    target_bucket = data.terraform_remote_state.common.outputs.s3_logging_bucket
-    target_prefix = "lambda_event"
+    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
+    target_prefix = replace(trimprefix(module.s3_bucket_lambda_event.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
 
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "EventTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
@@ -1582,7 +1474,7 @@ module "lambda_event" {
       {
         Effect    = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.id}:root"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.self.id}:root"
         },
         Action   = [ 
           "s3:PutObject",
@@ -1593,8 +1485,8 @@ module "lambda_event" {
           "s3:GetObjectAcl"
         ]
         Resource = [
-          module.lambda_event.s3_bucket_arn,
-          "${module.lambda_event.s3_bucket_arn}/*",
+          module.s3_bucket_lambda_event.s3_bucket_arn,
+          "${module.s3_bucket_lambda_event.s3_bucket_arn}/*",
         ]
       }
     ]

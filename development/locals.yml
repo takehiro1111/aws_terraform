@@ -1,0 +1,4 @@
+# reference: https://dev.classmethod.jp/articles/terragrunt-makes-your-terraform-backend-code-dry/
+env: "development"
+repository: "aws_terraform"
+

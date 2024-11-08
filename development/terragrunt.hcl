@@ -70,11 +70,15 @@ provider "aws" {
 # local
 #####################################################
 locals {
-  environment = "development"
-  repository = "aws_terraform"
-  env = "dev"
+  backend-config = yamldecode(file("${get_terragrunt_dir()}/${find_in_parent_folders("locals.yaml")}"))
 }
 
-inputs = {
-  environment = local.environment
-}
+# locals {
+#   environment = "development"
+#   repository = "aws_terraform"
+#   env = "dev"
+# }
+
+# inputs = {
+#   environment = local.environment
+# }
