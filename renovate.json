@@ -18,7 +18,7 @@
   "automergeStrategy":"auto",
   "rebaseWhen": "auto",
   "dependencyDashboard": true,
-  "ignoreReviewers": ["@takehiro1111"],
+  "ignoreReviewers": ["takehiro1111"],
   "packageRules": [
     {
       "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
