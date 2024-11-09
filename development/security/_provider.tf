@@ -3,7 +3,7 @@
       required_version = "1.9.8"
       required_providers {
         aws = {
-          version = "5.74.0"
+          version = "5.75.0"
         }
         random = {
           source  = "hashicorp/random"
@@ -15,7 +15,7 @@
         }
         awscc = {
           source  = "hashicorp/awscc"
-          version = "1.19.0"
+          version = "1.20.0"
         }
       }
     }
