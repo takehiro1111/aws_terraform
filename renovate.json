@@ -19,6 +19,7 @@
   "rebaseWhen": "auto",
   "dependencyDashboard": true,
   "ignoreReviewers": ["takehiro1111"],
+  "reviewers": ["Renovate Approve[bot]","Renovate Approve 2[bot]"],
   "packageRules": [
     {
       "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
