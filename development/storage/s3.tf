@@ -1034,7 +1034,7 @@ module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
 module "s3_bucket_sam_deploy" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
-  create_bucket = false
+  create_bucket = true
 
   # aws_s3_bucket
   bucket              = "sam-deploy-${data.aws_caller_identity.self.account_id}"
@@ -1099,11 +1099,11 @@ module "s3_bucket_sam_deploy" {
           module.s3_bucket_sam_deploy.s3_bucket_arn,
           "${module.s3_bucket_sam_deploy.s3_bucket_arn}/*",
         ]
-        # Condition = {
-        #   StringEquals = {
-        #     "aws:SourceAccount" = data.aws_caller_identity.self.account_id
-        #   }
-        # }
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.self.account_id
+          }
+        }
       }
     ]
   })

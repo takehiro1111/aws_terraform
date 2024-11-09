@@ -4,7 +4,7 @@
 locals {
   service_name = "account_management"
   repo         = "aws_terraform"
-  dir          = "common/account_management"
+  dir          = "master/account_management"
 }
 
 /* 

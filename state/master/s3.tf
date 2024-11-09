@@ -16,7 +16,10 @@ module "s3_bucket_tfstate" {
 
   # aws_s3_bucket_ownership_controls
   control_object_ownership = true
-  object_ownership         = "BucketOwnerEnforced"
+  object_ownership         = "BucketOwnerPreferred"
+
+  # aws_s3_bucket_acl
+  acl = "private"
 
   # aws_s3_bucket_versioning
   versioning = {
@@ -34,10 +37,10 @@ module "s3_bucket_tfstate" {
   }
 
   # aws_s3_bucket_public_access_block
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
   # aws_s3_bucket_policy
   attach_policy = true
@@ -58,6 +61,11 @@ module "s3_bucket_tfstate" {
           module.s3_bucket_tfstate.s3_bucket_arn,
           "${module.s3_bucket_tfstate.s3_bucket_arn}/*"
         ]
+        "Condition": {
+          "StringEquals": {
+            "aws:PrincipalOrgID": module.value.org_id
+          }
+        }
       }
     ]
   })
