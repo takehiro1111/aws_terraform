@@ -1,30 +1,30 @@
 #####################################################
 # ALB
 #####################################################
+
 module "alb_wildcard_takehiro1111_com" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.12.0"
 
   # aws_lb
-  create                     = true
-  name                       = local.environment.locals.environment
+  create                     = false
+  name                       = local.env_yml.env
   load_balancer_type         = "application"
   internal                   = false
   enable_deletion_protection = false
 
-  vpc_id  = module.vpc_common.vpc_id
-  subnets = module.vpc_common.public_subnets
+  vpc_id  = module.vpc_development.vpc_id
+  subnets = module.vpc_development.public_subnets
 
   create_security_group = false
   security_groups = [
-    aws_security_group.alb_stg.id,
-    aws_security_group.alb_9000.id,
+    "sg-057cd63134ddf72f9" // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
   ]
 
   access_logs = {
     enabled = true
-    bucket  = module.s3_alb_accesslog.s3_bucket_id
-    prefix  = var.environment
+    bucket  = data.terraform_remote_state.development_storage.outputs.s3_bucket_id_alb_access_log
+    prefix  = local.logging_config_prefix
   }
 
   # aws_lb_listener
@@ -59,7 +59,7 @@ module "alb_wildcard_takehiro1111_com" {
           actions = [
             {
               type             = "forward"
-              target_group_arn = module.alb_wildcard_takehiro1111_com.target_groups.web.arn
+              target_group_arn = aws_lb_target_group.hoge.arn
             }
           ]
         }
@@ -68,27 +68,48 @@ module "alb_wildcard_takehiro1111_com" {
   }
 
   # aws_lb_target_group
-  target_groups = {
-    web = {
-      name                 = "${local.environment.locals.environment}-web"
-      port                 = 80
-      protocol             = "HTTP"
-      deregistration_delay = "60"
-      proxy_protocol_v2    = false
-      vpc_id               = module.vpc_common.vpc_id
-      target_type          = "ip"
-      create_attachment    = false
+  # target_groups = {
+  #   web = {
+  #     name                 = "${local.env_yml.env}-web"
+  #     port                 = 80
+  #     protocol             = "HTTP"
+  #     deregistration_delay = "60"
+  #     proxy_protocol_v2    = false
+  #     vpc_id               = module.vpc_development.vpc_id
+  #     target_type          = "ip"
+  #     create_attachment    = true
 
-      health_check = {
-        healthy_threshold   = 5
-        interval            = 60
-        matcher             = "200"
-        path                = "/"
-        port                = "traffic-port"
-        protocol            = "HTTP"
-        timeout             = 30
-        unhealthy_threshold = 2
-      }
-    }
+  #     health_check = {
+  #       healthy_threshold   = 5
+  #       interval            = 60
+  #       matcher             = "200"
+  #       path                = "/"
+  #       port                = "traffic-port"
+  #       protocol            = "HTTP"
+  #       timeout             = 30
+  #       unhealthy_threshold = 2
+  #     }
+  #   }
+  # }
+}
+
+resource "aws_lb_target_group" "hoge" {
+  name     = "hoge"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = module.vpc_development.vpc_id
+  deregistration_delay = "60"
+  proxy_protocol_v2    = false
+  target_type          = "ip"
+  health_check {
+    enabled = true
+    healthy_threshold   = 5
+    interval            = 60
+    matcher             = "200"
+    path                = "/"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 30
+    unhealthy_threshold = 2
   }
 }

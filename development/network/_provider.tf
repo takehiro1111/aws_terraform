@@ -27,7 +27,7 @@ provider "aws" {
   default_tags {
     tags = {
       repository = "aws_terraform"
-      directory  = "dev/network"
+      directory  = "development/network"
       service    = "network"
     }
   }

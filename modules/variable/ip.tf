@@ -1,34 +1,26 @@
 ############################################################
 # VPC
 ############################################################
-output "vpc_ip" {
+output "vpc_ips" {
   value = {
-    hcl = "10.1.0.0/16",
-    
-  }
-}
-
-output "vpc_ip_stg" {
-  value = {
-    stats = "192.168.0.0/24"
+    development = "10.0.1.0/24"
+    stats_stg = "192.168.0.0/24"
   }
 }
 
 ############################################################
 # Subnet
 ############################################################
-output "subnet_ip_common" {
+output "subnet_ips_development" {
   value = {
-    a_public  = "10.1.1.0/24"
-    c_public  = "10.1.2.0/24"
-    d_public  = "10.1.3.0/24"
-    a_private = "10.1.4.0/24"
-    c_private = "10.1.5.0/24"
-    d_private = "10.1.6.0/24"
+    a_public  = "10.0.1.0/26"
+    c_public  = "10.0.1.64/26"
+    a_private = "10.0.1.128/26"
+    c_private = "10.0.1.192/26"
   }
 }
 
-output "stats_stg" {
+output "subnet_ips_stats_stg" {
   value = {
     a_public = "192.168.0.0/27"
     c_public = "192.168.0.32/27"

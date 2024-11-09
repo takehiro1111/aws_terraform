@@ -10,11 +10,3 @@ variable "half_maintenance" {
   type        = bool
   default     = false
 }
-
-# variable "environment" {
-#   type = string
-# }
-
-# variable "project" {
-#   type = string
-# }

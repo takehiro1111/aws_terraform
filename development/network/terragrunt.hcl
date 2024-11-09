@@ -47,5 +47,15 @@ data "aws_ec2_managed_prefix_list" "cdn" {
 data "aws_ec2_managed_prefix_list" "s3" {
   name = "com.amazonaws.ap-northeast-1.s3"
 }
+
+data "terraform_remote_state" "development_storage" {
+  backend = "s3"
+
+  config = {
+    bucket  = "tfstate-650251692423"
+    key     = "development/storage/tfstate"
+    region  = "ap-northeast-1"
+  }
+}
   EOF
 }

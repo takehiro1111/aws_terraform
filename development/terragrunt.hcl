@@ -52,8 +52,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      repository = "${local.repository}"
-      directory  = "${local.env}/${path_relative_to_include()}"
+      repository = "${local.repository_yml.repository}"
+      directory  = "${local.env_yml.env}/${path_relative_to_include()}"
       service    = "${path_relative_to_include()}"
     }
   }
@@ -70,7 +70,8 @@ provider "aws" {
 # local
 #####################################################
 locals {
-  backend-config = yamldecode(file("${get_terragrunt_dir()}/${find_in_parent_folders("locals.yaml")}"))
+  env_yml = yamldecode(file("locals.yml"))
+  repository_yml = yamldecode(file("locals.yml"))
 }
 
 # locals {

@@ -2,15 +2,15 @@
 # Network Resources
 #################################################
 # ref:https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
-module "vpc_common" {
+module "vpc_development" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.15.0"
 
   ## tags
-  name = format("%s-%s", var.environment, local.repository)
+  name = format("%s-%s", local.env_yml.env, local.repository_yml.repository)
 
   ### VPC ###
-  cidr                                 = module.value.vpc_ip.hcl
+  cidr                                 = module.value.vpc_ips.development
   instance_tenancy                     = "default"
   enable_dns_support                   = true
   enable_dns_hostnames                 = true
@@ -33,8 +33,8 @@ module "vpc_common" {
 
   ## Public
   public_subnets = [
-    module.value.subnet_ip_common.a_public,
-    module.value.subnet_ip_common.c_public
+    module.value.subnet_ips_development.a_public,
+    module.value.subnet_ips_development.c_public
   ]
 
   map_public_ip_on_launch                           = false
@@ -42,8 +42,8 @@ module "vpc_common" {
 
   ## Private 
   private_subnets = [
-    module.value.subnet_ip_common.a_private,
-    module.value.subnet_ip_common.c_private
+    module.value.subnet_ips_development.a_private,
+    module.value.subnet_ips_development.c_private
   ]
   private_subnet_private_dns_hostname_type_on_launch = "ip-name"
 
@@ -70,34 +70,37 @@ module "vpce_common" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
   version = "5.15.0"
 
-  vpc_id = module.vpc_common.vpc_id
+  vpc_id = module.vpc_development.vpc_id
   endpoints = {
     s3_gateway = {
       create          = false
       service_name    = "com.amazonaws.${data.aws_region.default.name}.s3"
       service_type    = "Gateway"
-      route_table_ids = module.vpc_common.private_route_table_ids
+      route_table_ids = module.vpc_development.private_route_table_ids
       tags            = { Name = "s3-vpce-gateway" }
     }
     ecr_dkr = {
       create             = false
-      subnet_ids         = module.vpc_common.private_subnets
+      subnet_ids         = module.vpc_development.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
-      security_group_ids = [module.vpc_endpoint.security_group_id]
+      security_group_ids = ["sg-057cd63134ddf72f9"] // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
+      # security_group_ids = [module.vpc_endpoint.security_group_id]
       tags               = { Name = "ecr-docker-vpce-interface" }
     }
     ecr_api = {
       create             = false
-      subnet_ids         = module.vpc_common.private_subnets
+      subnet_ids         = module.vpc_development.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
-      security_group_ids = [module.vpc_endpoint.security_group_id]
+      security_group_ids = ["sg-057cd63134ddf72f9"] // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
+      # security_group_ids = [module.vpc_endpoint.security_group_id]
       tags               = { Name = "ecr-api-vpce-interface" }
     }
     logs = {
       create             = false
-      subnet_ids         = module.vpc_common.private_subnets
+      subnet_ids         = module.vpc_development.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
-      security_group_ids = [module.vpc_endpoint.security_group_id]
+      security_group_ids = ["sg-057cd63134ddf72f9"] // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
+      # security_group_ids = [module.vpc_endpoint.security_group_id]
       tags               = { Name = "logs-vpce-interface" }
     }
   }

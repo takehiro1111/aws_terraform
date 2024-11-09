@@ -93,7 +93,7 @@ module "s3_bucket_logging_target" {
 # AccessLog for ALB
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "s3_alb_accesslog" {
+module "s3_bucket_alb_accesslog" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
   create_bucket = true
@@ -152,7 +152,7 @@ module "s3_alb_accesslog" {
           "s3:PutObject"
         ]
         Resource = [
-          "${module.s3_alb_accesslog.s3_bucket_arn}/common/AWSLogs/${data.aws_caller_identity.self.account_id}/*",
+          "${module.s3_bucket_alb_accesslog.s3_bucket_arn}/common/AWSLogs/${data.aws_caller_identity.self.account_id}/*",
         ]
       },
     ]
@@ -166,7 +166,7 @@ module "s3_alb_accesslog" {
 # AccessLog for CloudFront
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
-module "s3_bucket_cdn_log" {
+module "s3_bucket_cdn_accesslog" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.2.1"
   create_bucket = true
@@ -225,8 +225,8 @@ module "s3_bucket_cdn_log" {
           "s3:PutObject"
         ]
         "Resource" : [
-          module.s3_bucket_cdn_log.s3_bucket_arn,
-          "${module.s3_bucket_cdn_log.s3_bucket_arn}/*"
+          module.s3_bucket_cdn_accesslog.s3_bucket_arn,
+          "${module.s3_bucket_cdn_accesslog.s3_bucket_arn}/*"
         ]
         "Condition" : {
           "StringLike" : {
