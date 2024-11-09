@@ -16,7 +16,7 @@
   "automerge":true,
   "automergeType":"pr",
   "automergeStrategy":"auto",
-  "rebaseWhen": "conflicted",
+  "rebaseWhen": "auto",
   "dependencyDashboard": true,
   "ignoreReviewers": ["@takehiro1111"],
   "packageRules": [
@@ -25,9 +25,6 @@
       "additionalBranchPrefix": "{{packageFileDir}}-",
       "commitMessageSuffix": "({{packageFileDir}})",
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "major": {
-        "automerge": false
-      },
       "groupName": "terraform"
     }
   ]
