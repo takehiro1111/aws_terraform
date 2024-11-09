@@ -1,4 +1,4 @@
-# reference: https://dev.classmethod.jp/articles/terragrunt-makes-your-terraform-backend-code-dry/
+# reference: https://terragrunt.gruntwork.io/docs/features/locals/#locals
 env: "development"
 repository: "aws_terraform"
 
