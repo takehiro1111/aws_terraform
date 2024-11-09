@@ -7,7 +7,7 @@
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_tfstate" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.1"
+  version = "4.2.2"
 
   # aws_s3_bucket
   bucket              = "tfstate-${data.aws_caller_identity.self.account_id}"
