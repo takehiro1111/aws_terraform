@@ -87,6 +87,24 @@ module "s3_bucket_logging_target" {
       }
     ]
   })
+
+  # aws_s3_bucket_lifecycle_configuration
+    lifecycle_rule = [
+    {
+      id     = "delete_old_objects"
+      status = "Enabled"
+      expiration = {
+        days = 1
+      }
+    },
+    {
+      id     = "delete_old_versions"
+      status = "Enabled"
+      expiration = {
+        expired_object_delete_marker = true
+      }
+    }
+  ]
 }
 
 ##################################################################################
@@ -159,7 +177,23 @@ module "s3_bucket_alb_accesslog" {
   })
 
 
-  # aws_s3_bucket_lifecycle_configuration
+    # aws_s3_bucket_lifecycle_configuration
+    lifecycle_rule = [
+    {
+      id     = "delete_old_objects"
+      status = "Enabled"
+      expiration = {
+        days = 1
+      }
+    },
+    {
+      id     = "delete_old_versions"
+      status = "Enabled"
+      expiration = {
+        expired_object_delete_marker = true
+      }
+    }
+  ]
 }
 
 ##################################################################################
@@ -240,30 +274,17 @@ module "s3_bucket_cdn_accesslog" {
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
     {
-      id     = "log"
+      id     = "delete_old_objects"
       status = "Enabled"
-
-      transition = {
-        days          = 90
-        storage_class = "STANDARD_IA"
-      }
-
-      transition = {
-        days          = 180
-        storage_class = "GLACIER"
-      }
-
-      transition = {
-        days          = 365
-        storage_class = "DEEP_ARCHIVE"
+      expiration = {
+        days = 1
       }
     },
     {
-      id     = "delete_old_objects"
+      id     = "delete_old_versions"
       status = "Enabled"
-
       expiration = {
-        days = 1825 // 5年
+        expired_object_delete_marker = true
       }
     }
   ]
@@ -1041,17 +1062,6 @@ module "s3_bucket_sam_deploy" {
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
-  # aws_s3_bucket_logging
-  logging = {
-    target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_sam_deploy.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
-    target_object_key_format = {
-      partitioned_prefix = {
-        partition_date_source = "DeliveryTime"
-      }
-    }
-  }
-
   # aws_s3_bucket_ownership_controls
   control_object_ownership = true
   object_ownership         = "BucketOwnerPreferred"
@@ -1111,30 +1121,17 @@ module "s3_bucket_sam_deploy" {
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
     {
-      id     = "log"
+      id     = "delete_old_objects"
       status = "Enabled"
-
-      transition = {
-        days          = 90
-        storage_class = "STANDARD_IA"
-      }
-
-      transition = {
-        days          = 180
-        storage_class = "GLACIER"
-      }
-
-      transition = {
-        days          = 365
-        storage_class = "DEEP_ARCHIVE"
+      expiration = {
+        days = 1
       }
     },
     {
-      id     = "delete_old_objects"
+      id     = "delete_old_versions"
       status = "Enabled"
-
       expiration = {
-        days = 1825 // 5年
+        expired_object_delete_marker = true
       }
     }
   ]
@@ -1227,30 +1224,17 @@ module "firehose_delivery_logs" {
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
     {
-      id     = "log"
+      id     = "delete_old_objects"
       status = "Enabled"
-
-      transition = {
-        days          = 90
-        storage_class = "STANDARD_IA"
-      }
-
-      transition = {
-        days          = 180
-        storage_class = "GLACIER"
-      }
-
-      transition = {
-        days          = 365
-        storage_class = "DEEP_ARCHIVE"
+      expiration = {
+        days = 1
       }
     },
     {
-      id     = "delete_old_objects"
+      id     = "delete_old_versions"
       status = "Enabled"
-
       expiration = {
-        days = 1825 // 5年
+        expired_object_delete_marker = true
       }
     }
   ]
@@ -1403,9 +1387,15 @@ module "s3_bucket_athena_query_result_for_vpc_flow_log" {
     {
       id     = "delete_old_objects"
       status = "Enabled"
-
       expiration = {
-        days = 7
+        days = 1
+      }
+    },
+    {
+      id     = "delete_old_versions"
+      status = "Enabled"
+      expiration = {
+        expired_object_delete_marker = true
       }
     }
   ]

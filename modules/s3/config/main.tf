@@ -57,31 +57,43 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
     id     = "config_rule"
     status = "Enabled"
 
-    filter {
-      prefix = "/config_log"
+    expiration {
+      days = 1
     }
 
-    transition {
-      days          = 90
-      storage_class = "STANDARD_IA"
-    }
+    # filter {
+    #   prefix = "/config_log"
+    # }
 
-    transition {
-      days          = 180
-      storage_class = "GLACIER"
-    }
+    # transition {
+    #   days          = 90
+    #   storage_class = "STANDARD_IA"
+    # }
 
-    transition {
-      days          = 365
-      storage_class = "DEEP_ARCHIVE"
-    }
+    # transition {
+    #   days          = 180
+    #   storage_class = "GLACIER"
+    # }
 
-    // バージョニングで失効したオブジェクトのライフサイクルの設定
-    noncurrent_version_transition {
-      // 保持する非現行バージョン
-      newer_noncurrent_versions = 1
-      noncurrent_days = 30
-      storage_class = "DEEP_ARCHIVE"
+    # transition {
+    #   days          = 365
+    #   storage_class = "DEEP_ARCHIVE"
+    # }
+
+    # // バージョニングで失効したオブジェクトのライフサイクルの設定
+    # noncurrent_version_transition {
+    #   // 保持する非現行バージョン
+    #   newer_noncurrent_versions = 1
+    #   noncurrent_days = 30
+    #   storage_class = "DEEP_ARCHIVE"
+    # }
+  }
+  rule {
+    id     = "delete_old_markers"
+    status = "Enabled"
+
+    expiration {
+      expired_object_delete_marker = true
     }
   }
 }
