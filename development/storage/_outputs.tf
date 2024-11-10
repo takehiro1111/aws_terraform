@@ -1,6 +1,11 @@
 ######################################################################
 # ID
 ######################################################################
+output "s3_bucket_id_logging_target" {
+  description = "Logging Target S3 Bucket"
+  value = module.s3_bucket_logging_target.s3_bucket_id
+}
+
 output "s3_bucket_id_alb_access_log" {
   description = "ALB Access Log S3 Bucket"
   value = module.s3_bucket_alb_accesslog.s3_bucket_id

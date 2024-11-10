@@ -16,6 +16,21 @@ output "iam_role_arn_chatbot" {
   value       = aws_iam_role.chatbot.arn
 }
 
+output "iam_instance_profile_session_manager" {
+  description = "EC2インスタンスプロファイルの名前"
+  value       = aws_iam_instance_profile.session_manager.name
+}
+
+output "iam_role_arn_ecs_task_role_web" {
+  description = "ECSタスクが他AWSサービスの権限をAssumeするためのIAMロールのARN"
+  value       = module.ecs_task_role_web.iam_role_arn
+}
+
+output "iam_role_arn_ecs_task_execute_role_web" {
+  description = "ECSタスク自体の実行に必要なIAMロールのARN"
+  value       = module.ecs_task_execute_role_web.iam_role_arn
+}
+
 ####################################################################
 # Security Group
 ####################################################################
@@ -23,3 +38,14 @@ output "sg_id_mysql" {
   description = "MySQLのセキュリティグループID"
   value       = module.sg_mysql.security_group_id
 }
+
+output "sg_id_ecs" {
+  description = "ECSのセキュリティグループID"
+  value       = aws_security_group.ecs_stg.id
+}
+
+output "sg_id_ec2" {
+  description = "EC2のセキュリティグループID"
+  value       = aws_security_group.ecs_stg.id
+}
+

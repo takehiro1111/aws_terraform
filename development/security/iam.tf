@@ -49,9 +49,9 @@
 # }
 
 #ECS Task用ロール--------------------------------------------------------
-module "ecs_task_stg" {
+module "ecs_task_role_web" {
   source     = "../../modules/iam/assume_role"
-  name       = "secure-ecs-tasks-stg@common"
+  name       = "ecs-task-role@web"
   policy     = data.aws_iam_policy_document.ecs_task.json
   identifier = "ecs-tasks.amazonaws.com"
 }
@@ -83,12 +83,19 @@ data "aws_iam_policy_document" "ecs_task" {
 
 # ECS タスク実行ロール ----------------------------------------------
 // プライベートサブネットにECSを配置する場合、ECRとのpull,push等のために必要。
-data "aws_iam_policy" "ecs_task_execute" {
+module "ecs_task_execute_role_web" {
+  source     = "../../modules/iam/assume_role"
+  name       = "ecs-task-execute-role@web"
+  policy     = data.aws_iam_policy_document.ecs_task_execute_web.json
+  identifier = "ecs-tasks.amazonaws.com"
+}
+
+data "aws_iam_policy" "ecs_task_execute_web" {
   arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-data "aws_iam_policy_document" "ecs_task_execute" {
-  source_policy_documents = [data.aws_iam_policy.ecs_task_execute.policy]
+data "aws_iam_policy_document" "ecs_task_execute_web" {
+  source_policy_documents = [data.aws_iam_policy.ecs_task_execute_web.policy]
 
   statement {
     effect = "Allow"
@@ -100,12 +107,6 @@ data "aws_iam_policy_document" "ecs_task_execute" {
     resources = ["*"]
   }
 }
-
-# resource "aws_iam_role_policy" "ecs_task_execute" {
-#   name   = data.aws_iam_role.ecs_task_execute.name
-#   role   = data.aws_iam_role.ecs_task_execute.name
-#   policy = data.aws_iam_policy_document.ecs_task_execute.json
-# }
 
 # CodeDeploy for ECS ----------------------------------------------------------------
 module "codedeploy_for_ecs_role" {
@@ -322,7 +323,7 @@ resource "aws_ssm_document" "session_manager" {
       "idleSessionTimeout" : 60,
       "maxSessionDuration" : 60,
       "cloudWatchStreamingEnabled" : true,
-      # "cloudWatchLogGroupName" : data.terraform_remote_state.development_management.outputs.cw_log_group_name_public_instance,
+      "cloudWatchLogGroupName" : data.terraform_remote_state.development_management.outputs.cw_log_group_name_public_instance,
       "cloudWatchEncryptionEnabled" : false
     }
   })
