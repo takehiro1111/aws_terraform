@@ -78,8 +78,6 @@
 32 directories
 ```
 <!-- DIR_STRUCTURE_END -->
-<!-- DIR_STRUCTURE_START -->
-<!-- DIR_STRUCTURE_END -->
 <!-- DIR_STRUCTURE_END -->
 
 ## Setup and Usage
@@ -133,5 +131,4 @@ source allow_envrc.sh
 ```
 aws sso login --profile $AWS_PROFILE
 ```
-  - Reference
-   https://zenn.dev/takehiro1111/articles/direnv_20240203
+  - [Reference](https://zenn.dev/takehiro1111/articles/direnv_20240203)
