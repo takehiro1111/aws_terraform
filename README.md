@@ -39,9 +39,48 @@
   - Lambdaによるコスト使用量のSlack通知の改修
 
 ## Repository Structure
+<!-- DIR_STRUCTURE_START -->
+<!-- DIR_STRUCTURE_START -->
+```bash
+.
+├── development
+│   ├── compute
+│   ├── database
+│   ├── management
+│   ├── network
+│   ├── security
+│   └── storage
+├── docs
+│   └── img
+├── function
+│   └── archive_zip
+├── master
+│   ├── account_management
+│   └── storage
+├── modules
+│   ├── acm
+│   ├── cloudwatch
+│   ├── config
+│   ├── ebs
+│   ├── ec2
+│   ├── ecs
+│   ├── iam
+│   ├── iam_identity_center
+│   ├── s3
+│   └── variable
+├── state
+│   ├── development
+│   └── master
+└── stats
+    ├── prod
+    └── stg
+
+32 directories
 ```
-[ディレクトリ構成ファイル](tree.txt)
-```
+<!-- DIR_STRUCTURE_END -->
+<!-- DIR_STRUCTURE_START -->
+<!-- DIR_STRUCTURE_END -->
+<!-- DIR_STRUCTURE_END -->
 
 ## Setup and Usage
 ### 1. **Clone & Move Directory**
