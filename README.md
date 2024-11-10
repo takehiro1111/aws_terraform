@@ -39,18 +39,7 @@
   - Lambdaによるコスト使用量のSlack通知の改修
 
 ## Repository Structure
-<!-- DIR_STRUCTURE_START -->
-```bash
-.
-├── development  # 基本的なサービス作成
-├── docs 
-├── master # Organizarionsの管理アカウントで組織内で共通する設定を構築している。
-│   └── account_management # IAM Identity Center & Organizationsを用いたアカウント管理の設定
-├── modules
-└── stats # ログ収集用アカウント(未設定)
-├── tfstate  # 各AWSアカウントに配置しているステートファイル用のS3バケットを管理
-```
-<!-- DIR_STRUCTURE_END -->
+[ディレクトリ構成ファイル](tree.txt)
 
 ## Setup and Usage
 ### 1. **Clone & Move Directory**

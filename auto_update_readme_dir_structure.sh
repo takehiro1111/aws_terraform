@@ -9,7 +9,6 @@ START_MARKER="<!-- DIR_STRUCTURE_START -->"
 END_MARKER="<!-- DIR_STRUCTURE_END -->"
 
 # sedでREADME.mdを更新
-sed -i "/$START_MARKER/,/$END_MARKER/c\\
-$START_MARKER\n\`\`\`bash\n$DIR_STRUCTURE\n\`\`\`\n$END_MARKER" "$README_FILE"
+sed -i 
 
 echo "README.md has been updated with the latest directory structure."

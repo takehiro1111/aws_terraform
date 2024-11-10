@@ -1,0 +1,46 @@
+.
+├── development
+│   ├── compute
+│   ├── database
+│   ├── management
+│   ├── network
+│   ├── security
+│   └── storage
+├── docs
+│   └── img
+├── function
+│   └── archive_zip
+├── master
+│   ├── account_management
+│   └── storage
+├── modules
+│   ├── acm
+│   │   └── cert
+│   ├── cloudwatch
+│   ├── config
+│   ├── ebs
+│   ├── ec2
+│   │   └── general_instance
+│   ├── ecs
+│   │   ├── deploy_test_api
+│   │   └── fargate1
+│   ├── iam
+│   │   ├── assume_role
+│   │   ├── codedeploy_for_ecs
+│   │   ├── github_actions_id_provider
+│   │   ├── iam_user
+│   │   └── oidc
+│   ├── iam_identity_center
+│   │   ├── membership
+│   │   └── permission_set
+│   ├── s3
+│   │   └── config
+│   └── variable
+├── state
+│   ├── development
+│   └── master
+└── stats
+    ├── prod
+    └── stg
+
+44 directories
