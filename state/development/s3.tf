@@ -49,7 +49,12 @@ module "s3_bucket_tfstate" {
     "Statement" : [
       {
         "Effect" : "Allow",
-        "Principal" : "*",
+        "Principal" : {
+          AWS: [
+          "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root",
+          "arn:aws:iam::${data.terraform_remote_state.master_state.outputs.account_id}:root"
+          ]
+        },
         "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",

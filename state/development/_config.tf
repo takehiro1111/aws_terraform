@@ -45,3 +45,12 @@ module "value" {
 # Data Block
 #####################################################
 data "aws_caller_identity" "self" {}
+
+data "terraform_remote_state" "master_state" {
+  backend = "s3"
+  config = {
+    bucket = "tfstate-685339645368"
+    key    = "state/state_prod"
+    region = "ap-northeast-1"
+  }
+}
