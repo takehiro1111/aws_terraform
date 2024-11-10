@@ -1,20 +1,3 @@
-#####################################################
-# DynamoDB
-#####################################################
-resource "aws_dynamodb_table" "tfstate_locks" {
-  name         = "tfstate-locks"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
-
-#####################################################
-# RDS
-#####################################################
 # Random String -------------------------------
 resource "random_string" "mysql_8" {
   length  = 16
@@ -47,7 +30,7 @@ resource "aws_db_option_group" "mysql_8" {
 # Subnet Group ---------------------------------
 resource "aws_db_subnet_group" "mysql_8" {
   name       = "mysql-8"
-  subnet_ids = module.vpc_common.private_subnets
+  subnet_ids = data.terraform_remote_state.development_network.outputs.private_subnets_id_development
 }
 
 # RDS Instance ---------------------------------
@@ -56,7 +39,7 @@ resource "aws_db_instance" "mysql_8" {
 
   identifier             = "hcl-mysql8-${count.index}"
   db_subnet_group_name   = aws_db_subnet_group.mysql_8.name
-  vpc_security_group_ids = [module.sg_mysql.security_group_id]
+  vpc_security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_mysql]
   engine                 = "mysql"
   engine_version         = "8.0.28"
   instance_class         = "db.t3.micro"
@@ -110,13 +93,13 @@ data "aws_kms_key" "key_for_rds" {
 resource "aws_rds_cluster" "mysql_8" {
   count = var.start_aurora ? 1 : 0
 
-  cluster_identifier = local.idetifier_aurora_cluster
+  cluster_identifier = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
 
   database_name          = "hoge"
   master_username        = "admin"
   master_password        = "hogehoge" // 作成後に変更
   port                   = 3306
-  vpc_security_group_ids = [module.sg_mysql.security_group_id]
+  vpc_security_group_ids =  [data.terraform_remote_state.development_security.outputs.sg_id_mysql]
 
   storage_encrypted = true
   #snapshot_identifier = data.aws_db_cluster_snapshot.mysql_8.id // スナップショットを復元する際に使用
@@ -141,7 +124,7 @@ resource "aws_rds_cluster" "mysql_8" {
   preferred_maintenance_window = "Sun:19:00-Sun:19:30"
 
   tags = {
-    Name = local.idetifier_aurora_cluster
+    Name = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
   }
 
   lifecycle {
@@ -172,7 +155,7 @@ resource "aws_rds_cluster_instance" "mysql_8" {
 }
 
 resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {
-  name        = local.idetifier_aurora_cluster
+  name        = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
   family      = "aurora-mysql8.0"
   description = "RDS default cluster parameter group"
   parameter {
@@ -216,7 +199,7 @@ resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {
 }
 
 resource "aws_db_parameter_group" "mysql_8_aurora" {
-  name        = local.idetifier_aurora_cluster
+  name        = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
   family      = "aurora-mysql8.0"
   description = "RDS default DB parameter group"
   parameter {
@@ -227,19 +210,19 @@ resource "aws_db_parameter_group" "mysql_8_aurora" {
 
 # Officeial Module -----------------------------------------
 # refarence: https://registry.terraform.io/modules/terraform-aws-modules/rds-aurora/aws/latest
-module "official_module_aurora" {
+module "aurora_mysql_takehiro1111_com" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "9.10.0"
 
   create = false
 
   ## Common Parameter
-  name = "aurora-cluster-${local.env}"
+  name = "aurora-cluster-${local.env_yml.env}"
 
   ## DB Subnet Group
   create_db_subnet_group = true
-  db_subnet_group_name   = "aurora-${local.env}"
-  subnets                = module.vpc_common.private_subnets
+  db_subnet_group_name   = "aurora-${local.env_yml.env}"
+  subnets                = data.terraform_remote_state.development_network.outputs.private_subnets_id_development
 
   ## Cluster
   cluster_use_name_prefix = false
@@ -257,7 +240,7 @@ module "official_module_aurora" {
   deletion_protection             = true
   backtrack_window                = 86400
   manage_master_user_password     = false
-  db_parameter_group_name         = "db-parameter-${local.env}"
+  db_parameter_group_name         = "db-parameter-${local.env_yml.env}"
 
   ## Cluster Instance(s)
   instance_class = "db.t4g.medium"
@@ -272,7 +255,7 @@ module "official_module_aurora" {
   ## Cluster Endpoint(s)
   endpoints = {
     reader = {
-      identifier = "ro-${local.env}"
+      identifier = "ro-${local.env_yml.env}"
       type       = "READER"
     }
   }
@@ -288,15 +271,15 @@ module "official_module_aurora" {
 
   ## Security Group
   security_group_use_name_prefix = false
-  vpc_id                         = module.vpc_common.vpc_id
+  vpc_id                         = data.terraform_remote_state.development_network.outputs.vpc_id_development
 
   security_group_rules = {
     ingress_rules = {
       cidr_blocks = [
-        module.value.subnet_ip_common.a_private,
-        module.value.subnet_ip_common.c_private,
-        module.value.subnet_ip_common.a_public,
-        module.value.subnet_ip_common.c_public,
+        module.value.subnet_ips_development.a_private,
+        module.value.subnet_ips_development.c_private,
+        module.value.subnet_ips_development.a_public,
+        module.value.subnet_ips_development.c_public,
       ]
       description = "MySQL/Aurora"
     },
@@ -314,7 +297,7 @@ module "official_module_aurora" {
 
   ## Cluster Parameter Group
   create_db_cluster_parameter_group          = true
-  db_cluster_parameter_group_name            = "rds-cluster-${local.env}"
+  db_cluster_parameter_group_name            = "rds-cluster-${local.env_yml.env}"
   db_cluster_parameter_group_use_name_prefix = false
   db_cluster_parameter_group_description     = "RDS default cluster parameter group"
   db_cluster_parameter_group_family          = "aurora-mysql8.0"

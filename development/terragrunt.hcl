@@ -52,13 +52,3 @@ locals {
   env_yml = yamldecode(file("locals.yml"))
   repository_yml = yamldecode(file("locals.yml"))
 }
-
-# locals {
-#   environment = "development"
-#   repository = "aws_terraform"
-#   env = "dev"
-# }
-
-# inputs = {
-#   environment = local.environment
-# }
