@@ -39,7 +39,9 @@
   - Lambdaによるコスト使用量のSlack通知の改修
 
 ## Repository Structure
+```
 [ディレクトリ構成ファイル](tree.txt)
+```
 
 ## Setup and Usage
 ### 1. **Clone & Move Directory**
