@@ -139,5 +139,5 @@ variable "names" {
 }
 
 output "variables_name" {
-  value = "%{for v, value in var.names} (${v}) ${value}, %{endfor}"
+  value = "%{for element, value in var.names} (${element}) ${value}, %{endfor}"
 }
