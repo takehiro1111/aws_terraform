@@ -12,7 +12,7 @@ resource "aws_iam_policy" "support_user_customer_managed_policy" {
           "s3:GetObject",
         ]
         Effect   = "Deny"
-        Resource = data.terraform_remote_state.master_state.outputs.state_s3_bucket_arn
+        Resource = data.terraform_remote_state.master_state.outputs.s3_bucket_arn_tfstate
       },
     ]
   })
