@@ -26,8 +26,17 @@
       "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
       "additionalBranchPrefix": "{{packageFileDir}}-",
       "commitMessageSuffix": "({{packageFileDir}})",
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "terraform"
+      "matchUpdateTypes": ["major"],
+      "automerge": false, 
+      "groupName": "terraform-major-updates"
+    },
+    {
+      "matchManagers": ["terraform", "terraform-version", "tflint-plugin"],
+      "additionalBranchPrefix": "{{packageFileDir}}-",
+      "commitMessageSuffix": "({{packageFileDir}})",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true, 
+      "groupName": "terraform-minor-patch-updates"
     }
   ]
 }
