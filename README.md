@@ -39,7 +39,8 @@
   - Lambdaによるコスト使用量のSlack通知の改修
 
 ## Repository Structure
-```zsh
+<!-- DIR_STRUCTURE_START -->
+```bash
 .
 ├── development  # 基本的なサービス作成
 ├── docs 
@@ -49,6 +50,7 @@
 └── stats # ログ収集用アカウント(未設定)
 ├── tfstate  # 各AWSアカウントに配置しているステートファイル用のS3バケットを管理
 ```
+<!-- DIR_STRUCTURE_END -->
 
 ## Setup and Usage
 ### 1. **Clone & Move Directory**
