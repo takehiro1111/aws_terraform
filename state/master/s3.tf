@@ -49,13 +49,19 @@ module "s3_bucket_tfstate" {
     "Statement" : [
       {
         "Effect" : "Allow",
-        "Principal" : "*",
+        "Principal" : {
+          AWS: [
+          "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root",
+          "arn:aws:iam::${data.terraform_remote_state.development_state.outputs.account_id}:root"
+          ]
+        },
         "Action" : [
           "s3:GetBucketLocation",
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutBucketAcl",
-          "s3:PutObject"
+          "s3:PutBucketPolicy",
+          "s3:PutObject",
         ],
         "Resource" : [
           module.s3_bucket_tfstate.s3_bucket_arn,
