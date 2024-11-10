@@ -48,7 +48,9 @@
 #   policy = data.aws_iam_policy_document.flow_log.json
 # }
 
-#ECS Task用ロール--------------------------------------------------------
+#ECS タスクロール--------------------------------------------------------
+// ECSタスク内のコンテナがAWSリソースへアクセスするためのロール。
+// タスク内で動作するアプリケーションがS3、DynamoDB、SQSなどの他のAWSサービスにアクセスする必要がある場合に、このロールを使用する。
 module "ecs_task_role_web" {
   source     = "../../modules/iam/assume_role"
   name       = "ecs-task-role@web"
@@ -83,6 +85,7 @@ data "aws_iam_policy_document" "ecs_task" {
 
 # ECS タスク実行ロール ----------------------------------------------
 // プライベートサブネットにECSを配置する場合、ECRとのpull,push等のために必要。
+//  ECSエージェントがECSタスクを起動するために使用するIAMロール。
 module "ecs_task_execute_role_web" {
   source     = "../../modules/iam/assume_role"
   name       = "ecs-task-execute-role@web"
