@@ -14,11 +14,7 @@ resource "aws_organizations_organization" "org" {
  * Organizations Unit
  */
 resource "aws_organizations_organizational_unit" "ou" {
-  for_each = {
-    for key, value in local.ou : key => {
-      for inner_key, inner_value in value : inner_key => inner_value
-    }
-  }
+  for_each = { for k , v in local.ou : k => v }
 
   name      = each.value.name
   parent_id = each.value.parent_id
@@ -28,11 +24,7 @@ resource "aws_organizations_organizational_unit" "ou" {
  * Organizations Member Accounts
  */
 resource "aws_organizations_account" "org_member_account" {
-  for_each = {
-    for key, value in local.members : key => {
-      for inner_key, inner_value in value : inner_key => inner_value
-    }
-  }
+  for_each = { for k , v in local.members : k => v }
 
   name                       = each.value.name
   email                      = each.value.email
@@ -48,13 +40,8 @@ resource "aws_organizations_account" "org_member_account" {
 /* 
  * Organizations Delegated Administrator Accounts
  */
-// IAM Identity Centerで管理後にapply予定(2024/11/1)
 # resource "aws_organizations_delegated_administrator" "security_hub" {
-#   for_each = {
-#     for key, value in local.members : key => {
-#       for inner_key, inner_value in value : inner_key => inner_value
-#     }
-#   }
+#   for_each = { for k , v in local.members : k => v }
 
 #   account_id        = each.value.account_id
 #   service_principal = "securityhub.amazonaws.com"
