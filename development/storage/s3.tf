@@ -1,13 +1,3 @@
-##################################################################################
-# AuditLog for AWS Config
-##################################################################################
-module "config_log" {
-  source = "../../modules/s3/config"
-
-  bucket_name    = "config-${data.aws_caller_identity.self.account_id}"
-  bucket_logging = module.s3_bucket_logging_target.s3_bucket_id
-}
-
 ################################################################################
 # Logging TargetBucket
 ################################################################################
