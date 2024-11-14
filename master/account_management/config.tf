@@ -5,10 +5,10 @@ module "aws_config_organizations" {
   source = "../../modules/config"
 
   name                = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
-  recorder_role_arn        = data.aws_iam_role.config_configuration_recorder.arn
+  recorder_role_arn   = data.aws_iam_role.config_configuration_recorder.arn
   recording_frequency = "DAILY"
   s3_bucket_name      = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_config_audit_log
-  regions = ["ap-northeast-1","us-east-1"]
+  regions             = ["ap-northeast-1", "us-east-1"]
   aggregator_role_arn = aws_iam_role.config_configuration_aggregator.arn
 
   config_rules = {
@@ -17,7 +17,19 @@ module "aws_config_organizations" {
       compliance_resource_types = ["AWS::S3::Bucket"]
     }
   }
+
+  config_aggregate_authorization = {
+    development_ap_northeast_1 = {
+      account_id = data.terraform_remote_state.development_state.outputs.account_id
+      region     = data.aws_region.default.name
+    }
+    development_us_east_1 = {
+      account_id = data.terraform_remote_state.development_state.outputs.account_id
+      region     = data.aws_region.us_east_1.name
+    }
+  }
 }
+
 
 ###############################################################################
 # IAM ROle for AWS Config
@@ -34,7 +46,7 @@ data "aws_iam_role" "config_configuration_recorder" {
  */
 resource "aws_iam_role" "config_configuration_aggregator" {
   name               = "config-configuration-aggregator"
-  path                  = "/service-role/"
+  path               = "/service-role/"
   assume_role_policy = data.aws_iam_policy_document.config_configuration_aggregator.json
 }
 

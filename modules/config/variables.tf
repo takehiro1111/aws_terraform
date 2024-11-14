@@ -51,13 +51,6 @@ variable "recording_mode_overrides" {
     recording_frequency = string
   }))
   default = {}
-  # default = [
-  #   {
-  #     description         = "Only record EC2 network interfaces daily"
-  #     resource_types      = ["AWS::EC2::NetworkInterface"]
-  #     recording_frequency = "DAILY"
-  #   }
-  # ]
 }
 
 variable "s3_bucket_name" {
@@ -85,4 +78,13 @@ variable "regions" {
 variable "aggregator_role_arn" {
   description = "Organizations管理アカウントを管理するためのIAMロールの指定"
   type        = string
+}
+
+variable "config_aggregate_authorization" {
+  description = "管理アカウントのConfigからメンバーアカウントへアクセスするための認可"
+  type = map(object({
+      account_id = string
+      region = string
+    })
+  )
 }

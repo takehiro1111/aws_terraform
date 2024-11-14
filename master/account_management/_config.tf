@@ -51,6 +51,10 @@ data "aws_region" "default" {
   name = "ap-northeast-1"
 }
 
+data "aws_region" "us_east_1" {
+  name = "us-east-1"
+}
+
 data "terraform_remote_state" "master_state" {
   backend = "s3"
   config = {

@@ -80,3 +80,10 @@ resource "aws_config_configuration_aggregator" "this" {
     role_arn = var.aggregator_role_arn
   }
 }
+
+resource "aws_config_aggregate_authorization" "this" {
+  for_each = { for k,v in var.config_aggregate_authorization : k =>v }
+
+  account_id = each.value.account_id
+  region     = each.value.region
+}
