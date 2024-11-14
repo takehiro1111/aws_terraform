@@ -1,5 +1,11 @@
 variable "name" {
-  type = "string"
+  type =string
+}
+
+variable "iam_role_arn" {
+  description = "AWS Configに付与するIAMロール"
+  type =string
+  default = "AWSServiceRoleForConfig"
 }
 
 variable "use_exclude_specific_resource_types" {
@@ -22,13 +28,19 @@ variable "include_global_resource_types" {
 
 variable "configuration_recorder_exclusion_by_resource_types" {
   description = "特定のリソースタイプを記録対象から除外するための設定"
-  type = "string"
-  default = null
+  type = list(string)
+  default = []
+}
+
+variable "recording_frequency" {
+  description = "Configを記録する頻度"
+  type = string
+  default = "DAILY"
 }
 
 variable "configuration_recorder_configuration_recorder_recording_strategy" {
   description = "ALL_SUPPORTED_RESOURCE_TYPESを除く場合のrecording_strategyの値"
-  type = "string"
+  type =string
   default = null
 }
 
@@ -49,7 +61,7 @@ variable "recording_mode_overrides" {
 
 variable "s3_bucket_name" {
   description = "Configで収集した履歴を保管するバケット"
-  type = "string"
+  type =string
 }
 
 
@@ -58,7 +70,7 @@ variable "config_rules" {
   type = map(object({
     source_identifier          = string
     compliance_resource_types  = list(string)
-    input_parameters           = map(string)
-    maximum_execution_frequency = string
+    input_parameters           = optional(map(string))
+    maximum_execution_frequency = optional(string)
   }))
 }

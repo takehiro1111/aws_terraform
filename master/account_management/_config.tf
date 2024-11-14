@@ -68,3 +68,12 @@ data "terraform_remote_state" "development_state" {
     region = "ap-northeast-1"
   }
 }
+
+data "terraform_remote_state" "master_storage" {
+  backend = "s3"
+  config = {
+    bucket = "tfstate-685339645368"
+    key    = "sam/tfstate"
+    region = "ap-northeast-1"
+  }
+}

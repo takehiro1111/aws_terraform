@@ -14,7 +14,7 @@ resource "aws_organizations_organization" "org" {
  * Organizations Unit
  */
 resource "aws_organizations_organizational_unit" "ou" {
-  for_each = { for k , v in local.ou : k => v }
+  for_each = { for k, v in local.ou : k => v }
 
   name      = each.value.name
   parent_id = each.value.parent_id
@@ -24,7 +24,7 @@ resource "aws_organizations_organizational_unit" "ou" {
  * Organizations Member Accounts
  */
 resource "aws_organizations_account" "org_member_account" {
-  for_each = { for k , v in local.members : k => v }
+  for_each = { for k, v in local.members : k => v }
 
   name                       = each.value.name
   email                      = each.value.email
