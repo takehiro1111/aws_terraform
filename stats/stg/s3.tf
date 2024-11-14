@@ -3,8 +3,8 @@
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_forwarding_vpc_flow_logs" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -15,7 +15,7 @@ module "s3_bucket_forwarding_vpc_flow_logs" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_vpc_flow_logs.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_vpc_flow_logs.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {

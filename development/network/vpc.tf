@@ -85,7 +85,7 @@ module "vpce_common" {
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
       security_group_ids = ["sg-057cd63134ddf72f9"] // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
       # security_group_ids = [module.vpc_endpoint.security_group_id]
-      tags               = { Name = "ecr-docker-vpce-interface" }
+      tags = { Name = "ecr-docker-vpce-interface" }
     }
     ecr_api = {
       create             = false
@@ -93,7 +93,7 @@ module "vpce_common" {
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
       security_group_ids = ["sg-057cd63134ddf72f9"] // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
       # security_group_ids = [module.vpc_endpoint.security_group_id]
-      tags               = { Name = "ecr-api-vpce-interface" }
+      tags = { Name = "ecr-api-vpce-interface" }
     }
     logs = {
       create             = false
@@ -101,7 +101,7 @@ module "vpce_common" {
       service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
       security_group_ids = ["sg-057cd63134ddf72f9"] // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
       # security_group_ids = [module.vpc_endpoint.security_group_id]
-      tags               = { Name = "logs-vpce-interface" }
+      tags = { Name = "logs-vpce-interface" }
     }
   }
 }

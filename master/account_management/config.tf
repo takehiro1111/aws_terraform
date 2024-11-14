@@ -8,11 +8,13 @@ module "aws_config_organizations" {
   iam_role_arn        = aws_iam_role.config.arn
   recording_frequency = "DAILY"
   s3_bucket_name      = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_config_audit_log
+  regions = ["ap-northeast-1","us-east-1"]
+  aggregator_role_arn = aws_iam_role.config.arn
 
   config_rules = {
     x3_bucket_versioning_enabled = {
-      source_identifier = "S3_BUCKET_VERSIONING_ENABLED"
-      compliance_resource_types  = ["AWS::S3::Bucket"]
+      source_identifier         = "S3_BUCKET_VERSIONING_ENABLED"
+      compliance_resource_types = ["AWS::S3::Bucket"]
     }
   }
 }
@@ -29,7 +31,7 @@ resource "aws_iam_role_policy_attachment" "service_role_config" {
   role       = aws_iam_role.config.name
   policy_arn = data.aws_iam_policy.service_role_policy_config.arn
 }
-  
+
 resource "aws_iam_role" "config" {
   name               = "awsconfig"
   path               = "/service-role/"

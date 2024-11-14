@@ -1,13 +1,13 @@
 resource "aws_iam_role" "default" {
-  name               = var.name
+  name = var.name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Action  = "sts:AssumeRole",
+        Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-              Service = "${var.identifier}"
+          Service = "${var.identifier}"
         }
       }
     ]

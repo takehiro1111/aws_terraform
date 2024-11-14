@@ -3,7 +3,7 @@
 ########################################################################
 variable "ecr" {
   description = "ECR一覧"
-  type = list(string)
+  type        = list(string)
   default = [
     "nginx",
   ]

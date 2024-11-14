@@ -6,11 +6,11 @@ module "nlb" {
   version = "5.2.0"
 
   // SG
-  name        = format("%s-%s-%s","nlb",local.service,local.env)
+  name        = format("%s-%s-%s", "nlb", local.service, local.env)
   description = "SG for log routing"
   vpc_id      = module.vpc.vpc_id
   // Rule
-  ingress_with_cidr_blocks = [for k,v in local.sg_object :
+  ingress_with_cidr_blocks = [for k, v in local.sg_object :
     {
       from_port   = v.from_port
       to_port     = v.to_port
@@ -39,7 +39,7 @@ module "ecs" {
   version = "5.2.0"
 
   // SG
-  name        = format("%s-%s-%s","ecs",local.service,local.env)
+  name        = format("%s-%s-%s", "ecs", local.service, local.env)
   description = "ecs"
   vpc_id      = module.vpc.vpc_id
 
@@ -56,10 +56,10 @@ module "ecs" {
 
   ingress_with_self = [
     {
-      from_port       = 80
-      to_port         = 80
-      protocol        = "tcp"
-      description     = "Allow Inbound Self"
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      description = "Allow Inbound Self"
     }
   ]
 

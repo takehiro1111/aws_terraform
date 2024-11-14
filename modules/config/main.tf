@@ -6,19 +6,19 @@ resource "aws_config_configuration_recorder" "this" {
     all_supported                 = var.use_exclude_specific_resource_types == false ? var.all_supported : false
     include_global_resource_types = var.use_exclude_specific_resource_types == false ? var.include_global_resource_types : false
 
-      dynamic "exclusion_by_resource_types" {
-        for_each = length(var.configuration_recorder_exclusion_by_resource_types) > 0 ? var.configuration_recorder_exclusion_by_resource_types : []
-        content {
-          resource_types = var.configuration_recorder_exclusion_by_resource_types
-        }
+    dynamic "exclusion_by_resource_types" {
+      for_each = length(var.configuration_recorder_exclusion_by_resource_types) > 0 ? var.configuration_recorder_exclusion_by_resource_types : []
+      content {
+        resource_types = var.configuration_recorder_exclusion_by_resource_types
       }
+    }
 
-      dynamic "recording_strategy" {
-        for_each = length(var.configuration_recorder_exclusion_by_resource_types) > 0  ? var.configuration_recorder_exclusion_by_resource_types: []
-        content {
-          use_only = var.use_exclude_specific_resource_types == false ? "ALL_SUPPORTED_RESOURCE_TYPES" : var.configuration_recorder_configuration_recorder_recording_strategy
-        }
+    dynamic "recording_strategy" {
+      for_each = length(var.configuration_recorder_exclusion_by_resource_types) > 0 ? var.configuration_recorder_exclusion_by_resource_types : []
+      content {
+        use_only = var.use_exclude_specific_resource_types == false ? "ALL_SUPPORTED_RESOURCE_TYPES" : var.configuration_recorder_configuration_recorder_recording_strategy
       }
+    }
   }
 
   recording_mode {
@@ -49,7 +49,7 @@ resource "aws_config_configuration_recorder_status" "this" {
 }
 
 resource "aws_config_config_rule" "this" {
-  for_each = { for k,v in var.config_rules : k => v }
+  for_each = { for k, v in var.config_rules : k => v }
   name     = each.key
 
   source {
@@ -65,10 +65,39 @@ resource "aws_config_config_rule" "this" {
     compliance_resource_types = try(each.value.compliance_resource_types, null)
   }
 
-
-
-  input_parameters = each.value.input_parameters != null ? jsonencode(each.value.input_parameters) : null
-  maximum_execution_frequency =  try(each.value.maximum_execution_frequency, null)
+  input_parameters            = each.value.input_parameters != null ? jsonencode(each.value.input_parameters) : null
+  maximum_execution_frequency = try(each.value.maximum_execution_frequency, null)
 
   depends_on = [aws_config_configuration_recorder.this]
 }
+
+resource "aws_config_configuration_aggregator" "this" {
+  name = var.name
+
+  organization_aggregation_source {
+    regions  = var.regions
+    role_arn = var.aggregator_role_arn
+  }
+}
+
+# data "aws_iam_policy_document" "assume_role" {
+#   statement {
+#     effect = "Allow"
+
+#     principals {
+#       type        = "Service"
+#       identifiers = ["config.amazonaws.com"]
+#     }
+
+#     actions = ["sts:AssumeRole"]
+#   }
+# }
+# resource "aws_iam_role" "organization" {
+#   name               = "example"
+#   assume_role_policy = data.aws_iam_policy_document.assume_role.json
+# }
+
+# resource "aws_iam_role_policy_attachment" "organization" {
+#   role       = aws_iam_role.organization.name
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations"
+# }

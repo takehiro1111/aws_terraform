@@ -1,5 +1,5 @@
 locals {
-  env_yml = yamldecode(file("../locals.yml"))
+  env_yml        = yamldecode(file("../locals.yml"))
   repository_yml = yamldecode(file("../locals.yml"))
 
   // CloudFrontのロギング用バケットのPrefix設定
@@ -22,7 +22,7 @@ locals {
       nonself_version_transition = {
         newer_nonself_versions = 1
         nonself_days           = 30
-        storage_class             = "DEEP_ARCHIVE"
+        storage_class          = "DEEP_ARCHIVE"
       }
     }
   ]

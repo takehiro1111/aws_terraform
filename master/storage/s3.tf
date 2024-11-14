@@ -3,8 +3,8 @@
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_config_audit_log" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -42,7 +42,7 @@ module "s3_bucket_config_audit_log" {
 
   # aws_s3_bucket_policy
   attach_policy = true
-  policy = data.aws_iam_policy_document.config_bucket_policy.json
+  policy        = data.aws_iam_policy_document.config_bucket_policy.json
 
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
@@ -134,8 +134,8 @@ data "aws_iam_policy_document" "config_bucket_policy" {
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_sam_deploy" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket

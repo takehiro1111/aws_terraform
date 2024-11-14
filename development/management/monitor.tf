@@ -139,23 +139,23 @@ resource "aws_budgets_budget" "notify_slack" {
 locals {
   slack_info = {
     notify_slack_workspace = {
-      name = "/slack/workspace_id/personal"
+      name        = "/slack/workspace_id/personal"
       description = "個人用のSlackワークスペースID"
     }
     notify_slack_channel = {
-      name  = "/slack/channel_id/aws_alert"
+      name        = "/slack/channel_id/aws_alert"
       description = "通知用のSlackチャンネルID"
     }
   }
 }
 
 resource "aws_ssm_parameter" "slack_info" {
-  for_each = { for k,v in local.slack_info : k => v }
-  name  = each.value.name
-  provider = aws.us-east-1
+  for_each    = { for k, v in local.slack_info : k => v }
+  name        = each.value.name
+  provider    = aws.us-east-1
   description = each.value.description
-  type  = "SecureString"
-  value = "コンソール画面で設定する。"
+  type        = "SecureString"
+  value       = "コンソール画面で設定する。"
 
   lifecycle {
     ignore_changes = [value]

@@ -4,12 +4,12 @@
 
 output "vpc_id_development" {
   description = "The ID of the development VPC"
-  value = module.vpc_development.vpc_id
+  value       = module.vpc_development.vpc_id
 }
 
 output "private_subnets_id_development" {
   description = "The IDs of the development Subnets"
-  value = module.vpc_development.private_subnets
+  value       = module.vpc_development.private_subnets
 }
 
 ######################################################################
@@ -26,5 +26,5 @@ output "private_subnets_id_development" {
 ######################################################################
 output "target_group_arn_web" {
   description = "The ARN of the development ALB Target Group"
-  value = aws_lb_target_group.hoge.arn
+  value       = aws_lb_target_group.hoge.arn
 }

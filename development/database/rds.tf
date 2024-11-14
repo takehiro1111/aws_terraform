@@ -93,13 +93,13 @@ data "aws_kms_key" "key_for_rds" {
 resource "aws_rds_cluster" "mysql_8" {
   count = var.start_aurora ? 1 : 0
 
-  cluster_identifier = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
+  cluster_identifier = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository), "_", "-")
 
   database_name          = "hoge"
   master_username        = "admin"
   master_password        = "hogehoge" // 作成後に変更
   port                   = 3306
-  vpc_security_group_ids =  [data.terraform_remote_state.development_security.outputs.sg_id_mysql]
+  vpc_security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_mysql]
 
   storage_encrypted = true
   #snapshot_identifier = data.aws_db_cluster_snapshot.mysql_8.id // スナップショットを復元する際に使用
@@ -124,7 +124,7 @@ resource "aws_rds_cluster" "mysql_8" {
   preferred_maintenance_window = "Sun:19:00-Sun:19:30"
 
   tags = {
-    Name = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
+    Name = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository), "_", "-")
   }
 
   lifecycle {
@@ -155,7 +155,7 @@ resource "aws_rds_cluster_instance" "mysql_8" {
 }
 
 resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {
-  name        = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
+  name        = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository), "_", "-")
   family      = "aurora-mysql8.0"
   description = "RDS default cluster parameter group"
   parameter {
@@ -199,7 +199,7 @@ resource "aws_rds_cluster_parameter_group" "mysql_8_aurora" {
 }
 
 resource "aws_db_parameter_group" "mysql_8_aurora" {
-  name        = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository),"_", "-")
+  name        = replace(format("%s-%s", local.env_yml.env, local.repository_yml.repository), "_", "-")
   family      = "aurora-mysql8.0"
   description = "RDS default DB parameter group"
   parameter {

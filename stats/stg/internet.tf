@@ -10,8 +10,8 @@ resource "aws_lb" "td" {
   #   module.nlb.security_group_id
   # ]
   subnets = [
-    element(module.vpc.private_subnets,0),
-    element(module.vpc.private_subnets,1)
+    element(module.vpc.private_subnets, 0),
+    element(module.vpc.private_subnets, 1)
   ]
 
   enable_deletion_protection = false
@@ -27,15 +27,15 @@ resource "aws_lb_listener" "td" {
   load_balancer_arn = aws_lb.td.arn
   port              = "24224"
   protocol          = "TCP"
-  
+
   default_action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.td.arn
   }
 }
 
 resource "aws_lb_target_group" "td" {
-connection_termination = false
+  connection_termination = false
   deregistration_delay   = "60"
   name                   = "ecs-td-agent"
   port                   = 80
