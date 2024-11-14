@@ -78,55 +78,7 @@ data "aws_iam_policy_document" "config_bucket_policy" {
       module.s3_bucket_config_audit_log.s3_bucket_arn,
       "${module.s3_bucket_config_audit_log.s3_bucket_arn}/*"
     ]
-    # condition {
-    #   test     = "StringEquals"
-    #   variable = "AWS:SourceAccount"
-    #   values   = ["${data.aws_caller_identity.self.account_id}"]
-    # }
   }
-  # statement {
-  #   sid    = "AWSConfigBucketExistenceCheck"
-  #   effect = "Allow"
-  #   principals {
-  #     type        = "Service"
-  #     identifiers = ["config.amazonaws.com"]
-  #   }
-  #   actions = [
-  #     "s3:ListBucket"
-  #   ]
-  #   resources = [
-  #     module.s3_bucket_config_audit_log.s3_bucket_arn,
-  #   ]
-  #   # condition {
-  #   #   test     = "StringEquals"
-  #   #   variable = "AWS:SourceAccount"
-  #   #   values   = [data.aws_caller_identity.self.account_id]
-  #   # }
-  # }
-  # statement {
-  #   sid    = "AWSConfigBucketDelivery"
-  #   effect = "Allow"
-  #   principals {
-  #     type        = "Service"
-  #     identifiers = ["config.amazonaws.com"]
-  #   }
-  #   actions = [
-  #     "s3:PutObject"
-  #   ]
-  #   resources = [
-  #     "${module.s3_bucket_config_audit_log.s3_bucket_arn}/*"
-  #   ]
-  #   condition {
-  #     test     = "StringEquals"
-  #     variable = "s3:x-amz-acl"
-  #     values   = ["bucket-owner-full-control"]
-  #   }
-  #   condition {
-  #     test     = "StringEquals"
-  #     variable = "AWS:SourceAccount"
-  #     values   = ["${data.aws_caller_identity.self.account_id}"]
-  #   }
-  # }
 }
 
 ########################################################################
