@@ -1,6 +1,6 @@
 resource "aws_config_configuration_recorder" "this" {
   name     = var.name
-  role_arn = var.iam_role_arn
+  role_arn = var.recorder_role_arn
 
   recording_group {
     all_supported                 = var.use_exclude_specific_resource_types == false ? var.all_supported : false
@@ -25,12 +25,12 @@ resource "aws_config_configuration_recorder" "this" {
     recording_frequency = var.recording_frequency
 
     dynamic "recording_mode_override" {
-      for_each = toset(var.recording_mode_overrides)
+      for_each = { for k, v in var.recording_mode_overrides : k => v }
 
       content {
-        description         = recording_mode_override.value.description
-        resource_types      = recording_mode_override.value.resource_types
-        recording_frequency = recording_mode_override.value.recording_frequency
+        description         = try(recording_mode_override.value.description,null)
+        resource_types      = try(recording_mode_override.value.resource_types,[])
+        recording_frequency = try(recording_mode_override.value.recording_frequency,null)
       }
     }
   }
@@ -56,9 +56,10 @@ resource "aws_config_config_rule" "this" {
     owner             = "AWS"
     source_identifier = each.value.source_identifier
 
-    source_detail {
-      message_type = each.value.maximum_execution_frequency != null ? "ScheduledNotification" : "ConfigurationItemChangeNotification"
-    }
+    // カスタムで設定する際に必要。
+    # source_detail {
+    #   message_type = each.value.maximum_execution_frequency != null ? "ScheduledNotification" : "ConfigurationItemChangeNotification"
+    # }
   }
 
   scope {
@@ -79,25 +80,3 @@ resource "aws_config_configuration_aggregator" "this" {
     role_arn = var.aggregator_role_arn
   }
 }
-
-# data "aws_iam_policy_document" "assume_role" {
-#   statement {
-#     effect = "Allow"
-
-#     principals {
-#       type        = "Service"
-#       identifiers = ["config.amazonaws.com"]
-#     }
-
-#     actions = ["sts:AssumeRole"]
-#   }
-# }
-# resource "aws_iam_role" "organization" {
-#   name               = "example"
-#   assume_role_policy = data.aws_iam_policy_document.assume_role.json
-# }
-
-# resource "aws_iam_role_policy_attachment" "organization" {
-#   role       = aws_iam_role.organization.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations"
-# }

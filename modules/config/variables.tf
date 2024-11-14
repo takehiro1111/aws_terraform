@@ -2,7 +2,7 @@ variable "name" {
   type = string
 }
 
-variable "iam_role_arn" {
+variable "recorder_role_arn" {
   description = "AWS Configに付与するIAMロール"
   type        = string
   default     = "AWSServiceRoleForConfig"
@@ -45,18 +45,19 @@ variable "configuration_recorder_configuration_recorder_recording_strategy" {
 }
 
 variable "recording_mode_overrides" {
-  type = list(object({
+  type = map(object({
     description         = string
     resource_types      = list(string)
     recording_frequency = string
   }))
-  default = [
-    {
-      description         = "Only record EC2 network interfaces daily"
-      resource_types      = ["AWS::EC2::NetworkInterface"]
-      recording_frequency = "DAILY"
-    }
-  ]
+  default = {}
+  # default = [
+  #   {
+  #     description         = "Only record EC2 network interfaces daily"
+  #     resource_types      = ["AWS::EC2::NetworkInterface"]
+  #     recording_frequency = "DAILY"
+  #   }
+  # ]
 }
 
 variable "s3_bucket_name" {

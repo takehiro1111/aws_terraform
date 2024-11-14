@@ -81,3 +81,23 @@ module "iam_identity_center_user_group_association" {
     takehiro1111 = ["administrator", "support_user"]
   }
 }
+
+#########################################################
+# IAM Policy of Permission Set
+#########################################################
+resource "aws_iam_policy" "support_user_customer_managed_policy" {
+  name        = "supportuser-customer-managed-policy"
+  description = "supportuser-customer-managed-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+        ]
+        Effect   = "Deny"
+        Resource = data.terraform_remote_state.master_state.outputs.s3_bucket_arn_tfstate
+      },
+    ]
+  })
+}
