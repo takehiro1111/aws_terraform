@@ -42,48 +42,7 @@ module "s3_bucket_config_audit_log" {
 
   # aws_s3_bucket_policy
   attach_policy = true
-  policy        = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        "Sid": "AWSConfigBucketPermissionsCheck",
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": "s3:GetBucketAcl",
-        "Resource": module.s3_bucket_config_audit_log.s3_bucket_arn
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalOrgID": module.value.org_id
-          }
-        }
-      },
-      {
-        "Sid": "AWSConfigBucketExistenceCheck",
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": "s3:ListBucket",
-        "Resource": module.s3_bucket_config_audit_log.s3_bucket_arn,
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalOrgID": module.value.org_id
-          }
-        }
-      },
-      {
-        "Sid": "AWSConfigBucketDelivery",
-        "Effect": "Allow",
-        "Principal": "*",
-        "Action": "s3:PutObject",
-        "Resource": "${module.s3_bucket_config_audit_log.s3_bucket_arn}/AWSLogs/*/Config/*",
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalOrgID": module.value.org_id,
-            "s3:x-amz-acl": "bucket-owner-full-control"
-          }
-        }
-      }
-    ]
-  })
+  policy        = data.aws_iam_policy_document.this.json
 
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
@@ -104,21 +63,66 @@ module "s3_bucket_config_audit_log" {
   ]
 }
 
-data "aws_iam_policy_document" "config_bucket_policy" {
+data "aws_iam_policy_document" "this" {
   version = "2012-10-17"
   statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
     effect = "Allow"
     principals {
       type        = "Service"
       identifiers = ["config.amazonaws.com"]
     }
-    actions = [
-      "s3:*",
-    ]
     resources = [
       module.s3_bucket_config_audit_log.s3_bucket_arn,
-      "${module.s3_bucket_config_audit_log.s3_bucket_arn}/*"
     ]
+    sid = "AWSConfigBucketPermissionsCheck"
+  }
+  statement {
+    actions = [
+      "s3:PutObject"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+
+      values = [
+        "bucket-owner-full-control",
+      ]
+    }
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+    #tfsec:ignore:aws-iam-no-policy-wildcards
+    resources = [
+      "${module.s3_bucket_config_audit_log.s3_bucket_arn}/AWSLogs/${data.aws_caller_identity.self.account_id}/Config/*"
+    ]
+
+    sid = "AWSConfigBucketDelivery"
+  }
+  statement {
+    sid = "AllowSSLRequestsOnly"
+    actions = [
+      "s3:*"
+    ]
+    effect = "Deny"
+    resources = [
+      module.s3_bucket_config_audit_log.s3_bucket_arn,
+      "${module.s3_bucket_config_audit_log.s3_bucket_arn}/*",
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
   }
 }
 
@@ -209,68 +213,4 @@ module "s3_bucket_sam_deploy" {
       }
     }
   ]
-}
-
-data "aws_iam_policy_document" "this" {
-  version = "2012-10-17"
-  statement {
-    actions = [
-      "s3:GetBucketAcl",
-    ]
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-    resources = [
-      aws_s3_bucket.this.arn,
-    ]
-    sid = "AWSConfigBucketPermissionsCheck"
-  }
-  statement {
-    actions = [
-      "s3:PutObject"
-    ]
-    condition {
-      test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-
-      values = [
-        "bucket-owner-full-control",
-      ]
-    }
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-    #tfsec:ignore:aws-iam-no-policy-wildcards
-    resources = [
-      "${aws_s3_bucket.this.arn}/AWSLogs/${data.aws_caller_identity.self.account_id}/Config/*"
-    ]
-
-    sid = "AWSConfigBucketDelivery"
-  }
-
-  statement {
-    sid = "AllowSSLRequestsOnly"
-    actions = [
-      "s3:*"
-    ]
-    effect = "Deny"
-    resources = [
-      aws_s3_bucket.this.arn,
-      "${aws_s3_bucket.this.arn}/*",
-    ]
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-  }
 }
