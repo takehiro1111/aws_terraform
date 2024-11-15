@@ -210,3 +210,67 @@ module "s3_bucket_sam_deploy" {
     }
   ]
 }
+
+data "aws_iam_policy_document" "this" {
+  version = "2012-10-17"
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+    resources = [
+      aws_s3_bucket.this.arn,
+    ]
+    sid = "AWSConfigBucketPermissionsCheck"
+  }
+  statement {
+    actions = [
+      "s3:PutObject"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+
+      values = [
+        "bucket-owner-full-control",
+      ]
+    }
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+    #tfsec:ignore:aws-iam-no-policy-wildcards
+    resources = [
+      "${aws_s3_bucket.this.arn}/AWSLogs/${data.aws_caller_identity.self.account_id}/Config/*"
+    ]
+
+    sid = "AWSConfigBucketDelivery"
+  }
+
+  statement {
+    sid = "AllowSSLRequestsOnly"
+    actions = [
+      "s3:*"
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.this.arn,
+      "${aws_s3_bucket.this.arn}/*",
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+  }
+}
