@@ -14,7 +14,7 @@ resource "aws_ecr_repository" "development" {
 }
 
 resource "aws_ecr_repository_policy" "development" {
-  for_each = toset(var.ecr)
+  for_each   = toset(var.ecr)
   repository = each.value
   depends_on = [aws_ecr_repository.development]
   policy     = <<END
@@ -37,7 +37,7 @@ resource "aws_ecr_repository_policy" "development" {
 }
 
 resource "aws_ecr_lifecycle_policy" "development" {
-  for_each = toset(var.ecr)
+  for_each   = toset(var.ecr)
   repository = each.value
   depends_on = [aws_ecr_repository.development]
   policy     = <<END

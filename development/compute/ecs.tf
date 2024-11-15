@@ -63,14 +63,14 @@ resource "aws_ecs_service" "web_nginx" {
   }
 
   network_configuration {
-    subnets = data.terraform_remote_state.development_network.outputs.private_subnets_id_development
-    security_groups = [data.terraform_remote_state.development_security.outputs.sg_id_ecs]
+    subnets          = data.terraform_remote_state.development_network.outputs.private_subnets_id_development
+    security_groups  = [data.terraform_remote_state.development_security.outputs.sg_id_ecs]
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = data.terraform_remote_state.development_network.outputs.target_group_arn_web // TGがALBのリスナールールに設定されていないとエラーになるので注意。
-    container_name   = "nginx-container"                                          // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_name   = "nginx-container"                                                            // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
     container_port   = 80
   }
 

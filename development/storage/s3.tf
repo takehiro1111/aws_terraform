@@ -1,20 +1,10 @@
-##################################################################################
-# AuditLog for AWS Config
-##################################################################################
-module "config_log" {
-  source = "../../modules/s3/config"
-
-  bucket_name    = "config-${data.aws_caller_identity.self.account_id}"
-  bucket_logging = module.s3_bucket_logging_target.s3_bucket_id
-}
-
 ################################################################################
 # Logging TargetBucket
 ################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_logging_target" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -89,7 +79,7 @@ module "s3_bucket_logging_target" {
   })
 
   # aws_s3_bucket_lifecycle_configuration
-    lifecycle_rule = [
+  lifecycle_rule = [
     {
       id     = "delete_old_objects"
       status = "Enabled"
@@ -112,8 +102,8 @@ module "s3_bucket_logging_target" {
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_alb_accesslog" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -177,8 +167,8 @@ module "s3_bucket_alb_accesslog" {
   })
 
 
-    # aws_s3_bucket_lifecycle_configuration
-    lifecycle_rule = [
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
     {
       id     = "delete_old_objects"
       status = "Enabled"
@@ -201,8 +191,8 @@ module "s3_bucket_alb_accesslog" {
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_cdn_accesslog" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   providers = {
@@ -328,8 +318,8 @@ module "s3_bucket_cdn_accesslog" {
 ################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_static_site_web" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -340,7 +330,7 @@ module "s3_bucket_static_site_web" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_static_site_web.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_static_site_web.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -412,8 +402,8 @@ module "s3_bucket_static_site_web" {
 # VPCフローログのバケットポリシーはデフォルトで動的に作成されるため、ユーザー側での作成は不要。
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_vpc_flow_logs" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -424,7 +414,7 @@ module "s3_bucket_vpc_flow_logs" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_vpc_flow_logs.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_vpc_flow_logs.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -467,8 +457,8 @@ module "s3_bucket_vpc_flow_logs" {
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_athena" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -479,7 +469,7 @@ module "s3_bucket_athena" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_athena.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_athena.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -522,8 +512,8 @@ module "s3_bucket_athena" {
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_athena_query_result" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -534,7 +524,7 @@ module "s3_bucket_athena_query_result" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_athena_query_result.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_athena_query_result.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -616,8 +606,8 @@ module "s3_bucket_athena_query_result" {
 
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_inventory_dist" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -628,7 +618,7 @@ module "s3_inventory_dist" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_inventory_dist.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_inventory_dist.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
     target_object_key_format = {
       partitioned_prefix = {
         partition_date_source = "DeliveryTime"
@@ -700,8 +690,8 @@ module "s3_inventory_dist" {
 
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_batch_operation_dist" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -712,7 +702,7 @@ module "s3_batch_operation_dist" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_batch_operation_dist.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_batch_operation_dist.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -790,8 +780,8 @@ module "s3_batch_operation_dist" {
 
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_batch_operation_report_dist" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -802,7 +792,7 @@ module "s3_batch_operation_report_dist" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_batch_operation_report_dist.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_batch_operation_report_dist.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -883,8 +873,8 @@ module "s3_batch_operation_report_dist" {
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_cloudwatchlogs_to_s3" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -895,7 +885,7 @@ module "s3_bucket_cloudwatchlogs_to_s3" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1002,8 +992,8 @@ module "s3_bucket_cloudwatchlogs_to_s3" {
 // 公式Moduleだとデフォルトリージョンでしか作成できないためresourceブロックで作成。
 // aws_s3_bucket_loggingについては、クロスリージョンのロギングが出来ないため未設定。
 module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   providers = {
@@ -1018,7 +1008,7 @@ module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}-us-east-1"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_cloudwatchlogs_to_s3.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}-us-east-1"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1124,8 +1114,8 @@ module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_sam_deploy" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = true
 
   # aws_s3_bucket
@@ -1213,11 +1203,11 @@ module "s3_bucket_sam_deploy" {
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "firehose_delivery_logs" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
-    providers = {
+  providers = {
     aws = aws.us-east-1
   }
 
@@ -1229,7 +1219,7 @@ module "firehose_delivery_logs" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.firehose_delivery_logs.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.firehose_delivery_logs.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1316,8 +1306,8 @@ module "firehose_delivery_logs" {
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_lambda_event" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.2.2"
+  source        = "terraform-aws-modules/s3-bucket/aws"
+  version       = "4.2.2"
   create_bucket = false
 
   # aws_s3_bucket
@@ -1328,7 +1318,7 @@ module "s3_bucket_lambda_event" {
   # aws_s3_bucket_logging
   logging = {
     target_bucket = module.s3_bucket_logging_target.s3_bucket_id
-    target_prefix = replace(trimprefix(module.s3_bucket_lambda_event.s3_bucket_id,"-${data.aws_caller_identity.self.account_id}"),"-","_")
+    target_prefix = replace(trimprefix(module.s3_bucket_lambda_event.s3_bucket_id, "-${data.aws_caller_identity.self.account_id}"), "-", "_")
 
     target_object_key_format = {
       partitioned_prefix = {
@@ -1372,11 +1362,11 @@ module "s3_bucket_lambda_event" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
+        Effect = "Allow",
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.self.id}:root"
         },
-        Action   = [ 
+        Action = [
           "s3:PutObject",
           "s3:PutObjectAcl",
           "s3:GetBucketLocation",

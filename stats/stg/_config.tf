@@ -7,7 +7,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.75.0"
+      version = "5.76.0"
     }
   }
 
@@ -28,10 +28,10 @@ provider "aws" {
   region = "ap-northeast-1"
   default_tags {
     tags = {
-      Name        = local.service
-      env = local.env
-      repository  = local.repo
-      directory   = local.dir
+      Name       = local.service
+      env        = local.env
+      repository = local.repo
+      directory  = local.dir
     }
   }
 }

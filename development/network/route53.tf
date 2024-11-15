@@ -60,15 +60,15 @@ module "route53_records_takehiro1111_com" {
     # },
   ]
 
-  depends_on = [ module.route53_zones ]
+  depends_on = [module.route53_zones]
 }
 
 import {
-  to =  module.route53_records_takehiro1111_com.aws_route53_record.this[" NS"]
+  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" NS"]
   id = "Z02891181K05VCFATUCTH_takehiro1111.com_NS"
 }
 
 import {
-  to =  module.route53_records_takehiro1111_com.aws_route53_record.this[" SOA"]
+  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" SOA"]
   id = "Z02891181K05VCFATUCTH_takehiro1111.com_SOA"
 }

@@ -73,8 +73,8 @@ resource "aws_lambda_function" "s3_create" {
   role             = data.terraform_remote_state.development_security.outputs.iam_role_arn_lambda_execute
 
   logging_config {
-    log_format = "JSON"
-    log_group = data.terraform_remote_state.development_management.outputs.cw_log_group_name_lambda_s3_create
+    log_format       = "JSON"
+    log_group        = data.terraform_remote_state.development_management.outputs.cw_log_group_name_lambda_s3_create
     system_log_level = "WARN"
   }
 }

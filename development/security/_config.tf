@@ -6,7 +6,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.75.0"
+      version = "5.76.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -85,9 +85,9 @@ data "terraform_remote_state" "development_storage" {
   backend = "s3"
 
   config = {
-    bucket  = "tfstate-650251692423"
-    key     = "development/storage/tfstate"
-    region  = "ap-northeast-1"
+    bucket = "tfstate-650251692423"
+    key    = "development/storage/tfstate"
+    region = "ap-northeast-1"
   }
 }
 
@@ -95,9 +95,9 @@ data "terraform_remote_state" "development_network" {
   backend = "s3"
 
   config = {
-    bucket  = "tfstate-650251692423"
-    key     = "development/network/tfstate"
-    region  = "ap-northeast-1"
+    bucket = "tfstate-650251692423"
+    key    = "development/network/tfstate"
+    region = "ap-northeast-1"
   }
 }
 

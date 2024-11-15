@@ -25,21 +25,21 @@ module "vpc" {
   version = "5.15.0"
 
   ## tags
-  name = format("%s-%s-%s",local.service,local.env,local.category.net)
+  name = format("%s-%s-%s", local.service, local.env, local.category.net)
 
   ### VPC ###
-  cidr = module.value.vpc_ip_stg.stats
-  instance_tenancy = "default"
-  enable_dns_support = true
-  enable_dns_hostnames = true
+  cidr                                 = module.value.vpc_ip_stg.stats
+  instance_tenancy                     = "default"
+  enable_dns_support                   = true
+  enable_dns_hostnames                 = true
   enable_network_address_usage_metrics = false
 
   ### IGW ###
   create_igw = true
 
   ### NAT GW ###
-  enable_nat_gateway = false // Will be changed to true when using compute resources.
-  single_nat_gateway = true // To reduce costs, each private subnet points to a single NAT GW.
+  enable_nat_gateway     = false // Will be changed to true when using compute resources.
+  single_nat_gateway     = true  // To reduce costs, each private subnet points to a single NAT GW.
   one_nat_gateway_per_az = false // Place NAT GW in a single AZ for cost reasons. Because Accept reduced availability.
 
   ### Subnet ###
@@ -55,7 +55,7 @@ module "vpc" {
     module.value.stats_stg.c_public
   ]
 
-  map_public_ip_on_launch  = false
+  map_public_ip_on_launch                           = false
   public_subnet_private_dns_hostname_type_on_launch = "ip-name"
 
   ## Private 

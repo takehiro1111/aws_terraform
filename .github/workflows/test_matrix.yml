@@ -55,7 +55,7 @@ jobs:
         run: |
           terraform init
     
-      # - name: Plan
-      #   id: plan
-      #   run: |
-      #     terraform plan
+      - name: Plan
+        id: plan
+        run: |
+          terraform plan

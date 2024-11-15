@@ -51,6 +51,7 @@
 │   ├── security
 │   └── storage
 ├── docs
+│   ├── drawio
 │   └── img
 ├── function
 │   └── archive_zip
@@ -66,7 +67,6 @@
 │   ├── ecs
 │   ├── iam
 │   ├── iam_identity_center
-│   ├── s3
 │   └── variable
 ├── state
 │   ├── development
@@ -77,6 +77,8 @@
 
 32 directories
 ```
+<!-- DIR_STRUCTURE_END -->
+<!-- DIR_STRUCTURE_START -->
 <!-- DIR_STRUCTURE_END -->
 <!-- DIR_STRUCTURE_END -->
 

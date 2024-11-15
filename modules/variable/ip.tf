@@ -4,7 +4,7 @@
 output "vpc_ips" {
   value = {
     development = "10.0.1.0/24"
-    stats_stg = "192.168.0.0/24"
+    stats_stg   = "192.168.0.0/24"
   }
 }
 
@@ -22,8 +22,8 @@ output "subnet_ips_development" {
 
 output "subnet_ips_stats_stg" {
   value = {
-    a_public = "192.168.0.0/27"
-    c_public = "192.168.0.32/27"
+    a_public  = "192.168.0.0/27"
+    c_public  = "192.168.0.32/27"
     a_private = "192.168.0.96/27"
     c_private = "192.168.0.128/27"
   }

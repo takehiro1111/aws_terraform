@@ -7,7 +7,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.75.0"
+      version = "5.76.0"
     }
   }
 
@@ -51,6 +51,10 @@ data "aws_region" "default" {
   name = "ap-northeast-1"
 }
 
+data "aws_region" "us_east_1" {
+  name = "us-east-1"
+}
+
 data "terraform_remote_state" "master_state" {
   backend = "s3"
   config = {
@@ -65,6 +69,15 @@ data "terraform_remote_state" "development_state" {
   config = {
     bucket = "tfstate-650251692423"
     key    = "state/development"
+    region = "ap-northeast-1"
+  }
+}
+
+data "terraform_remote_state" "master_storage" {
+  backend = "s3"
+  config = {
+    bucket = "tfstate-685339645368"
+    key    = "sam/tfstate"
     region = "ap-northeast-1"
   }
 }

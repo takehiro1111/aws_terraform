@@ -50,9 +50,9 @@ module "s3_bucket_tfstate" {
       {
         "Effect" : "Allow",
         "Principal" : {
-          AWS: [
-          "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root",
-          "arn:aws:iam::${data.terraform_remote_state.master_state.outputs.account_id}:root"
+          AWS : [
+            "arn:aws:iam::${data.aws_caller_identity.self.account_id}:root",
+            "arn:aws:iam::${data.terraform_remote_state.master_state.outputs.account_id}:root"
           ]
         },
         "Action" : [
@@ -67,9 +67,9 @@ module "s3_bucket_tfstate" {
           module.s3_bucket_tfstate.s3_bucket_arn,
           "${module.s3_bucket_tfstate.s3_bucket_arn}/*"
         ]
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalOrgID": module.value.org_id
+        "Condition" : {
+          "StringEquals" : {
+            "aws:PrincipalOrgID" : module.value.org_id
           }
         }
       }
