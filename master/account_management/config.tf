@@ -5,7 +5,7 @@ module "aws_config_organizations" {
   source = "../../modules/config"
 
   name                = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
-  recorder_role_arn   = data.aws_iam_role.config_configuration_recorder.arn
+  recorder_role_arn   = aws_iam_service_linked_role.config.arn
   recording_frequency = "DAILY"
   s3_bucket_name      = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_config_audit_log
   regions             = ["ap-northeast-1", "us-east-1"]
@@ -37,8 +37,8 @@ module "aws_config_organizations" {
 /* 
  * aws_config_configuration_recorder
  */
-data "aws_iam_role" "config_configuration_recorder" {
-  name = "AWSServiceRoleForConfig"
+resource "aws_iam_service_linked_role" "config" {
+  aws_service_name = "config.amazonaws.com"
 }
 
 /* 

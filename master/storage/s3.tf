@@ -42,7 +42,48 @@ module "s3_bucket_config_audit_log" {
 
   # aws_s3_bucket_policy
   attach_policy = true
-  policy        = data.aws_iam_policy_document.config_bucket_policy.json
+  policy        = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        "Sid": "AWSConfigBucketPermissionsCheck",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetBucketAcl",
+        "Resource": module.s3_bucket_config_audit_log.s3_bucket_arn
+        "Condition": {
+          "StringEquals": {
+            "aws:PrincipalOrgID": module.value.org_id
+          }
+        }
+      },
+      {
+        "Sid": "AWSConfigBucketExistenceCheck",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:ListBucket",
+        "Resource": module.s3_bucket_config_audit_log.s3_bucket_arn,
+        "Condition": {
+          "StringEquals": {
+            "aws:PrincipalOrgID": module.value.org_id
+          }
+        }
+      },
+      {
+        "Sid": "AWSConfigBucketDelivery",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:PutObject",
+        "Resource": "${module.s3_bucket_config_audit_log.s3_bucket_arn}/AWSLogs/*/Config/*",
+        "Condition": {
+          "StringEquals": {
+            "aws:PrincipalOrgID": module.value.org_id,
+            "s3:x-amz-acl": "bucket-owner-full-control"
+          }
+        }
+      }
+    ]
+  })
 
   # aws_s3_bucket_lifecycle_configuration
   lifecycle_rule = [
