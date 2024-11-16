@@ -1,3 +1,9 @@
+variable "create" {
+  description = "Configの設定の作成可否を制御"
+  type = bool
+  default = true
+}
+
 variable "name" {
   type = string
 }
@@ -68,23 +74,3 @@ variable "config_rules" {
     maximum_execution_frequency = optional(string)
   }))
 }
-
-
-# variable "regions" {
-#   description = "COnfigを設定するリージョン"
-#   type        = list(string)
-# }
-
-# variable "aggregator_role_arn" {
-#   description = "Organizations管理アカウントを管理するためのIAMロールの指定"
-#   type        = string
-# }
-
-# variable "config_aggregate_authorization" {
-#   description = "管理アカウントのConfigからメンバーアカウントへアクセスするための認可"
-#   type = map(object({
-#       account_id = string
-#       region = string
-#     })
-#   )
-# }

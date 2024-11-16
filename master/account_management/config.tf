@@ -3,6 +3,7 @@
 ##############################################################################
 module "aws_config_organizations" {
   source = "../../modules/config"
+  create = true
 
   name                = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
   recording_frequency = "DAILY"

@@ -100,6 +100,7 @@
 #####################################################
 module "aws_config_organizations" {
   source = "../../modules/config"
+  create = true
 
   name                = format("%s-%s", local.env_yml.env, data.aws_caller_identity.self.account_id)
   recording_frequency = "DAILY"
