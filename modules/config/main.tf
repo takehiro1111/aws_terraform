@@ -40,6 +40,10 @@ resource "aws_config_delivery_channel" "this" {
   name           = var.name
   s3_bucket_name = var.s3_bucket_name
   depends_on     = [aws_config_configuration_recorder.this]
+
+  snapshot_delivery_properties {
+    delivery_frequency = "TwentyFour_Hours"
+  }
 }
 
 resource "aws_config_configuration_recorder_status" "this" {
@@ -55,11 +59,6 @@ resource "aws_config_config_rule" "this" {
   source {
     owner             = "AWS"
     source_identifier = each.value.source_identifier
-
-    // カスタムで設定する際に必要。
-    # source_detail {
-    #   message_type = each.value.maximum_execution_frequency != null ? "ScheduledNotification" : "ConfigurationItemChangeNotification"
-    # }
   }
 
   scope {

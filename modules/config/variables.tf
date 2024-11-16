@@ -41,7 +41,7 @@ variable "recording_frequency" {
 variable "configuration_recorder_configuration_recorder_recording_strategy" {
   description = "ALL_SUPPORTED_RESOURCE_TYPESを除く場合のrecording_strategyの値"
   type        = string
-  default     = null
+  default     = "EXCLUSION_BY_RESOURCE_TYPES"
 }
 
 variable "recording_mode_overrides" {

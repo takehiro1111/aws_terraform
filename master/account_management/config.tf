@@ -11,6 +11,11 @@ module "aws_config_organizations" {
   regions             = ["ap-northeast-1", "us-east-1"]
   aggregator_role_arn = aws_iam_role.config_configuration_aggregator.arn
 
+  use_exclude_specific_resource_types = true
+  configuration_recorder_exclusion_by_resource_types = [
+    "AWS::EC2::NetworkInterface"
+  ]
+
   config_rules = {
     s3_bucket_versioning_enabled = {
       source_identifier         = "S3_BUCKET_VERSIONING_ENABLED"
