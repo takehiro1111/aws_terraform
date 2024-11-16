@@ -30,13 +30,6 @@ resource "aws_config_configuration_aggregator" "aws_config_organizations" {
   }
 }
 
-resource "aws_config_aggregate_authorization" "aws_config_organizations" {
-  for_each = { for k, v in local.config_aggregate_authorization : k => v }
-
-  account_id = each.value.account_id
-  region     = each.value.region
-}
-
 ###############################################################################
 # IAM ROle for AWS Config
 ###############################################################################

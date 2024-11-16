@@ -65,19 +65,3 @@ locals {
     }
   }
 }
-
-/* 
- * AWS Config Parameter 
- */
-locals {
-  config_aggregate_authorization = {
-    development_ap_northeast_1 = {
-      account_id = data.terraform_remote_state.development_state.outputs.account_id
-      region     = data.aws_region.default.name
-    }
-    development_us_east_1 = {
-      account_id = data.terraform_remote_state.development_state.outputs.account_id
-      region     = data.aws_region.us_east_1.name
-    }
-  }
-}
