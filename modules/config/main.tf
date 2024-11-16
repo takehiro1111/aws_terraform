@@ -11,6 +11,7 @@ resource "aws_iam_service_linked_role" "config" {
 #########################################################################################
 # AWS Config
 #########################################################################################
+# AWS Configがリソースの設定変更を記録するための設定を定義。
 resource "aws_config_configuration_recorder" "this" {
   name     = var.name
   role_arn = aws_iam_service_linked_role.config.arn
@@ -49,6 +50,7 @@ resource "aws_config_configuration_recorder" "this" {
   }
 }
 
+# AWS Configが設定変更のスナップショットをS3バケットに配信するための設定を定義する
 resource "aws_config_delivery_channel" "this" {
   name           = var.name
   s3_bucket_name = var.s3_bucket_name
@@ -59,12 +61,15 @@ resource "aws_config_delivery_channel" "this" {
   }
 }
 
+# AWS Configの設定変更記録のステータスを管理する
 resource "aws_config_configuration_recorder_status" "this" {
   name       = aws_config_configuration_recorder.this.name
   is_enabled = true
   depends_on = [aws_config_delivery_channel.this]
 }
 
+
+# AWS Configがリソースの設定を評価するためのルールを定義する
 resource "aws_config_config_rule" "this" {
   for_each = { for k, v in var.config_rules : k => v }
   name     = each.key
