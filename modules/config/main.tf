@@ -1,6 +1,19 @@
+###############################################################################
+# IAM ROle for AWS Config
+###############################################################################
+/* 
+ * aws_config_configuration_recorder
+ */
+resource "aws_iam_service_linked_role" "config" {
+  aws_service_name = "config.amazonaws.com"
+}
+
+#########################################################################################
+# AWS Config
+#########################################################################################
 resource "aws_config_configuration_recorder" "this" {
   name     = var.name
-  role_arn = var.recorder_role_arn
+  role_arn = aws_iam_service_linked_role.config.arn
 
   recording_group {
     all_supported                 = var.use_exclude_specific_resource_types == false ? var.all_supported : false
@@ -28,9 +41,9 @@ resource "aws_config_configuration_recorder" "this" {
       for_each = { for k, v in var.recording_mode_overrides : k => v }
 
       content {
-        description         = try(recording_mode_override.value.description,null)
-        resource_types      = try(recording_mode_override.value.resource_types,[])
-        recording_frequency = try(recording_mode_override.value.recording_frequency,null)
+        description         = try(recording_mode_override.value.description, null)
+        resource_types      = try(recording_mode_override.value.resource_types, [])
+        recording_frequency = try(recording_mode_override.value.recording_frequency, null)
       }
     }
   }
@@ -69,20 +82,4 @@ resource "aws_config_config_rule" "this" {
   maximum_execution_frequency = try(each.value.maximum_execution_frequency, null)
 
   depends_on = [aws_config_configuration_recorder.this]
-}
-
-resource "aws_config_configuration_aggregator" "this" {
-  name = var.name
-
-  organization_aggregation_source {
-    regions  = var.regions
-    role_arn = var.aggregator_role_arn
-  }
-}
-
-resource "aws_config_aggregate_authorization" "this" {
-  for_each = { for k,v in var.config_aggregate_authorization : k =>v }
-
-  account_id = each.value.account_id
-  region     = each.value.region
 }

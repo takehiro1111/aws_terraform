@@ -96,6 +96,29 @@
 # }
 
 #####################################################
+# AWS Config
+#####################################################
+module "aws_config_organizations" {
+  source = "../../modules/config"
+
+  name                = format("%s-%s", local.env_yml.env, data.aws_caller_identity.self.account_id)
+  recording_frequency = "DAILY"
+  s3_bucket_name      = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_config_audit_log
+
+  use_exclude_specific_resource_types = true
+  configuration_recorder_exclusion_by_resource_types = [
+    "AWS::EC2::NetworkInterface"
+  ]
+
+  config_rules = {
+    s3_bucket_versioning_enabled = {
+      source_identifier         = "S3_BUCKET_VERSIONING_ENABLED"
+      compliance_resource_types = ["AWS::S3::Bucket"]
+    }
+  }
+}
+
+#####################################################
 # BudGet
 #####################################################
 locals {

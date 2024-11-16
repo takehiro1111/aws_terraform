@@ -1,5 +1,13 @@
 ######################################################################
-# ID
+# Account ID
+######################################################################
+output "account_id" {
+  description = "AWS Account ID"
+  value       = data.aws_caller_identity.self.account_id
+}
+
+######################################################################
+# S3 Bucket ID
 ######################################################################
 output "s3_bucket_id_logging_target" {
   description = "Logging Target S3 Bucket"
@@ -32,7 +40,7 @@ output "s3_bucket_id_vpc_flow_logs" {
 }
 
 ######################################################################
-# ARN
+# S3 Bucket ARN
 ######################################################################
 output "s3_bucket_arn_static_site_web" {
   description = "Static WebSite S3 Bucket ARN"

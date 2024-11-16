@@ -63,65 +63,43 @@ module "s3_bucket_config_audit_log" {
   ]
 }
 
+// reference: https://docs.aws.amazon.com/ja_jp/config/latest/developerguide/s3-bucket-policy.html
 data "aws_iam_policy_document" "this" {
   version = "2012-10-17"
   statement {
-    actions = [
-      "s3:GetBucketAcl",
-    ]
+    sid    = "AWSConfigBucketPermissionsCheck & AWSConfigBucketExistenceCheck"
     effect = "Allow"
     principals {
       type        = "Service"
       identifiers = ["config.amazonaws.com"]
     }
-    resources = [
-      module.s3_bucket_config_audit_log.s3_bucket_arn,
-    ]
-    sid = "AWSConfigBucketPermissionsCheck"
-  }
-  statement {
-    actions = [
-      "s3:PutObject"
-    ]
+    actions   = ["s3:GetBucketAcl", "s3:ListBucket"]
+    resources = [module.s3_bucket_config_audit_log.s3_bucket_arn]
     condition {
       test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-
+      variable = "AWS:SourceAccount"
       values = [
-        "bucket-owner-full-control",
+        data.aws_caller_identity.self.account_id,
+        data.terraform_remote_state.development_storage.outputs.account_id
       ]
     }
-    effect = "Allow"
+  }
+  statement {
+    sid     = "AWSConfigBucketDelivery"
+    effect  = "Allow"
+    actions = ["s3:PutObject"]
     principals {
       type        = "Service"
       identifiers = ["config.amazonaws.com"]
     }
-    #tfsec:ignore:aws-iam-no-policy-wildcards
-    resources = [
-      "${module.s3_bucket_config_audit_log.s3_bucket_arn}/AWSLogs/${data.aws_caller_identity.self.account_id}/Config/*"
-    ]
-
-    sid = "AWSConfigBucketDelivery"
-  }
-  statement {
-    sid = "AllowSSLRequestsOnly"
-    actions = [
-      "s3:*"
-    ]
-    effect = "Deny"
-    resources = [
-      module.s3_bucket_config_audit_log.s3_bucket_arn,
-      "${module.s3_bucket_config_audit_log.s3_bucket_arn}/*",
-    ]
+    resources = ["${module.s3_bucket_config_audit_log.s3_bucket_arn}/AWSLogs/*/Config/*"]
     condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-
-    principals {
-      type        = "*"
-      identifiers = ["*"]
+      test     = "StringEquals"
+      variable = "AWS:SourceAccount"
+      values = [
+        data.aws_caller_identity.self.account_id,
+        data.terraform_remote_state.development_storage.outputs.account_id
+      ]
     }
   }
 }

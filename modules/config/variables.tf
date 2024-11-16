@@ -70,21 +70,21 @@ variable "config_rules" {
 }
 
 
-variable "regions" {
-  description = "COnfigを設定するリージョン"
-  type        = list(string)
-}
+# variable "regions" {
+#   description = "COnfigを設定するリージョン"
+#   type        = list(string)
+# }
 
-variable "aggregator_role_arn" {
-  description = "Organizations管理アカウントを管理するためのIAMロールの指定"
-  type        = string
-}
+# variable "aggregator_role_arn" {
+#   description = "Organizations管理アカウントを管理するためのIAMロールの指定"
+#   type        = string
+# }
 
-variable "config_aggregate_authorization" {
-  description = "管理アカウントのConfigからメンバーアカウントへアクセスするための認可"
-  type = map(object({
-      account_id = string
-      region = string
-    })
-  )
-}
+# variable "config_aggregate_authorization" {
+#   description = "管理アカウントのConfigからメンバーアカウントへアクセスするための認可"
+#   type = map(object({
+#       account_id = string
+#       region = string
+#     })
+#   )
+# }

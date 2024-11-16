@@ -5,11 +5,8 @@ module "aws_config_organizations" {
   source = "../../modules/config"
 
   name                = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
-  recorder_role_arn   = aws_iam_service_linked_role.config.arn
   recording_frequency = "DAILY"
   s3_bucket_name      = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_config_audit_log
-  regions             = ["ap-northeast-1", "us-east-1"]
-  aggregator_role_arn = aws_iam_role.config_configuration_aggregator.arn
 
   use_exclude_specific_resource_types = true
   configuration_recorder_exclusion_by_resource_types = [
@@ -22,30 +19,27 @@ module "aws_config_organizations" {
       compliance_resource_types = ["AWS::S3::Bucket"]
     }
   }
+}
 
-  config_aggregate_authorization = {
-    development_ap_northeast_1 = {
-      account_id = data.terraform_remote_state.development_state.outputs.account_id
-      region     = data.aws_region.default.name
-    }
-    development_us_east_1 = {
-      account_id = data.terraform_remote_state.development_state.outputs.account_id
-      region     = data.aws_region.us_east_1.name
-    }
+resource "aws_config_configuration_aggregator" "aws_config_organizations" {
+  name = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
+
+  organization_aggregation_source {
+    regions  = [data.aws_region.default.name, data.aws_region.us_east_1.name]
+    role_arn = aws_iam_role.config_configuration_aggregator.arn
   }
 }
 
+resource "aws_config_aggregate_authorization" "aws_config_organizations" {
+  for_each = { for k, v in local.config_aggregate_authorization : k => v }
+
+  account_id = each.value.account_id
+  region     = each.value.region
+}
 
 ###############################################################################
 # IAM ROle for AWS Config
-##############################################################################
-/* 
- * aws_config_configuration_recorder
- */
-resource "aws_iam_service_linked_role" "config" {
-  aws_service_name = "config.amazonaws.com"
-}
-
+###############################################################################
 /* 
  * aws_config_configuration_aggregator
  */
