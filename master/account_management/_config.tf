@@ -47,6 +47,8 @@ module "value" {
 #####################################################
 data "aws_caller_identity" "self" {}
 
+data "aws_partition" "current" {}
+
 data "aws_region" "default" {
   name = "ap-northeast-1"
 }
