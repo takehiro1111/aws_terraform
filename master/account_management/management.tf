@@ -1,4 +1,31 @@
 ###############################################################################
+# AWS CloudTrail
+##############################################################################
+module "aws_cloudtrail_ap_northeast_1" {
+  source = "../../modules/cloudtrail"
+  create = true
+
+  name = "${replace(local.service_name, "_", "-")}-${module.value.org_id}"
+  s3_bucket_name = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_cloudtrail_audit_log
+  include_global_service_events = true
+  is_multi_region_trail = true
+  enable_logging = true
+  enable_log_file_validation = true
+  is_organization_trail = true
+
+  insight_selectors = {
+    api_call_rate_insight = {
+      insight_type  = "ApiCallRateInsight"
+      enabled = false
+    }
+    api_error_rate_insight = {
+      insight_type = "ApiErrorRateInsight"
+      enabled = false
+    }
+  }
+}
+
+###############################################################################
 # AWS  Config
 ##############################################################################
 module "aws_config_organizations" {

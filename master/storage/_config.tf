@@ -47,8 +47,14 @@ module "value" {
 #####################################################
 data "aws_caller_identity" "self" {}
 
+data "aws_partition" "current" {}
+
 data "aws_region" "default" {
   name = "ap-northeast-1"
+}
+
+data "aws_region" "us_east_1" {
+  name = "us-east-1"
 }
 
 data "terraform_remote_state" "master_state" {
@@ -56,6 +62,15 @@ data "terraform_remote_state" "master_state" {
   config = {
     bucket = "tfstate-685339645368"
     key    = "state/state_prod"
+    region = "ap-northeast-1"
+  }
+}
+
+data "terraform_remote_state" "master_account_management" {
+  backend = "s3"
+  config = {
+    bucket = "tfstate-685339645368"
+    key     = "account_management/tfstate"
     region = "ap-northeast-1"
   }
 }
