@@ -25,4 +25,4 @@ jobs:
 
       - name: Run Trivy Scan with Config
         run: |
-          trivy fs --config-path .trivy/trivy.yaml .
+          trivy -c .trivy/trivy.yaml
