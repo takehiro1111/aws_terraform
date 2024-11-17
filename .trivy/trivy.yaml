@@ -1,0 +1,38 @@
+# reference: https://aquasecurity.github.io/trivy/v0.33/docs/references/customization/config-file/
+
+# Same as '--format'
+# Default is 'table'
+format: table
+
+# Same as '--severity'
+# Default is all severities
+severity:
+  - UNKNOWN
+  - LOW
+  - MEDIUM
+  - HIGH
+  - CRITICAL
+
+# Same as '--ignorefile'
+# Default is '.trivyignore'
+ignorefile: .trivyignore
+
+# Same as '--timeout'
+# Default is '5m'
+timeout: 10m
+
+
+rules:
+  - id: rule1
+    category: general
+    title: Generic Rule
+    severity: CRITICAL
+    path: modules/value/**/.tf
+    keywords: 
+      - secret
+    regex: (?i)(?P<key>(secret))(=|:).{0,5}['"](?P<secret>[0-9a-zA-Z\-_=]{8,64})['"]
+    secret-group-name: secret
+    allow-rules:
+      - id: skip-readme
+        description: skip README
+        path: **/README.md

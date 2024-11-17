@@ -1,0 +1,28 @@
+name: Trivy Scan
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.trivy/**'
+  pull_request:
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.44.0/trivy_0.44.0_Linux-64bit.tar.gz | tar xvz
+          sudo mv trivy /usr/local/bin/
+
+      - name: Run Trivy Scan with Config
+        run: |
+          trivy fs --config-path .trivy/trivy.yaml .
