@@ -1,5 +1,12 @@
 
 #####################################################
+# CloudTrail Event Notification
+#####################################################
+module "cloudtrail_event_notify_development" {
+  source = "../../modules/event_bridge/cloudtrail"
+}
+
+#####################################################
 # EventBridge
 #####################################################
 /* 
@@ -294,7 +301,8 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   logging_level      = "ERROR"
   sns_topic_arns = [
     aws_sns_topic.slack_alert.arn,
-    module.sns_notify_chatbot.topic_arn
+    module.sns_notify_chatbot.topic_arn,
+    module.cloudtrail_event_notify_development.sns_topic_arn
   ]
   user_role_required = true
 

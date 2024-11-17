@@ -1,6 +1,8 @@
 ################################################################################
-# CloudTrail Resource Operation Notify
+# Common
 ################################################################################
+data "aws_caller_identity" "self" {}
+
 resource "aws_cloudwatch_event_bus" "this" {
   name = "CloudTrailResourceOperationAggregateEventBus"
 }
@@ -22,7 +24,7 @@ data "aws_iam_policy_document" "this" {
     ]
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${var.aws_account}:root"]
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.self.account_id}:root"]
     }
   }
 }
@@ -77,14 +79,14 @@ resource "aws_sns_topic" "this" {
           ]
           Condition = {
             StringEquals = {
-              "AWS:SourceOwner" = var.aws_account
+              "AWS:SourceOwner" = data.aws_caller_identity.self.account_id
             }
           }
           Effect = "Allow"
           Principal = {
             AWS = "*"
           }
-          Resource = "arn:aws:sns:ap-northeast-1:${var.aws_account}:CloudTrailResourceOperationNotify"
+          Resource = "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.self.account_id}:CloudTrailResourceOperationNotify"
         },
         {
           Sid    = "eventAllow"
@@ -93,7 +95,7 @@ resource "aws_sns_topic" "this" {
           Principal = {
             Service = "events.amazonaws.com"
           }
-          Resource = "arn:aws:sns:ap-northeast-1:${var.aws_account}:CloudTrailResourceOperationNotify"
+          Resource = "arn:aws:sns:ap-northeast-1:${data.aws_caller_identity.self.account_id}:CloudTrailResourceOperationNotify"
         },
       ]
       Version = "2008-10-17"
@@ -110,6 +112,10 @@ resource "aws_sns_topic_subscription" "this" {
   endpoint_auto_confirms          = false
 }
 
+
+################################################################################
+# ap-northeast-1
+################################################################################
 resource "aws_cloudwatch_event_rule" "resource_operation_tokyo" {
   name        = "CloudTrailResourceOperationTokyo"
   description = "CloudTrailResourceOperationTokyo"
@@ -126,7 +132,7 @@ resource "aws_cloudwatch_event_rule" "resource_operation_tokyo" {
     }],
     "userIdentity": {
       "arn": [{
-        "prefix": "arn:aws:sts::${var.aws_account}:assumed-role/AWSReservedSSO"
+        "prefix": "arn:aws:sts::${data.aws_caller_identity.self.account_id}:assumed-role/AWSReservedSSO"
       }]
     }
   }
@@ -188,8 +194,11 @@ resource "aws_iam_policy" "this" {
   )
 }
 
+################################################################################
+# us-east-1
+################################################################################
 resource "aws_cloudwatch_event_rule" "resource_operation_virginia" {
-  provider    = aws.virginia
+  provider    = aws.us-east-1
   name        = "CloudTrailResourceOperationVirginia"
   description = "CloudTrailResourceOperationVirginia"
   state       = "ENABLED"
@@ -205,7 +214,7 @@ resource "aws_cloudwatch_event_rule" "resource_operation_virginia" {
     }],
     "userIdentity": {
       "arn": [{
-        "prefix": "arn:aws:sts::${var.aws_account}:assumed-role/AWSReservedSSO"
+        "prefix": "arn:aws:sts::${data.aws_caller_identity.self.account_id}:assumed-role/AWSReservedSSO"
       }]
     }
   }
@@ -214,41 +223,9 @@ EOF
 }
 
 resource "aws_cloudwatch_event_target" "resource_operation_virginia" {
-  provider  = aws.virginia
+  provider  = aws.us-east-1
   rule      = aws_cloudwatch_event_rule.resource_operation_virginia.name
   target_id = "CloudTrailResourceOperationVirginia"
-  arn       = aws_cloudwatch_event_bus.this.arn
-  role_arn  = aws_iam_role.event_target.arn
-}
-
-resource "aws_cloudwatch_event_rule" "resource_operation_oregon" {
-  provider      = aws.oregon
-  name          = "CloudTrailResourceOperationOregon"
-  description   = "CloudTrailResourceOperationOregon"
-  state         = "ENABLED"
-  event_pattern = <<EOF
-{
-  "detail-type": ["AWS API Call via CloudTrail"],
-  "detail": {
-    "readOnly": [false],
-    "eventCategory": ["Management"],
-    "eventName": [{
-      "anything-but": ["StartSession", "TerminateSession", "ResumeSession"]
-    }],
-    "userIdentity": {
-      "arn": [{
-        "prefix": "arn:aws:sts::${var.aws_account}:assumed-role/AWSReservedSSO"
-      }]
-    }
-  }
-}
-EOF
-}
-
-resource "aws_cloudwatch_event_target" "resource_operation_oregon" {
-  provider  = aws.oregon
-  rule      = aws_cloudwatch_event_rule.resource_operation_oregon.name
-  target_id = "CloudTrailResourceOperationOregon"
   arn       = aws_cloudwatch_event_bus.this.arn
   role_arn  = aws_iam_role.event_target.arn
 }
