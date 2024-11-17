@@ -110,8 +110,8 @@ jobs:
             sleep 10
           done
         env:
-          SLACK_CHANNEL_ID: C07EFGAE81J
-          SLACK_BOT_TOKEN: xoxb-6797575963079-7482444612838-ByYfqLwJQBMpnboyOxzggefv
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID_LAMBDA_NOTIFY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
 
       - name: Apply

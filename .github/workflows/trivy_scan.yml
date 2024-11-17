@@ -7,6 +7,7 @@ on:
     paths:
       - '.trivy/**'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   trivy-scan:
@@ -25,4 +26,4 @@ jobs:
 
       - name: Run Trivy Scan with Config
         run: |
-          trivy -c .trivy/trivy.yaml
+          trivy fs --config .trivy/trivy.yaml --ignorefile .trivy/.trivyignore .
