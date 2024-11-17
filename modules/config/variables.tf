@@ -1,3 +1,9 @@
+variable "create" {
+  description = "Configの設定の作成可否を制御"
+  type        = bool
+  default     = true
+}
+
 variable "name" {
   type = string
 }
@@ -41,7 +47,7 @@ variable "recording_frequency" {
 variable "configuration_recorder_configuration_recorder_recording_strategy" {
   description = "ALL_SUPPORTED_RESOURCE_TYPESを除く場合のrecording_strategyの値"
   type        = string
-  default     = null
+  default     = "EXCLUSION_BY_RESOURCE_TYPES"
 }
 
 variable "recording_mode_overrides" {
@@ -67,24 +73,4 @@ variable "config_rules" {
     input_parameters            = optional(map(string))
     maximum_execution_frequency = optional(string)
   }))
-}
-
-
-variable "regions" {
-  description = "COnfigを設定するリージョン"
-  type        = list(string)
-}
-
-variable "aggregator_role_arn" {
-  description = "Organizations管理アカウントを管理するためのIAMロールの指定"
-  type        = string
-}
-
-variable "config_aggregate_authorization" {
-  description = "管理アカウントのConfigからメンバーアカウントへアクセスするための認可"
-  type = map(object({
-      account_id = string
-      region = string
-    })
-  )
 }

@@ -35,6 +35,20 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  region  = "us-east-1"
+  alias   = "us-east-1"
+  profile = "master_administrator"
+
+  default_tags {
+    tags = {
+      Name       = local.service_name
+      repository = local.repo
+      directory  = local.dir
+    }
+  }
+}
+
 #####################################################
 # PMOdule Block
 #####################################################
@@ -46,6 +60,8 @@ module "value" {
 # Data Block
 #####################################################
 data "aws_caller_identity" "self" {}
+
+data "aws_partition" "current" {}
 
 data "aws_region" "default" {
   name = "ap-northeast-1"

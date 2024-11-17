@@ -1,15 +1,45 @@
 ###############################################################################
+# AWS CloudTrail
+##############################################################################
+module "aws_cloudtrail_ap_northeast_1" {
+  source = "../../modules/cloudtrail"
+  create = true
+
+  name                          = "${replace(local.service_name, "_", "-")}-${module.value.org_id}"
+  s3_bucket_name                = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_cloudtrail_audit_log
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  enable_logging                = true
+  enable_log_file_validation    = true
+  is_organization_trail         = true
+
+  insight_selectors = {
+    api_call_rate_insight = {
+      insight_type = "ApiCallRateInsight"
+      enabled      = false
+    }
+    api_error_rate_insight = {
+      insight_type = "ApiErrorRateInsight"
+      enabled      = false
+    }
+  }
+}
+
+###############################################################################
 # AWS  Config
 ##############################################################################
 module "aws_config_organizations" {
   source = "../../modules/config"
+  create = true
 
   name                = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
-  recorder_role_arn   = data.aws_iam_role.config_configuration_recorder.arn
   recording_frequency = "DAILY"
   s3_bucket_name      = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_config_audit_log
-  regions             = ["ap-northeast-1", "us-east-1"]
-  aggregator_role_arn = aws_iam_role.config_configuration_aggregator.arn
+
+  use_exclude_specific_resource_types = true
+  configuration_recorder_exclusion_by_resource_types = [
+    "AWS::EC2::NetworkInterface"
+  ]
 
   config_rules = {
     s3_bucket_versioning_enabled = {
@@ -17,30 +47,20 @@ module "aws_config_organizations" {
       compliance_resource_types = ["AWS::S3::Bucket"]
     }
   }
+}
 
-  config_aggregate_authorization = {
-    development_ap_northeast_1 = {
-      account_id = data.terraform_remote_state.development_state.outputs.account_id
-      region     = data.aws_region.default.name
-    }
-    development_us_east_1 = {
-      account_id = data.terraform_remote_state.development_state.outputs.account_id
-      region     = data.aws_region.us_east_1.name
-    }
+resource "aws_config_configuration_aggregator" "aws_config_organizations" {
+  name = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
+
+  organization_aggregation_source {
+    regions  = [data.aws_region.default.name, data.aws_region.us_east_1.name]
+    role_arn = aws_iam_role.config_configuration_aggregator.arn
   }
 }
 
-
 ###############################################################################
 # IAM ROle for AWS Config
-##############################################################################
-/* 
- * aws_config_configuration_recorder
- */
-data "aws_iam_role" "config_configuration_recorder" {
-  name = "AWSServiceRoleForConfig"
-}
-
+###############################################################################
 /* 
  * aws_config_configuration_aggregator
  */
