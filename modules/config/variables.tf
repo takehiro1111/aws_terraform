@@ -1,7 +1,7 @@
 variable "create" {
   description = "Configの設定の作成可否を制御"
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "name" {

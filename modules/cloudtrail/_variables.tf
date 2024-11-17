@@ -61,18 +61,18 @@ variable "enable_insight_selectors" {
 
 variable "insight_selectors" {
   description = "A map of insight selectors"
-  type        = map(object({
+  type = map(object({
     insight_type = string
-    enabled = bool
+    enabled      = bool
   }))
-  default     = {
+  default = {
     api_call_rate_insight = {
-      insight_type  = "ApiCallRateInsight"
-      enabled = false
+      insight_type = "ApiCallRateInsight"
+      enabled      = false
     }
     api_error_rate_insight = {
       insight_type = "ApiErrorRateInsight"
-      enabled = false
+      enabled      = false
     }
   }
 }
