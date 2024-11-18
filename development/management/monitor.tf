@@ -106,8 +106,9 @@ module "cloudtrail_event_notify_development" {
 # AWS Config
 #####################################################
 module "aws_config_organizations" {
-  source = "../../modules/config"
-  create = true
+  source                     = "../../modules/config"
+  create                     = false // コストかかるため、falseにしておく。
+  recorder_status_is_enabled = false
 
   name                = format("%s-%s", local.env_yml.env, data.aws_caller_identity.self.account_id)
   recording_frequency = "DAILY"
@@ -131,9 +132,9 @@ module "aws_config_organizations" {
 #####################################################
 locals {
   monthly_budget = {
-    low    = 50
-    middle = 60
-    high   = 70
+    low    = 3
+    middle = 5
+    high   = 10
   }
 }
 
@@ -220,6 +221,7 @@ resource "aws_ssm_parameter" "slack_webhook_url" {
 ######################################################################
 # SNS
 ######################################################################
+#trivy:ignore:avd-aws-0095 //(HIGH): Topic does not have encryption enabled.
 resource "aws_sns_topic" "slack_alert" {
   name     = "slack-alert"
   provider = aws.us-east-1

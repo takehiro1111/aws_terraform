@@ -1,6 +1,7 @@
 ##################################################################
 # Cloud Trail
 ##################################################################
+#trivy:ignore:AVD-AWS-0015 // (HIGH): CloudTrail does not use a customer managed key to encrypt the logs.
 resource "aws_cloudtrail" "this" {
   count = var.create ? 1 : 0
 

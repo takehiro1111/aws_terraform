@@ -2,12 +2,14 @@
 # Cloudwatch Logs
 #####################################################
 # ECS -----------------------------------------
+#trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
 resource "aws_cloudwatch_log_group" "ecs_nginx" {
   retention_in_days = 1
   name              = "/ecslogs/nginx"
 }
 
 # EC2 ------------------------------------------
+#trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
 resource "aws_cloudwatch_log_group" "public_instance" {
   name              = "/compute/ec2/public"
   log_group_class   = "STANDARD"
@@ -16,6 +18,7 @@ resource "aws_cloudwatch_log_group" "public_instance" {
 }
 
 # VPCフローログ --------------------------------
+#trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
 resource "aws_cloudwatch_log_group" "flow_log" {
   name              = "/vpc/flow-log"
   log_group_class   = "STANDARD"
@@ -24,6 +27,7 @@ resource "aws_cloudwatch_log_group" "flow_log" {
 }
 
 # Lambda --------------------------------
+#trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
 resource "aws_cloudwatch_log_group" "lambda_s3_create" {
   name              = "/lambda/s3-create"
   log_group_class   = "STANDARD"
@@ -97,15 +101,15 @@ resource "aws_cloudwatch_log_group" "lambda_s3_create" {
 #####################################################
 # Kinesis Data Firehose
 #####################################################
-locals {
-  common_delivery = {
-    common_vpc_flow_logs = {
-      create     = true
-      name       = "delivery-vpc-flow-logs"
-      index_name = "comon_vpc_flow_logs"
-    }
-  }
-}
+# locals {
+#   common_delivery = {
+#     common_vpc_flow_logs = {
+#       create     = true
+#       name       = "delivery-vpc-flow-logs"
+#       index_name = "comon_vpc_flow_logs"
+#     }
+#   }
+# }
 
 # resource "aws_kinesis_firehose_delivery_stream" "logs" {
 #   for_each = { for k, v in local.common_delivery : k => v if v.create }

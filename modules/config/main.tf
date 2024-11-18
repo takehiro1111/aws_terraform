@@ -67,7 +67,7 @@ resource "aws_config_delivery_channel" "this" {
 resource "aws_config_configuration_recorder_status" "this" {
   count      = var.create ? 1 : 0
   name       = var.name
-  is_enabled = true
+  is_enabled = var.recorder_status_is_enabled
   depends_on = [aws_config_delivery_channel.this]
 }
 

@@ -8,12 +8,6 @@ variable "name" {
   type = string
 }
 
-variable "recorder_role_arn" {
-  description = "AWS Configに付与するIAMロール"
-  type        = string
-  default     = "AWSServiceRoleForConfig"
-}
-
 variable "use_exclude_specific_resource_types" {
   description = "特定のリソースタイプのみを記録する場合はtrue"
   type        = bool
@@ -62,6 +56,12 @@ variable "recording_mode_overrides" {
 variable "s3_bucket_name" {
   description = "Configで収集した履歴を保管するバケット"
   type        = string
+}
+
+variable "recorder_status_is_enabled" {
+  description = "Configで記録するか制御"
+  type        = bool
+  default     = true
 }
 
 

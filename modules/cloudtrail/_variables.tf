@@ -53,11 +53,11 @@ variable "is_organization_trail" {
   default     = true
 }
 
-variable "enable_insight_selectors" {
-  description = "Specifies whether the trail is publishing events from global services such as IAM to the log files"
-  type        = bool
-  default     = true
-}
+# variable "enable_insight_selectors" {
+#   description = "Specifies whether the trail is publishing events from global services such as IAM to the log files"
+#   type        = bool
+#   default     = true
+# }
 
 variable "insight_selectors" {
   description = "A map of insight selectors"

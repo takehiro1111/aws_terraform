@@ -29,8 +29,9 @@ module "aws_cloudtrail_ap_northeast_1" {
 # AWS  Config
 ##############################################################################
 module "aws_config_organizations" {
-  source = "../../modules/config"
-  create = true
+  source                     = "../../modules/config"
+  create                     = false // コストかかるため、falseにしておく。
+  recorder_status_is_enabled = false
 
   name                = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
   recording_frequency = "DAILY"
@@ -49,6 +50,7 @@ module "aws_config_organizations" {
   }
 }
 
+#trivy:ignore:AVD-AWS-0019  // (HIGH): Configuration aggregation is not set to source from all regions.
 resource "aws_config_configuration_aggregator" "aws_config_organizations" {
   name = "${replace(local.service_name, "_", "-")}-${data.aws_caller_identity.self.account_id}"
 

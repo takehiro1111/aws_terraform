@@ -1,0 +1,9 @@
+{
+  "checksums": [
+    {
+      "id": "http/releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_darwin_arm64.zip",
+      "checksum": "873D7B925D08578FB6BB9C12C7CD92AE73E289E07C360F2FDD69F9036B7BAAAB",
+      "algorithm": "sha256"
+    }
+  ]
+}
