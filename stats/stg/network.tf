@@ -22,7 +22,7 @@
 # https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.15.0"
+  version = "5.16.0"
 
   ## tags
   name = format("%s-%s-%s", local.service, local.env, local.category.net)
