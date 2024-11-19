@@ -4,7 +4,7 @@
     "config:best-practices",
     ":label(renovate)",
     ":timezone(Asia/Tokyo)",
-    "github>aquaproj/aqua-renovate-config#2.3.1"
+    "github>aquaproj/aqua-renovate-config#2.4.0"
   ],
   "configMigration": true,
   "prHourlyLimit": 0,
