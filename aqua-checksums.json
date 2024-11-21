@@ -4,6 +4,11 @@
       "id": "http/releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_darwin_arm64.zip",
       "checksum": "873D7B925D08578FB6BB9C12C7CD92AE73E289E07C360F2FDD69F9036B7BAAAB",
       "algorithm": "sha256"
+    },
+    {
+      "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.255.0/registry.yaml",
+      "checksum": "412D4DC2FCEDDCC8E58A95BE6114D138C8A4973858EBDCA23DD968BAA51EE15E5EA28E9970A27447097C30926C580B900505463F43CA760947D61A90351628FB",
+      "algorithm": "sha512"
     }
   ]
 }

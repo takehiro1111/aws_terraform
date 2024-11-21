@@ -2,6 +2,7 @@
 # Logging TargetBucket
 ################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+#trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_logging_target" {
   source        = "terraform-aws-modules/s3-bucket/aws"
   version       = "4.2.2"
@@ -93,14 +94,51 @@ module "s3_bucket_logging_target" {
       expiration = {
         expired_object_delete_marker = true
       }
+    },
+    {
+      id     = "intelligent-tireling"
+      status = "Enabled"
+      filter = {
+        object_size_greater_than = 131072
+      }
+      noncurrent_version_expiration = {
+        newer_noncurrent_versions = 3
+        noncurrent_days           = 30
+      }
+      transition = {
+        days          = 0
+        storage_class = "INTELLIGENT_TIERING"
+      }
     }
   ]
 }
+
+# resource "aws_s3_bucket_lifecycle_configuration" "example" {
+#   bucket = module.s3_bucket_logging_target.s3_bucket_id
+
+#   rule {
+#     id     = "Allow small object transitions in INTELLIGENT_TIERING"
+#     status = "Enabled"
+
+#     filter {
+#       object_size_greater_than = 131072 # /バイト単位 / (128KB)  128KB未満のオブジェクトはアクセス頻度の確認）が対象外のため。
+#     }
+#     noncurrent_version_expiration {
+#       newer_noncurrent_versions = 3  // 非現行バージョンを3世代保持。それ以前の古いバージョンは削除される。
+#       noncurrent_days           = 30 // オブジェクトが非現行バージョンになってから、アクション（削除や移行）が実行されるまでの日数
+#     }
+#     transition {
+#       days          = 0 // オブジェクトが格納されて24h以内に移行
+#       storage_class = "INTELLIGENT_TIERING"
+#     }
+#   }
+# }
 
 ##################################################################################
 # AccessLog for ALB
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+#trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_alb_accesslog" {
   source        = "terraform-aws-modules/s3-bucket/aws"
   version       = "4.2.2"
@@ -190,6 +228,7 @@ module "s3_bucket_alb_accesslog" {
 # AccessLog for CloudFront
 ##################################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+#trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_cdn_accesslog" {
   source        = "terraform-aws-modules/s3-bucket/aws"
   version       = "4.2.2"
@@ -959,21 +998,20 @@ module "s3_bucket_cloudwatchlogs_to_s3" {
     {
       id     = "log"
       status = "Enabled"
-
-      transition = {
-        days          = 90
-        storage_class = "STANDARD_IA"
-      }
-
-      transition = {
-        days          = 180
-        storage_class = "GLACIER"
-      }
-
-      transition = {
-        days          = 365
-        storage_class = "DEEP_ARCHIVE"
-      }
+      transition = [
+        {
+          days          = 90
+          storage_class = "STANDARD_IA"
+        },
+        {
+          days          = 180
+          storage_class = "GLACIER"
+        },
+        {
+          days          = 365
+          storage_class = "DEEP_ARCHIVE"
+        }
+      ]
     },
     {
       id     = "delete_old_objects"
@@ -1082,21 +1120,16 @@ module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
     {
       id     = "log"
       status = "Enabled"
-
-      transition = {
-        days          = 90
-        storage_class = "STANDARD_IA"
-      }
-
-      transition = {
-        days          = 180
-        storage_class = "GLACIER"
-      }
-
-      transition = {
-        days          = 365
-        storage_class = "DEEP_ARCHIVE"
-      }
+      transition = [
+        {
+          days          = 90
+          storage_class = "STANDARD_IA"
+        },
+        {
+          days          = 180
+          storage_class = "GLACIER"
+        },
+      ]
     },
     {
       id     = "delete_old_objects"
@@ -1113,6 +1146,7 @@ module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
 # SAM Templates
 ########################################################################
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
+#trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_sam_deploy" {
   source        = "terraform-aws-modules/s3-bucket/aws"
   version       = "4.2.2"
