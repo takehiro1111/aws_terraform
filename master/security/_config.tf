@@ -59,7 +59,7 @@ module "value" {
 #####################################################
 # Data Block
 #####################################################
-data "aws_caller_identity" "self" {}
+# data "aws_caller_identity" "self" {}
 
 # data "aws_partition" "current" {}
 

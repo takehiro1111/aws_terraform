@@ -16,10 +16,10 @@ module "iam_identity_center_permissionset" {
 
   permission_sets = {
     administrator = {
-      name                     = local.permission_sets.administorator.name
+      name                     = local.permission_sets.administrator.name
       description              = "Permissions for Administrator"
-      permissions_boundary_arn = local.sso_managed_policy.administorator.policy_arn
-      managed_policy_arns      = local.sso_managed_policy.administorator.policy_arn
+      permissions_boundary_arn = local.sso_managed_policy.administrator.policy_arn
+      managed_policy_arns      = local.sso_managed_policy.administrator.policy_arn
     },
     support_user = {
       name                     = "SupportUser"

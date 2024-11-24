@@ -54,13 +54,13 @@ locals {
   ]
 
   permission_sets = {
-    administorator = {
-      name = "Administorator"
+    administrator = {
+      name = "Administrator"
     }
   }
 
   sso_managed_policy = {
-    administorator = {
+    administrator = {
       policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
     }
   }
