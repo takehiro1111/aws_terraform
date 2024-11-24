@@ -111,6 +111,21 @@ module "s3_bucket_logging_target" {
       }
     }
   ]
+
+  # aws_s3_bucket_intelligent_tiering_configuration
+  intelligent_tiering = [
+    {
+      status = false
+      tiering = {
+        ARCHIVE_ACCESS = {
+          days = 90
+        }
+        DEEP_ARCHIVE_ACCESS = {
+          days = 180
+        }
+      }
+    }
+  ]
 }
 
 # resource "aws_s3_bucket_lifecycle_configuration" "example" {
@@ -131,6 +146,21 @@ module "s3_bucket_logging_target" {
 #       days          = 0 // オブジェクトが格納されて24h以内に移行
 #       storage_class = "INTELLIGENT_TIERING"
 #     }
+#   }
+# }
+
+// ref: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_intelligent_tiering_configuration
+# resource "aws_s3_bucket_intelligent_tiering_configuration" "example" {
+#   bucket = module.s3_bucket_logging_target.s3_bucket_id
+#   name   = "Intelligent-Tirering-Archive-Option"
+
+#   tiering {
+#     access_tier = "ARCHIVE_ACCESS"
+#     days        = 90
+#   }
+#   tiering {
+#     access_tier = "DEEP_ARCHIVE_ACCESS"
+#     days        = 180
 #   }
 # }
 
