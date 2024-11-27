@@ -64,6 +64,16 @@ data "terraform_remote_state" "development_security" {
   }
 }
 
+data "terraform_remote_state" "development_compute" {
+  backend = "s3"
+
+  config = {
+    bucket = "tfstate-650251692423"
+    key    = "development/compute/tfstate"
+    region = "ap-northeast-1"
+  }
+}
+
 data "terraform_remote_state" "master_storage" {
   backend = "s3"
   config = {
