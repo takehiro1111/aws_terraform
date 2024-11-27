@@ -1,5 +1,5 @@
 #####################################################################################
-# Web Server
+# ECS
 #####################################################################################
 resource "aws_ecs_cluster" "web" {
   name = "cluster-web"
@@ -52,10 +52,11 @@ resource "aws_ecs_service" "web_nginx" {
   name                              = "nginx-service-stg"
   cluster                           = aws_ecs_cluster.web.arn
   task_definition                   = "nginx-task-define"
-  desired_count                     = 0
+  desired_count                     = 1
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 60
+  enable_execute_command = true
 
   deployment_circuit_breaker {
     enable   = true
@@ -82,8 +83,8 @@ resource "aws_ecs_service" "web_nginx" {
 // タスク定義
 resource "aws_ecs_task_definition" "web_nginx" {
   family                   = "nginx-task-define"
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 256
+  memory                   = 512
   requires_compatibilities = ["FARGATE"]
 
   runtime_platform {
@@ -94,6 +95,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
   network_mode       = "awsvpc"
   task_role_arn      = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_role_web
   execution_role_arn = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_execute_role_web
+  track_latest = true
 
   container_definitions = jsonencode([
     {
@@ -115,7 +117,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
           awslogs-stream-prefix = "web"
           awslogs-create-group  = "true"
           awslogs-group         = data.terraform_remote_state.development_management.outputs.cw_log_group_name_ecs_nginx
-          awslogs-region        = "ap-northeast-1"
+          awslogs-region        = data.aws_region.default.name
           # Name = "nginx-blue-green-test"
           # Port = "24224"
           # Host = "127.0.0.1"
@@ -146,4 +148,36 @@ resource "aws_ecs_task_definition" "web_nginx" {
   # lifecycle {
   #   ignore_changes = [container_definitions,task_definition]
   # }
+}
+
+#######################################################################################
+# Application AutoScaling
+#######################################################################################
+module "appautoscaling_scheduled_action_web" {
+  source = "../../modules/ecs/app_autoscaling/schedule"
+
+  create_auto_scaling_target = true
+  cluster_name = aws_ecs_cluster.web.name
+  service_name = aws_ecs_service.web_nginx.name
+  max_capacity = 2
+  min_capacity = 1
+
+  use_scheduled_action = true
+  schedule_app_auto_scale = {
+    scale_out = {
+      schedule     = "cron(38 0 ? * MON-FRI *)"
+      max_capacity = 3
+      min_capacity = 2
+    }
+    scale_in = {
+      schedule     = "cron(40 0 ? * MON-FRI *)"
+      max_capacity = 1
+      min_capacity = 1
+    }
+    reset = {
+      schedule     = "cron(41 0 ? * MON-FRI *)"
+      max_capacity = 2
+      min_capacity = 1
+    }
+  }
 }

@@ -49,3 +49,13 @@ output "sg_id_ec2" {
   value       = aws_security_group.ecs_stg.id
 }
 
+output "sg_id_alb" {
+  description = "ALB用のセキュリティグループID"
+  value       = aws_security_group.alb_stg.id
+}
+
+output "sg_id_vpce_for_ecs" {
+  description = "VPCE用のセキュリティグループID"
+  value       = aws_security_group.ecs_stg.id
+}
+

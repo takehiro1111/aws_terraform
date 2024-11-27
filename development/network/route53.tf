@@ -40,15 +40,15 @@ module "route53_records_takehiro1111_com" {
         "${module.route53_zones.primary_name_server.takehiro1111_com} awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
       ]
     },
-    # {
-    #   name = trimsuffix(module.value.cdn_takehiro1111_com, ".${module.value.takehiro1111_com}")
-    #   type = "A"
-    #   alias = {
-    #     name                   = module.cdn_takehiro1111_com.cloudfront_distribution_domain_name
-    #     zone_id                = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
-    #     evaluate_target_health = false
-    #   }
-    # },
+    {
+      name = trimsuffix(module.value.cdn_takehiro1111_com, ".${module.value.takehiro1111_com}")
+      type = "A"
+      alias = {
+        name                   = module.cdn_takehiro1111_com.cloudfront_distribution_domain_name
+        zone_id                = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        evaluate_target_health = false
+      }
+    },
     # # {
     #   name = trimsuffix(module.value.api_takehiro1111_com, ".${module.value.takehiro1111_com}")
     #   type = "A"

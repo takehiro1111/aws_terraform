@@ -44,12 +44,12 @@ data "aws_region" "default" {
 ##########################################################################
 # Rmote State Data Block
 ##########################################################################
-# data "terraform_remote_state" "development_storage" {
-#   backend = "s3"
+data "terraform_remote_state" "development_network" {
+  backend = "s3"
 
-#   config = {
-#     bucket = "tfstate-650251692423"
-#     key    = "development/storage/tfstate"
-#     region = "ap-northeast-1"
-#   }
-# }
+  config = {
+    bucket = "tfstate-650251692423"
+    key    = "development/network/tfstate"
+    region = "ap-northeast-1"
+  }
+}

@@ -104,7 +104,8 @@ data "aws_iam_policy_document" "ecs_task_execute_web" {
     effect = "Allow"
 
     actions = [
-      "logs:CreateLogGroup"
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
     ]
     #tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["*"]

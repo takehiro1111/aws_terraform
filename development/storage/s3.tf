@@ -228,7 +228,7 @@ module "s3_bucket_alb_accesslog" {
           "s3:PutObject"
         ]
         Resource = [
-          "${module.s3_bucket_alb_accesslog.s3_bucket_arn}/common/AWSLogs/${data.aws_caller_identity.self.account_id}/*",
+          "${module.s3_bucket_alb_accesslog.s3_bucket_arn}/*/AWSLogs/${data.aws_caller_identity.self.account_id}/*",
         ]
       },
     ]
@@ -315,12 +315,12 @@ module "s3_bucket_cdn_accesslog" {
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutBucketAcl",
-          "s3:PutObject"
-        ]
+          "s3:PutObject",
+        ],
         "Resource" : [
           module.s3_bucket_cdn_accesslog.s3_bucket_arn,
           "${module.s3_bucket_cdn_accesslog.s3_bucket_arn}/*"
-        ]
+        ],
         "Condition" : {
           "StringLike" : {
             "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.self.account_id}:distribution/*"
@@ -437,31 +437,31 @@ module "s3_bucket_static_site_web" {
   restrict_public_buckets = true
 
   # aws_s3_bucket_policy
-  # attach_policy = true
-  # policy = jsonencode({
-  #   "Version" : "2008-10-17",
-  #   "Statement" : [
-  #     {
-  #       "Sid" : "Allow Stg StaticSite",
-  #       "Effect" : "Allow",
-  #       "Principal" : {
-  #         "Service" : "cloudfront.amazonaws.com",
-  #       }
-  #       "Action" : [
-  #         "s3:GetObject"
-  #       ],
-  #       "Resource" : [
-  #         module.s3_bucket_static_site_web.s3_bucket_arn,
-  #         "${module.s3_bucket_static_site_web.s3_bucket_arn}/*",
-  #       ],
-  #       "Condition" : {
-  #         "StringEquals" : {
-  #           "AWS:SourceArn" : module.cdn_takehiro1111_com.cloudfront_distribution_arn // 変更予定
-  #         }
-  #       }
-  #     }
-  #   ]
-  # })
+  attach_policy = true
+  policy = jsonencode({
+    "Version" : "2008-10-17",
+    "Statement" : [
+      {
+        "Sid" : "Allow StaticSite",
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "cloudfront.amazonaws.com",
+        }
+        "Action" : [
+          "s3:GetObject"
+        ],
+        "Resource" : [
+          module.s3_bucket_static_site_web.s3_bucket_arn,
+          "${module.s3_bucket_static_site_web.s3_bucket_arn}/*",
+        ],
+        "Condition" : {
+          "StringEquals" : {
+            "AWS:SourceArn" : data.terraform_remote_state.development_network.outputs.cloudfront_arn_cdn_takehiro1111_com
+          }
+        }
+      }
+    ]
+  })
 }
 
 ##################################################################################

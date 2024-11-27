@@ -13,69 +13,69 @@ module "cloudtrail_event_notify_development" {
  * ECS Task STOPPED Event 
  */
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
-# module "event_bridge_ecs_stopped" {
-#   source  = "terraform-aws-modules/eventbridge/aws"
-#   version = "3.12.0"
+module "event_bridge_ecs_stopped" {
+  source  = "terraform-aws-modules/eventbridge/aws"
+  version = "3.12.0"
 
-#   create              = true
-#   create_role         = false
-#   create_bus          = false
-#   append_rule_postfix = false
-#   rules = {
-#     ecs-event-notify = {
-#       name          = "ecs-event-notify"
-#       bus_name      = "default"
-#       enabled       = "ENABLED"
-#       description   = "${local.env_yml.env} ecs alert notification rule"
-#       event_pattern = <<END
-#         {
-#           "source": ["aws.ecs"],
-#           "detail-type": [
-#             "ECS Task State Change"
-#           ],
-#           "detail": {
-#             "lastStatus": [
-#               "STOPPED"
-#             ],
-#             "clusterArn": [
-#               "${aws_ecs_cluster.web.arn}"
-#             ]
-#           }
-#         }
-#       END
-#     }
-#   }
-#   targets = {
-#     ecs-event-notify = [{
-#       name = "ecs-event-notify"
-#       arn  = module.sns_notify_chatbot.topic_arn
-#       input_transformer = {
-#         input_paths = {
-#           "group" : "$.detail.group",
-#           "taskDefinitionArn" : "$.detail.taskDefinitionArn",
-#           "stoppedAt" : "$.detail.stoppedAt",
-#           "stopCode" : "$.detail.stopCode",
-#           "stoppedReason" : "$.detail.stoppedReason",
-#         }
-#         input_template = <<END
-#         {
-#           "version": "1.0",
-#           "source": "custom",
-#           "content": {
-#             "textType": "client-markdown",
-#             "title": ":warning: ECSタスクが停止されました :warning:",
-#             "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>(UTC)`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
-#           }
-#         }
-#         END
-#       }
-#     }]
-#   }
+  create              = true
+  create_role         = false
+  create_bus          = false
+  append_rule_postfix = false
+  rules = {
+    ecs-event-notify = {
+      name          = "ecs-event-notify"
+      bus_name      = "default"
+      enabled       = "ENABLED"
+      description   = "${local.env_yml.env} ecs alert notification rule"
+      event_pattern = <<END
+        {
+          "source": ["aws.ecs"],
+          "detail-type": [
+            "ECS Task State Change"
+          ],
+          "detail": {
+            "lastStatus": [
+              "STOPPED"
+            ],
+            "clusterArn": [
+              "${data.terraform_remote_state.development_compute.outputs.ecs_cluster_arn_web}"
+            ]
+          }
+        }
+      END
+    }
+  }
+  targets = {
+    ecs-event-notify = [{
+      name = "ecs-event-notify"
+      arn  = module.sns_notify_chatbot.topic_arn
+      input_transformer = {
+        input_paths = {
+          "group" : "$.detail.group",
+          "taskDefinitionArn" : "$.detail.taskDefinitionArn",
+          "stoppedAt" : "$.detail.stoppedAt",
+          "stopCode" : "$.detail.stopCode",
+          "stoppedReason" : "$.detail.stoppedReason",
+        }
+        input_template = <<END
+        {
+          "version": "1.0",
+          "source": "custom",
+          "content": {
+            "textType": "client-markdown",
+            "title": ":warning: ECSタスクが停止されました :warning:",
+            "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>(UTC)`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
+          }
+        }
+        END
+      }
+    }]
+  }
 
-#   tags = {
-#     Name = "ecs-event-stopped-notify"
-#   }
-# }
+  tags = {
+    Name = "ecs-event-stopped-notify"
+  }
+}
 
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {
 #   name        = "update_waf_rule"

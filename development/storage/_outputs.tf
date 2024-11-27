@@ -19,9 +19,9 @@ output "s3_bucket_id_alb_access_log" {
   value       = module.s3_bucket_alb_accesslog.s3_bucket_id
 }
 
-output "s3_bucket_id_cdn_access_log" {
+output "s3_bucket_domain_name_cdn_access_log" {
   description = "CDN Access Log S3 Bucket"
-  value       = module.s3_bucket_cdn_accesslog.s3_bucket_id
+  value       = module.s3_bucket_cdn_accesslog.s3_bucket_bucket_domain_name
 }
 
 output "s3_bucket_id_static_site_web" {

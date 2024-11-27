@@ -7,7 +7,7 @@ module "alb_wildcard_takehiro1111_com" {
   version = "9.12.0"
 
   # aws_lb
-  create                     = false
+  create                     = true
   name                       = local.env_yml.env
   load_balancer_type         = "application"
   internal                   = false
@@ -18,7 +18,7 @@ module "alb_wildcard_takehiro1111_com" {
 
   create_security_group = false
   security_groups = [
-    "sg-057cd63134ddf72f9" // コード整備中のため、defaultSGを一時的に設定(2024/11/9)
+    data.terraform_remote_state.development_security.outputs.sg_id_alb,
   ]
 
   access_logs = {
@@ -59,7 +59,7 @@ module "alb_wildcard_takehiro1111_com" {
           actions = [
             {
               type             = "forward"
-              target_group_arn = aws_lb_target_group.hoge.arn
+              target_group_arn = aws_lb_target_group.web.arn
             }
           ]
         }
@@ -93,7 +93,7 @@ module "alb_wildcard_takehiro1111_com" {
   # }
 }
 
-resource "aws_lb_target_group" "hoge" {
+resource "aws_lb_target_group" "web" {
   name                 = "hoge"
   port                 = 80
   protocol             = "HTTP"
