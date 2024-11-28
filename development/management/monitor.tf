@@ -77,6 +77,49 @@ module "event_bridge_ecs_stopped" {
   }
 }
 
+/* 
+ * Event for ECS Schedule AutoScaling
+ */
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
+module "event_ecs_schedule_autoscaling" {
+  source  = "terraform-aws-modules/eventbridge/aws"
+  version = "3.12.0"
+
+  rules = {
+    ecs-event-notify = {
+      name          = "ecs-schedule-auto-scaling-activity"
+      bus_name      = "default"
+      enabled       = "ENABLED"
+      description   = ""
+      event_pattern = <<END
+        {
+          "source": ["aws.application-autoscaling"],
+          "detail-type": [
+            "Application Auto Scaling Scaling Activity State Change"
+          ],
+          "serviceNamespace": ["ecs"],
+          "detail": {
+            "direction": ["scale-out"],
+          }
+          "resourceId": ["service/${aws_ecs_cluster.production.name}/${module.connect_parent.ecs_service_name}"],
+          "statusCode": ["Successful"],
+          "scalableDimension": ["ecs:service:DesiredCount"],
+        }
+      END
+    }
+  }
+  targets = {
+    ecs-event-notify = [{
+      name = "ecs-schedule-auto-scaling-activity"
+      arn  = module.sns_notify_chatbot.topic_arn
+    }]
+  }
+
+  tags = {
+    Name = "ecs-schedule-auto-scaling-activity"
+  }
+}
+
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {
 #   name        = "update_waf_rule"
 #   description = "Trigger Lambda function on UpdateWebACL for specific WAF rule"
@@ -250,6 +293,7 @@ resource "aws_sns_topic_policy" "slack_alert" {
   })
 }
 
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/sns/aws/latest
 module "sns_notify_chatbot" {
   source  = "terraform-aws-modules/sns/aws"
   version = "6.1.1"
