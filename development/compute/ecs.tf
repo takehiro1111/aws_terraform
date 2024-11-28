@@ -56,7 +56,7 @@ resource "aws_ecs_service" "web_nginx" {
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 60
-  enable_execute_command = true
+  enable_execute_command            = true
 
   deployment_circuit_breaker {
     enable   = true
@@ -95,7 +95,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
   network_mode       = "awsvpc"
   task_role_arn      = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_role_web
   execution_role_arn = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_execute_role_web
-  track_latest = true
+  track_latest       = true
 
   container_definitions = jsonencode([
     {
@@ -154,7 +154,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
 # Application AutoScaling
 #######################################################################################
 module "appautoscaling_scheduled_action_web" {
-  source = "../../modules/ecs/app_autoscaling/schedule"
+  source                     = "../../modules/ecs/app_autoscaling/schedule"
   create_auto_scaling_target = true
 
   cluster_name = aws_ecs_cluster.web.name
@@ -165,17 +165,17 @@ module "appautoscaling_scheduled_action_web" {
   use_scheduled_action = true
   schedule_app_auto_scale = {
     scale_out = {
-      schedule     = "cron(49 17 ? * MON-FRI *)"
+      schedule     = "cron(28 00 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 2
     }
     scale_in = {
-      schedule     = "cron(52 17 ? * MON-FRI *)"
+      schedule     = "cron(30 00 ? * MON-FRI *)"
       max_capacity = 1
       min_capacity = 1
     }
     reset = {
-      schedule     = "cron(53 17 ? * MON-FRI *)"
+      schedule     = "cron(31 00 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 1
     }

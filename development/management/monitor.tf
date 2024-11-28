@@ -80,7 +80,7 @@ module "event_bridge_ecs_stopped" {
 /* 
  * Event for ECS Schedule AutoScaling
  */
- // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
   version = "3.12.0"
@@ -92,10 +92,10 @@ module "event_bridge_ecs_autoscaling" {
 
   rules = {
     ecs_autoscaling_update_service = {
-      name          = "ecs-autoscaling-update-service"
-      bus_name      = "default"
-      enabled       = "ENABLED"
-      description   = "Capture UpdateService events triggered by ECS AutoScaling"
+      name        = "ecs-autoscaling-update-service"
+      bus_name    = "default"
+      enabled     = "ENABLED"
+      description = "Capture UpdateService events triggered by ECS AutoScaling"
       event_pattern = jsonencode({
         detail-type = [
           "AWS API Call via CloudTrail"
@@ -119,8 +119,9 @@ module "event_bridge_ecs_autoscaling" {
       arn  = module.sns_notify_chatbot.topic_arn
       input_transformer = {
         input_paths = {
-          "serviceName"   : "$.detail.requestParameters.service",
-          "desiredCount"  : "$.detail.requestParameters.desiredCount",
+          "serviceName" : "$.detail.requestParameters.service",
+          "desiredCount" : "$.detail.requestParameters.desiredCount",
+          "clusterArn" : "$.detail.responseElements.service.clusterArn"
         }
         input_template = <<EOT
         {
@@ -128,7 +129,7 @@ module "event_bridge_ecs_autoscaling" {
           "content": {
             "textType": "client-markdown",
             "title": ":information_source: ECS AutoScaling UpdateService Notification",
-            "description": "サービス名: `<serviceName>`\n Desired Count: `<desiredCount>`"
+            "description": "サービス名: `<serviceName>`\nDesired Count: `<desiredCount>`\nCluster ARN: `<clusterArn>`"
           }
         }
         EOT
@@ -168,7 +169,7 @@ module "event_bridge_ecs_autoscaling" {
 #             resourceId = ["service/${data.terraform_remote_state.development_compute.outputs.ecs_cluster_name_web}/${data.terraform_remote_state.development_compute.outputs.ecs_service_name_web_nginx}"]
 #           }
 #         })
-      
+
 #     }
 #   }
 #   targets = {
