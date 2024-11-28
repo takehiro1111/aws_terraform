@@ -8,11 +8,11 @@ checksum:
   - all
 registries:
 - type: standard
-  ref: v4.260.0 # renovate: depName=aquaproj/aqua-registry
+  ref: v4.262.0 # renovate: depName=aquaproj/aqua-registry
 packages:
-- name: cli/cli@v2.62.0
+- name: cli/cli@v2.63.0
 - name: junegunn/fzf@v0.56.3
-- name: hashicorp/terraform@v1.9.8
+- name: hashicorp/terraform@v1.10.0
 - name: suzuki-shunsuke/tfcmt@v4.14.0
 - name: suzuki-shunsuke/github-comment@v6.3.0
 - name: suzuki-shunsuke/ci-info@v2.1.3
