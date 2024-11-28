@@ -155,28 +155,28 @@ resource "aws_ecs_task_definition" "web_nginx" {
 #######################################################################################
 module "appautoscaling_scheduled_action_web" {
   source = "../../modules/ecs/app_autoscaling/schedule"
-
   create_auto_scaling_target = true
+
   cluster_name = aws_ecs_cluster.web.name
   service_name = aws_ecs_service.web_nginx.name
-  max_capacity = 2
+  max_capacity = 3
   min_capacity = 1
 
   use_scheduled_action = true
   schedule_app_auto_scale = {
     scale_out = {
-      schedule     = "cron(38 0 ? * MON-FRI *)"
+      schedule     = "cron(49 17 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 2
     }
     scale_in = {
-      schedule     = "cron(40 0 ? * MON-FRI *)"
+      schedule     = "cron(52 17 ? * MON-FRI *)"
       max_capacity = 1
       min_capacity = 1
     }
     reset = {
-      schedule     = "cron(41 0 ? * MON-FRI *)"
-      max_capacity = 2
+      schedule     = "cron(53 17 ? * MON-FRI *)"
+      max_capacity = 3
       min_capacity = 1
     }
   }

@@ -2,9 +2,9 @@
 #####################################################
 # CloudTrail Event Notification
 #####################################################
-module "cloudtrail_event_notify_development" {
-  source = "../../modules/event_bridge/cloudtrail"
-}
+# module "cloudtrail_event_notify_development" {
+#   source = "../../modules/event_bridge/cloudtrail"
+# }
 
 #####################################################
 # EventBridge
@@ -22,7 +22,7 @@ module "event_bridge_ecs_stopped" {
   create_bus          = false
   append_rule_postfix = false
   rules = {
-    ecs-event-notify = {
+    ecs_event_notify = {
       name          = "ecs-event-notify"
       bus_name      = "default"
       enabled       = "ENABLED"
@@ -46,7 +46,7 @@ module "event_bridge_ecs_stopped" {
     }
   }
   targets = {
-    ecs-event-notify = [{
+    ecs_event_notify = [{
       name = "ecs-event-notify"
       arn  = module.sns_notify_chatbot.topic_arn
       input_transformer = {
@@ -80,45 +80,130 @@ module "event_bridge_ecs_stopped" {
 /* 
  * Event for ECS Schedule AutoScaling
  */
-// ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
-module "event_ecs_schedule_autoscaling" {
+ // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
+module "event_bridge_ecs_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
   version = "3.12.0"
 
+  create              = true
+  create_role         = false
+  create_bus          = false
+  append_rule_postfix = false
+
   rules = {
-    ecs-event-notify = {
-      name          = "ecs-schedule-auto-scaling-activity"
+    ecs_autoscaling_update_service = {
+      name          = "ecs-autoscaling-update-service"
       bus_name      = "default"
       enabled       = "ENABLED"
-      description   = ""
-      event_pattern = <<END
-        {
-          "source": ["aws.application-autoscaling"],
-          "detail-type": [
-            "Application Auto Scaling Scaling Activity State Change"
-          ],
-          "serviceNamespace": ["ecs"],
-          "detail": {
-            "direction": ["scale-out"],
+      description   = "Capture UpdateService events triggered by ECS AutoScaling"
+      event_pattern = jsonencode({
+        detail-type = [
+          "AWS API Call via CloudTrail"
+        ]
+        detail = {
+          eventName   = ["UpdateService"]
+          eventSource = ["ecs.amazonaws.com"]
+          requestParameters = {
+            service = [data.terraform_remote_state.development_compute.outputs.ecs_service_name_web_nginx]
+            cluster = [data.terraform_remote_state.development_compute.outputs.ecs_cluster_name_web]
           }
-          "resourceId": ["service/${aws_ecs_cluster.production.name}/${module.connect_parent.ecs_service_name}"],
-          "statusCode": ["Successful"],
-          "scalableDimension": ["ecs:service:DesiredCount"],
+          userAgent = ["ecs.application-autoscaling.amazonaws.com"]
         }
-      END
+      })
     }
   }
+
   targets = {
-    ecs-event-notify = [{
-      name = "ecs-schedule-auto-scaling-activity"
+    ecs_autoscaling_update_service = [{
+      name = "ecs-autoscaling-update-service-notification"
       arn  = module.sns_notify_chatbot.topic_arn
+      input_transformer = {
+        input_paths = {
+          "serviceName"   : "$.detail.requestParameters.service",
+          "desiredCount"  : "$.detail.requestParameters.desiredCount",
+        }
+        input_template = <<EOT
+        {
+          "version": "1.0",
+          "content": {
+            "textType": "client-markdown",
+            "title": ":information_source: ECS AutoScaling UpdateService Notification",
+            "description": "サービス名: `<serviceName>`\n Desired Count: `<desiredCount>`"
+          }
+        }
+        EOT
+      }
     }]
   }
 
   tags = {
-    Name = "ecs-schedule-auto-scaling-activity"
+    Name = "ecs-autoscaling-update-service"
   }
 }
+
+
+# // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
+# module "event_bridge_ecs_app_autoscaling" {
+#   source  = "terraform-aws-modules/eventbridge/aws"
+#   version = "3.12.0"
+
+#   create              = true
+#   create_role         = false
+#   create_bus          = false
+#   append_rule_postfix = false
+#   rules = {
+#     ecs_app_auto_scaling_activity= {
+#       name          = "ecs-app-auto-scaling-activity"
+#       bus_name      = "default"
+#       enabled       = "ENABLED"
+#       description   = "ecs-app-auto-scaling-activity"
+#       event_pattern = jsonencode({
+#           source = [
+#             "aws.application-autoscaling"
+#           ]
+#           detail-type = [
+#             "Application Auto Scaling Scaling Activity State Change"
+#           ]
+#           detail = {
+#             resourceId = ["service/${data.terraform_remote_state.development_compute.outputs.ecs_cluster_name_web}/${data.terraform_remote_state.development_compute.outputs.ecs_service_name_web_nginx}"]
+#           }
+#         })
+      
+#     }
+#   }
+#   targets = {
+#     ecs_app_auto_scaling_activity = [{
+#       name = "ecs-app-auto-scaling-activity"
+#       arn  = module.sns_notify_chatbot.topic_arn
+#       input_transformer = {
+#         input_paths = {
+#           "resourceId"         : "$.detail.resourceId",
+#           "scalableDimension"  : "$.detail.scalableDimension",
+#           "serviceNamespace"   : "$.detail.serviceNamespace",
+#           "startTime"          : "$.detail.startTime",
+#           "endTime"            : "$.detail.endTime",
+#           "cause"              : "$.detail.cause",
+#           "statusCode"         : "$.detail.statusCode"
+#         }
+#         input_template = <<END
+#         {
+#           "version": "1.0",
+#           "source": "custom",
+#           "content": {
+#             "textType": "client-markdown",
+#             "title": ":chart_with_upwards_trend: Application AutoScaling Activity Notification",
+#             "description": "Resource: `<resourceId>`\n Status: `<statusCode>`\n scalableDimension:`<scalableDimension>`"
+#           }
+#         }
+#         END
+#       }
+#     }]
+#   }
+
+#   tags = {
+#     Name = "ecs-app-auto-scaling-activity"
+#   }
+# }
 
 # resource "aws_cloudwatch_event_rule" "update_waf_rule" {
 #   name        = "update_waf_rule"
@@ -348,7 +433,7 @@ resource "awscc_chatbot_slack_channel_configuration" "example" {
   sns_topic_arns = [
     aws_sns_topic.slack_alert.arn,
     module.sns_notify_chatbot.topic_arn,
-    module.cloudtrail_event_notify_development.sns_topic_arn
+    # module.cloudtrail_event_notify_development.sns_topic_arn
   ]
   user_role_required = true
 
