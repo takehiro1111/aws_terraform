@@ -1,0 +1,19 @@
+# ref: https://github.com/technote-space/assign-author
+name: Assign Author
+run-name: ${{ github.workflow }} by @${{ github.actor }}
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  assign-author:
+    if: ${{ ! contains(fromJson('["renovate[bot]", "dependabot[bot]"]'), github.actor) }}
+    permissions:
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: technote-space/assign-author@v1
