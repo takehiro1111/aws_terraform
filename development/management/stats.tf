@@ -8,6 +8,12 @@ resource "aws_cloudwatch_log_group" "ecs_nginx" {
   name              = "/ecslogs/nginx"
 }
 
+#trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
+resource "aws_cloudwatch_log_group" "events_app_autoscaling" {
+  retention_in_days = 3
+  name              = "/aws/events/ecs/autoscaling"
+}
+
 # EC2 ------------------------------------------
 #trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
 resource "aws_cloudwatch_log_group" "public_instance" {
