@@ -283,7 +283,9 @@ resource "aws_iam_role_policy" "github_actions_for_waf" {
   policy = data.aws_iam_policy_document.github_actions_for_waf.json
 }
 
-# Session Manager ---------------------------------------------------------------------
+/* 
+ * Session Manager
+ */
 data "aws_iam_policy_document" "session_manager" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -333,6 +335,9 @@ resource "aws_ssm_document" "session_manager" {
   })
 }
 
+/* 
+ * ECS
+ */
 data "aws_iam_policy" "ecs_task_execution" {
   arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }

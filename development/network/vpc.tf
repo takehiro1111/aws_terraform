@@ -84,21 +84,21 @@ module "vpce_common" {
       subnet_ids         = module.vpc_development.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.dkr"
       security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_for_ecs]
-      tags = { Name = "ecr-docker-vpce-interface" }
+      tags               = { Name = "ecr-docker-vpce-interface" }
     }
     ecr_api = {
       create             = false
       subnet_ids         = module.vpc_development.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.ecr.api"
-      security_group_ids =  [data.terraform_remote_state.development_security.outputs.sg_id_vpce_for_ecs]
-      tags = { Name = "ecr-api-vpce-interface" }
+      security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_for_ecs]
+      tags               = { Name = "ecr-api-vpce-interface" }
     }
     logs = {
       create             = false
       subnet_ids         = module.vpc_development.private_subnets
       service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
       security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_for_ecs]
-      tags = { Name = "logs-vpce-interface" }
+      tags               = { Name = "logs-vpce-interface" }
     }
   }
 }

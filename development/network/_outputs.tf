@@ -12,6 +12,11 @@ output "private_subnets_id_development" {
   value       = module.vpc_development.private_subnets
 }
 
+output "private_subnet_a_development" {
+  description = "The IDs of the development Subnets"
+  value       = element(module.vpc_development.private_subnets, 0)
+}
+
 ######################################################################
 # CloudFront
 ######################################################################
