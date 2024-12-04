@@ -59,3 +59,9 @@ output "sg_id_vpce_for_ecs" {
   value       = aws_security_group.ecs_stg.id
 }
 
+output "sg_id_vpce_ssm" {
+  description = "VPCE用のセキュリティグループID"
+  value       = module.vpce_ssm.security_group_id
+}
+
+

@@ -5,7 +5,7 @@
  * ECS AutoScaling target
  */
 resource "aws_appautoscaling_target" "this" {
-  count = var.create_auto_scaling_target ? 1 : 0
+  count              = var.create_auto_scaling_target ? 1 : 0
   max_capacity       = var.max_capacity // スケールするタスクの最大数
   min_capacity       = var.min_capacity // スケールするタスクの最小数
   resource_id        = "service/${var.cluster_name}/${var.service_name}"

@@ -61,28 +61,28 @@ resource "aws_ec2_instance_state" "web_server" {
 /*
  * Prometheus Server 
  */
-# module "ec2_prometheus_server" {
-#   source = "../../modules/ec2/general_instance"
+module "ec2_prometheus_server" {
+  source = "../../modules/ec2/general_instance"
 
-#   env = "stg"
-#   ec2_instance = {
-#     state = "running"
-#     inastance_name = "prometheus-server"
-#     ami = "ami-0037237888be2fe22"
-#     instance_type = "t3.nano"
-#     subnet_id = data.terraform_remote_state.development_network.outputs.private_subnet_a_development
-#     vpc_security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_ec2]
-#     iam_instance_profile = aws_iam_instance_profile.this.name
-#     associate_public_ip_address = true
-#     create_additonal_ebs_block_device = false
-#     root_block_device = {
-#       type = "gp3"
-#       size = 10
-#       delete_on_termination = true
-#       encrypted = true
-#     }
-#   }
-# }
+  env = "stg"
+  ec2_instance = {
+    state                             = "running"
+    inastance_name                    = "prometheus-server"
+    ami                               = "ami-0037237888be2fe22"
+    instance_type                     = "t3.micro"
+    subnet_id                         = data.terraform_remote_state.development_network.outputs.private_subnet_a_development
+    vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2]
+    iam_instance_profile              = aws_iam_instance_profile.this.name
+    associate_public_ip_address       = true
+    create_additonal_ebs_block_device = false
+    root_block_device = {
+      type                  = "gp3"
+      size                  = 30
+      delete_on_termination = true
+      encrypted             = true
+    }
+  }
+}
 
 /*
  * Node Exporter用 

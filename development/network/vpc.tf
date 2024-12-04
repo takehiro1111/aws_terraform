@@ -79,6 +79,33 @@ module "vpce_common" {
       route_table_ids = module.vpc_development.private_route_table_ids
       tags            = { Name = "s3-vpce-gateway" }
     }
+    ssm = {
+      create              = false
+      subnet_ids          = [element(module.vpc_development.private_subnets, 0)]
+      service_name        = "com.amazonaws.${data.aws_region.default.id}.ssm"
+      security_group_ids  = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_ssm]
+      private_dns_enabled = true
+      policy              = data.aws_iam_policy_document.vpc_endpoint.json
+      tags                = { Name = "ssm-vpce-interface" }
+    }
+    ssmmessages = {
+      create              = false
+      subnet_ids          = [element(module.vpc_development.private_subnets, 0)]
+      service_name        = "com.amazonaws.${data.aws_region.default.id}.ssmmessages"
+      security_group_ids  = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_ssm]
+      private_dns_enabled = true
+      policy              = data.aws_iam_policy_document.vpc_endpoint.json
+      tags                = { Name = "ssmmessages-vpce-interface" }
+    }
+    ec2messages = {
+      create              = false
+      subnet_ids          = [element(module.vpc_development.private_subnets, 0)]
+      service_name        = "com.amazonaws.${data.aws_region.default.id}.ec2messages"
+      security_group_ids  = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_ssm]
+      private_dns_enabled = true
+      policy              = data.aws_iam_policy_document.vpc_endpoint.json
+      tags                = { Name = "ec2messages-vpce-interface" }
+    }
     ecr_dkr = {
       create             = false
       subnet_ids         = module.vpc_development.private_subnets
@@ -99,6 +126,18 @@ module "vpce_common" {
       service_name       = "com.amazonaws.${data.aws_region.default.id}.logs"
       security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_vpce_for_ecs]
       tags               = { Name = "logs-vpce-interface" }
+    }
+  }
+}
+
+data "aws_iam_policy_document" "vpc_endpoint" {
+  statement {
+    effect    = "Allow"
+    actions   = ["*"]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
     }
   }
 }

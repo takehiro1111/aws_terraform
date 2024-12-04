@@ -9,7 +9,6 @@ resource "aws_instance" "this" {
   iam_instance_profile        = var.ec2_instance.iam_instance_profile
   associate_public_ip_address = var.ec2_instance.associate_public_ip_address
 
-  //EC2インスタンスにデフォルトでアタッチされるEBSボリュームの設定
   root_block_device {
     volume_type           = var.ec2_instance.root_block_device.type
     volume_size           = var.ec2_instance.root_block_device.size

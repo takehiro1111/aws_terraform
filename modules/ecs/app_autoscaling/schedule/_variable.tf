@@ -8,22 +8,22 @@ variable "create_auto_scaling_target" {
 
 variable "service_name" {
   description = "ECSサービス名"
-  type = string
+  type        = string
 }
 
 variable "cluster_name" {
   description = "ECSクラスター名"
-  type = string
+  type        = string
 }
 
 variable "max_capacity" {
   description = "AutoScallingの最大値"
-  type = number
+  type        = number
 }
 
 variable "min_capacity" {
   description = "AutoScallingの最低値"
-  type = number
+  type        = number
 }
 
 /**

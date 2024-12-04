@@ -209,3 +209,24 @@ module "vpc_endpoint" {
 
   egress_rules = ["all-all"]
 }
+
+module "vpce_ssm" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.2.0"
+
+
+  name        = "stats-fluentd"
+  description = "SG for log routing"
+  vpc_id      = data.terraform_remote_state.development_network.outputs.vpc_id_development
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = module.value.vpc_ips.development
+    }
+  ]
+
+  egress_rules = ["all-all"]
+}
