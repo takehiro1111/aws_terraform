@@ -129,7 +129,7 @@ module "event_bridge_ecs_autoscaling" {
 # // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_app_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.12.0"
+  version = "3.13.0"
 
   create              = true
   create_role         = false
