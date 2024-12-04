@@ -59,14 +59,14 @@ module "event_bridge_ecs_stopped" {
         }
         input_template = <<END
         {
-          "version": "1.0",
-          "source": "custom",
-          "content": {
-            "textType": "client-markdown",
-            "title": ":warning: ECSタスクが停止されました :warning:",
-            "description": "overview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・stoppedAt: `<stoppedAt>(UTC)`\n・stopCode: `<stopCode>`\n・stoppedReason: `<stoppedReason>`"
-          }
+        "version": "1.0",
+        "source": "custom",
+        "content": {
+          "textType": "client-markdown",
+          "title": ":warning: ECSタスクが停止されました :warning:",
+          "description": "@channel\nOverview\n ・Service:`<group>`\n・Task: `<taskDefinitionArn>`\n・StoppedAt: `<stoppedAt>(UTC)`\n・StopCode: `<stopCode>`\n・StoppedReason: `<stoppedReason>`"
         }
+      }
         END
       }
     }]
