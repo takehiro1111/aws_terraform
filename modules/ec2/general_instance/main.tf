@@ -8,6 +8,7 @@ resource "aws_instance" "this" {
   vpc_security_group_ids      = var.ec2_instance.vpc_security_group_ids
   iam_instance_profile        = var.ec2_instance.iam_instance_profile
   associate_public_ip_address = var.ec2_instance.associate_public_ip_address
+  user_data                   = var.user_data
 
   root_block_device {
     volume_type           = var.ec2_instance.root_block_device.type
@@ -32,12 +33,16 @@ resource "aws_instance" "this" {
     }
   }
 
+  metadata_options {
+    http_tokens = var.metadata_options.http_tokens
+  }
+
   tags = {
     Name = var.ec2_instance.inastance_name
   }
 
   lifecycle {
-    ignore_changes = [associate_public_ip_address]
+    ignore_changes = [associate_public_ip_address, user_data]
   }
 }
 

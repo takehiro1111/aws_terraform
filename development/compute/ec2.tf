@@ -66,12 +66,12 @@ module "ec2_prometheus_server" {
 
   env = "stg"
   ec2_instance = {
-    state                             = "running"
+    state                             = "stopped"
     inastance_name                    = "prometheus-server"
     ami                               = "ami-0037237888be2fe22"
     instance_type                     = "t3.micro"
-    subnet_id                         = data.terraform_remote_state.development_network.outputs.private_subnet_a_development
-    vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2]
+    subnet_id                         = data.terraform_remote_state.development_network.outputs.public_subnet_a_development
+    vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
     iam_instance_profile              = aws_iam_instance_profile.this.name
     associate_public_ip_address       = true
     create_additonal_ebs_block_device = false
@@ -82,33 +82,62 @@ module "ec2_prometheus_server" {
       encrypted             = true
     }
   }
+
+  metadata_options = {
+    http_tokens = "required"
+  }
+
+  # https://grafana.com/grafana/download
+  # OSSのエディションを選択
+  # EC2用 ※ディストリビューションによってパッケージを選択する。
+  # ref: https://zenn.dev/takehiro1111/articles/prometheus_grafana_20240303
+  user_data = <<END
+    #!/bin/bash
+    cd ~
+    sudo yum install -y https://dl.grafana.com/oss/release/grafana-11.3.2-1.x86_64.rpm
+    sudo systemctl start grafana-server
+    sudo systemctl enable grafana-server
+    sudo wget https://github.com/prometheus/prometheus/releases/download/v2.53.3/prometheus-2.53.3.linux-amd64.tar.gz
+    /bin/tar -zxvf prometheus-2.53.3.linux-amd64.tar.gz
+  END
 }
 
 /*
  * Node Exporter用 
  */
-# module "ec2_node_exporter" {
-#   source = "../../modules/ec2/general_instance"
+module "ec2_node_exporter" {
+  source = "../../modules/ec2/general_instance"
 
-#   env = "stg"
-#   ec2_instance = {
-#     state = "running"
-#     inastance_name = "prometheus-server"
-#     ami = "ami-0037237888be2fe22"
-#     instance_type = "t3.nano"
-#     subnet_id = data.terraform_remote_state.development_network.outputs.private_subnet_a_development
-#     vpc_security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_ec2]
-#     iam_instance_profile = aws_iam_instance_profile.this.name
-#     associate_public_ip_address = true
-#     create_additonal_ebs_block_device = false
-#     root_block_device = {
-#       type = "gp3"
-#       size = 10
-#       delete_on_termination = true
-#       encrypted = true
-#     }
-#   }
-# }
+  env = "stg"
+  ec2_instance = {
+    state                             = "stopped"
+    inastance_name                    = "node-exporter"
+    ami                               = "ami-0037237888be2fe22"
+    instance_type                     = "t3.nano"
+    subnet_id                         = data.terraform_remote_state.development_network.outputs.public_subnet_a_development
+    vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
+    iam_instance_profile              = aws_iam_instance_profile.this.name
+    associate_public_ip_address       = true
+    create_additonal_ebs_block_device = false
+    root_block_device = {
+      type                  = "gp3"
+      size                  = 30
+      delete_on_termination = true
+      encrypted             = true
+    }
+  }
+
+  metadata_options = {
+    http_tokens = "required"
+  }
+
+  user_data = <<END
+    #!/bin/bash
+    cd ~
+    wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+    tar xvzf node_exporter-1.8.2.linux-amd64.tar.gz
+  END
+}
 
 ############################################################
 # EBS
@@ -188,16 +217,16 @@ resource "aws_ssm_document" "this" {
 
   content = <<END
     {
-      "schemaVersion": "1.0",
-      "description": "Document to hold regional settings for Session Manager",
-      "sessionType": "Standard_Stream",
-      "inputs": {
-        "idleSessionTimeout": "60",
-        "maxSessionDuration": "120",
-        "cloudWatchStreamingEnabled": true,
-        "cloudWatchLogGroupName": "${aws_cloudwatch_log_group.this.name}",
-        "cloudWatchEncryptionEnabled": false
-      }
+      "description":"Session Manager",
+      "inputs":{
+        "cloudWatchEncryptionEnabled":false,
+        "cloudWatchLogGroupName":"/compute/ec2/public",
+        "cloudWatchStreamingEnabled":true,
+        "idleSessionTimeout":60,
+        "maxSessionDuration":60
+      },
+      "schemaVersion":"1.0",
+      "sessionType":"Standard_Stream"
     }
   END
 }

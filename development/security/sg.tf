@@ -215,7 +215,7 @@ module "vpce_ssm" {
   version = "5.2.0"
 
 
-  name        = "stats-fluentd"
+  name        = "vpce-ssm"
   description = "SG for log routing"
   vpc_id      = data.terraform_remote_state.development_network.outputs.vpc_id_development
 
@@ -229,4 +229,55 @@ module "vpce_ssm" {
   ]
 
   egress_rules = ["all-all"]
+
+  tags = {
+    Name = "sg-vpce-ssm"
+  }
+}
+
+module "sg_ec2_ssm" {
+  source      = "terraform-aws-modules/security-group/aws"
+  version     = "5.2.0"
+  name        = "vpce-ssm"
+  description = "SG for log routing"
+  vpc_id      = data.terraform_remote_state.development_network.outputs.vpc_id_development
+
+  ingress_with_source_security_group_id = [
+    {
+      from_port                = 0
+      to_port                  = 0
+      protocol                 = "all"
+      source_security_group_id = module.sg_ec2_ssm.security_group_id
+    }
+  ]
+
+  ingress_with_cidr_blocks = [
+    // For Grafana Server
+    {
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      cidr_blocks = module.value.full_open_ip
+    },
+    // For Prometheus Server
+    {
+      from_port   = 9090
+      to_port     = 9090
+      protocol    = "tcp"
+      cidr_blocks = module.value.full_open_ip
+    },
+    // For Node Exporter
+    {
+      from_port   = 9100
+      to_port     = 9100
+      protocol    = "tcp"
+      cidr_blocks = module.value.full_open_ip
+    }
+  ]
+
+  egress_rules = ["all-all"]
+
+  tags = {
+    Name = "sg-ec2-ssm"
+  }
 }

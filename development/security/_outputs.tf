@@ -44,11 +44,6 @@ output "sg_id_ecs" {
   value       = aws_security_group.ecs_stg.id
 }
 
-output "sg_id_ec2" {
-  description = "EC2のセキュリティグループID"
-  value       = aws_security_group.ecs_stg.id
-}
-
 output "sg_id_alb" {
   description = "ALB用のセキュリティグループID"
   value       = aws_security_group.alb_stg.id
@@ -62,6 +57,11 @@ output "sg_id_vpce_for_ecs" {
 output "sg_id_vpce_ssm" {
   description = "VPCE用のセキュリティグループID"
   value       = module.vpce_ssm.security_group_id
+}
+
+output "sg_id_ec2_ssm" {
+  description = "EC2用のセキュリティグループID"
+  value       = module.sg_ec2_ssm.security_group_id
 }
 
 
