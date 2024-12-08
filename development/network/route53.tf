@@ -21,9 +21,10 @@ module "route53_records_takehiro1111_com" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "4.1.0"
 
-  create    = true
-  zone_id   = module.route53_zones.route53_zone_zone_id.takehiro1111_com
-  zone_name = module.route53_zones.route53_zone_name.takehiro1111_com
+  create     = true
+  zone_id    = module.route53_zones.route53_zone_zone_id.takehiro1111_com
+  zone_name  = module.route53_zones.route53_zone_name.takehiro1111_com
+  depends_on = [module.route53_zones]
 
   records = [
     {
@@ -58,6 +59,15 @@ module "route53_records_takehiro1111_com" {
         evaluate_target_health = false
       }
     },
+    {
+      name = trimsuffix(module.value.grafana_takehiro1111_com, ".${module.value.takehiro1111_com}")
+      type = "A"
+      alias = {
+        name                   = module.cloudfront_grafana_takehiro1111_com.cloudfront_distribution_domain_name
+        zone_id                = module.cloudfront_grafana_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        evaluate_target_health = false
+      }
+    },
     # # {
     #   name = trimsuffix(module.value.api_takehiro1111_com, ".${module.value.takehiro1111_com}")
     #   type = "A"
@@ -68,16 +78,4 @@ module "route53_records_takehiro1111_com" {
     #   }
     # },
   ]
-
-  depends_on = [module.route53_zones]
-}
-
-import {
-  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" NS"]
-  id = "Z02891181K05VCFATUCTH_takehiro1111.com_NS"
-}
-
-import {
-  to = module.route53_records_takehiro1111_com.aws_route53_record.this[" SOA"]
-  id = "Z02891181K05VCFATUCTH_takehiro1111.com_SOA"
 }

@@ -1,7 +1,7 @@
 #####################################################
 # ALB
 #####################################################
-
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/alb/aws/latest
 module "alb_wildcard_takehiro1111_com" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.12.0"
@@ -84,6 +84,27 @@ module "alb_wildcard_takehiro1111_com" {
             }
           ]
         }
+        grafana = {
+          priority = 11
+          conditions = [
+            {
+              host_header = {
+                values = [module.value.grafana_takehiro1111_com]
+              }
+            },
+            {
+              path_pattern = {
+                values = ["*"]
+              }
+            }
+          ]
+          actions = [
+            {
+              type             = "forward"
+              target_group_arn = aws_lb_target_group.grafana_server.arn
+            }
+          ]
+        }
       }
     }
   }
@@ -148,8 +169,8 @@ resource "aws_lb_target_group" "prometheus_server" {
     healthy_threshold   = 2
     interval            = 30
     matcher             = "200"
-    path                = "/"
-    port                = 80
+    path                = "/-/healthy"
+    port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 10
     unhealthy_threshold = 3
@@ -160,4 +181,31 @@ resource "aws_lb_target_group_attachment" "prometheus_server" {
   target_group_arn = aws_lb_target_group.prometheus_server.arn
   target_id        = data.terraform_remote_state.development_compute.outputs.ec2_instance_id_prometheus_server
   port             = 9090 // override用
+}
+
+resource "aws_lb_target_group" "grafana_server" {
+  name                 = "grafana-server"
+  port                 = 3000
+  protocol             = "HTTP"
+  vpc_id               = module.vpc_development.vpc_id
+  deregistration_delay = 300
+  proxy_protocol_v2    = false
+  target_type          = "instance"
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/api/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 10
+    unhealthy_threshold = 3
+  }
+}
+
+resource "aws_lb_target_group_attachment" "grafana_server" {
+  target_group_arn = aws_lb_target_group.grafana_server.arn
+  target_id        = data.terraform_remote_state.development_compute.outputs.ec2_instance_id_prometheus_server
+  port             = 3000 // override用
 }

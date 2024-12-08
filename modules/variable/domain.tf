@@ -26,3 +26,8 @@ output "prometheus_takehiro1111_com" {
   value       = "prometheus.takehiro1111.com"
 }
 
+output "grafana_takehiro1111_com" {
+  description = "Prometheus用EC2のドメイン"
+  value       = "grafana.takehiro1111.com"
+}
+
