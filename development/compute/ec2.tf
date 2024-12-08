@@ -1,65 +1,111 @@
 #################################################################################
-# EC2 Instance
+# AMI
 ################################################################################
+locals {
+  ec2_instance = {
+    prometheus_server ={
+      name = module.ec2_prometheus_server.tags_all.Name
+      source_instance_id = module.ec2_prometheus_server.instance_id
+      snapshot_without_reboot = false
+    }
+    node_exporter ={
+      name = module.ec2_node_exporter.tags_all.Name
+      source_instance_id = module.ec2_node_exporter.instance_id
+      snapshot_without_reboot = false
+    }
+  }
+}
+
+resource "aws_ami_from_instance" "this" {
+  for_each = local.ec2_instance
+  name               = each.value.name
+  source_instance_id = each.value.source_instance_id
+  snapshot_without_reboot = each.value.snapshot_without_reboot
+}
+
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
-
   filter {
     name   = "name"
     values = ["al2023-ami-2023.6.20241121.0-kernel-6.1-x86_64"]
   }
-
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-
   owners = ["137112412989"] # Amazonの所有者ID
 }
 
-resource "aws_instance" "web_server" {
-  count = var.create_web_server ? 1 : 0
+#################################################################################
+# AutoScaling
+#################################################################################
+# locals {
+#   extra_tags = {
+#     promehteus_server ={
+#       propagate_at_launch = true
+#       key = "Name"
+#       value = "${module.ec2_prometheus_server.tags_all.Name}-${random_id.instance_id.id}"
+#     }
+#   }
+# }
 
-  ami                         = "ami-027a31eff54f1fe4c" // 「Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type」のAMI
-  subnet_id                   = data.terraform_remote_state.development_network.outputs.private_subnet_a_development
-  instance_type               = "t2.micro"
-  vpc_security_group_ids      = [data.terraform_remote_state.development_security.outputs.sg_id_ec2]
-  associate_public_ip_address = false // SessionManagerでのログインに絞りたいためGIPの付与は行わない。
-  iam_instance_profile        = data.terraform_remote_state.development_security.outputs.iam_instance_profile_session_manager
+# resource "random_id" "instance_id" {
+#   byte_length = 2
+# }
 
-  user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    yum install -y httpd
-    systemctl start httpd
-    systemctl enable httpd
-  EOF
+# resource "aws_launch_template" "prometheus_server" {
+#   name          = module.ec2_prometheus_server.tags_all.Name
+#   image_id      = aws_ami_from_instance.prometheus_server.id
+#   instance_type = "t3.micro"
+#   network_interfaces {
+#     associate_public_ip_address = true
+#     security_groups             = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
+#   }
+# }
 
-  root_block_device {
-    volume_type           = "gp3"
-    volume_size           = 30
-    delete_on_termination = false
-    encrypted             = true
+# resource "aws_autoscaling_group" "prometheus_server" {
+#   name                      = "asg-${module.ec2_prometheus_server.tags_all.Name}"
+#   max_size                  = 2
+#   min_size                  = 1
+#   desired_capacity          = 1
+#   health_check_grace_period = 30 # インスタンスが起動してからヘルスチェックを開始するまでの時間(秒)
+#   health_check_type         = "EC2"
+#   enabled_metrics           = ["GroupInServiceInstances"]
+#   launch_template {
+#     id      = aws_launch_template.prometheus_server.id
+#     version = "$Latest"
+#   }
+#   target_group_arns = [data.terraform_remote_state.development_network.outputs.target_group_arn_ec2_promehteus_server]
+#   vpc_zone_identifier = data.terraform_remote_state.development_network.outputs.public_subnets_id_development
 
-    tags = {
-      Name = "web-server-root-volume-${count.index}"
-    }
-  }
+#   dynamic "tag" {
+#     for_each = {for k,v in local.extra_tags: k => v }
+#     content {
+#       propagate_at_launch = tag.value.propagate_at_launch
+#       key                 = tag.value.key
+#       value               = tag.value.value
+#     }
+#   }
+# }
 
-  tags = {
-    Name = "common-instance"
-  }
-}
+# resource "aws_autoscaling_policy" "prometheus_server" {
+#   name                   = module.ec2_prometheus_server.tags_all.Name
+#   autoscaling_group_name = aws_autoscaling_group.prometheus_server.name
+#   policy_type            = "TargetTrackingScaling"
 
-resource "aws_ec2_instance_state" "web_server" {
-  count = var.create_web_server ? 1 : 0
+#   target_tracking_configuration {
+#     predefined_metric_specification {
+#       predefined_metric_type = "ASGAverageCPUUtilization"
+#     }
+#     target_value = 60.0
+#   }
+# }
 
-  instance_id = aws_instance.web_server["*"].id
-  state       = "stopped"
-}
-
+#################################################################################
+# EC2 Instance
+#################################################################################
 /*
- * Prometheus Server 
+ * Prometheus Server (Prometheus,Grafana)
  */
 module "ec2_prometheus_server" {
   source = "../../modules/ec2/general_instance"
@@ -211,7 +257,7 @@ resource "aws_iam_role_policy_attachment" "bastion_cloudwatch_policy_attach" {
 ############################################################
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/ssmlogs/ec2"
-  retention_in_days = 7
+  retention_in_days = 3
 }
 
 ############################################################
