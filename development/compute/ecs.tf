@@ -154,13 +154,13 @@ resource "aws_ecs_task_definition" "web_nginx" {
 # Application AutoScaling
 #######################################################################################
 module "appautoscaling_scheduled_action_web" {
-  source                     = "../../modules/ecs/app_autoscaling/schedule"
-  
+  source = "../../modules/ecs/app_autoscaling/schedule"
+
   create_auto_scaling_target = false
-  cluster_name = aws_ecs_cluster.web.name
-  service_name = aws_ecs_service.web_nginx.name
-  max_capacity = 3
-  min_capacity = 1
+  cluster_name               = aws_ecs_cluster.web.name
+  service_name               = aws_ecs_service.web_nginx.name
+  max_capacity               = 3
+  min_capacity               = 1
 
   use_scheduled_action = false
   schedule_app_auto_scale = {

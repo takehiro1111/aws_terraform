@@ -63,27 +63,27 @@ module "alb_wildcard_takehiro1111_com" {
             }
           ]
         }
-        # prometheus = {
-        #   priority = 2
-        #   conditions = [
-        #     {
-        #       host_header = {
-        #         values = [module.value.cdn_takehiro1111_com]
-        #       }
-        #     },
-        #     {
-        #       path_pattern = {
-        #         values = ["*"]
-        #       }
-        #     }
-        #   ]
-        #   actions = [
-        #     {
-        #       type             = "forward"
-        #       target_group_arn = aws_lb_target_group.web.arn
-        #     }
-        #   ]
-        # }
+        prometheus = {
+          priority = 10
+          conditions = [
+            {
+              host_header = {
+                values = [module.value.prometheus_takehiro1111_com]
+              }
+            },
+            {
+              path_pattern = {
+                values = ["*"]
+              }
+            }
+          ]
+          actions = [
+            {
+              type             = "forward"
+              target_group_arn = aws_lb_target_group.prometheus_server.arn
+            }
+          ]
+        }
       }
     }
   }
@@ -135,29 +135,29 @@ resource "aws_lb_target_group" "web" {
   }
 }
 
-# resource "aws_lb_target_group" "prometheus_instance" {
-#   name                 = "web"
-#   port                 = 80
-#   protocol             = "HTTP"
-#   vpc_id               = module.vpc_development.vpc_id
-#   deregistration_delay = "60"
-#   proxy_protocol_v2    = false
-#   target_type          = "instance"
-#   health_check {
-#     enabled             = true
-#     healthy_threshold   = 5
-#     interval            = 60
-#     matcher             = "200"
-#     path                = "/"
-#     port                = "traffic-port"
-#     protocol            = "HTTP"
-#     timeout             = 30
-#     unhealthy_threshold = 2
-#   }
-# }
+resource "aws_lb_target_group" "prometheus_server" {
+  name                 = "prometheus-server"
+  port                 = 9090
+  protocol             = "HTTP"
+  vpc_id               = module.vpc_development.vpc_id
+  deregistration_delay = 300
+  proxy_protocol_v2    = false
+  target_type          = "instance"
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/"
+    port                = 80
+    protocol            = "HTTP"
+    timeout             = 10
+    unhealthy_threshold = 3
+  }
+}
 
-# resource "aws_lb_target_group_attachment" "prometheus_instance" {
-#   target_group_arn = aws_lb_target_group.prometheus_instance.arn
-#   target_id        = aws_instance.web_server.id
-#   port             = 80
-# }
+resource "aws_lb_target_group_attachment" "prometheus_server" {
+  target_group_arn = aws_lb_target_group.prometheus_server.arn
+  target_id        = data.terraform_remote_state.development_compute.outputs.ec2_instance_id_prometheus_server
+  port             = 9090 // override用
+}

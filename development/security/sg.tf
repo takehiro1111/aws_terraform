@@ -248,6 +248,12 @@ module "sg_ec2_ssm" {
       to_port                  = 0
       protocol                 = "all"
       source_security_group_id = module.sg_ec2_ssm.security_group_id
+    },
+    {
+      from_port                = 0
+      to_port                  = 0
+      protocol                 = "all"
+      source_security_group_id = aws_security_group.alb_stg.id
     }
   ]
 
@@ -272,6 +278,13 @@ module "sg_ec2_ssm" {
       to_port     = 9100
       protocol    = "tcp"
       cidr_blocks = module.value.full_open_ip
+    },
+    // For Blackbox Exporter
+    {
+      from_port   = 9115
+      to_port     = 9115
+      protocol    = "tcp"
+      cidr_blocks = module.value.full_open_ip
     }
   ]
 
@@ -281,3 +294,4 @@ module "sg_ec2_ssm" {
     Name = "sg-ec2-ssm"
   }
 }
+

@@ -21,3 +21,8 @@ output "api_takehiro1111_com" {
   value       = "api.takehiro1111.com"
 }
 
+output "prometheus_takehiro1111_com" {
+  description = "Prometheus用EC2のドメイン"
+  value       = "prometheus.takehiro1111.com"
+}
+

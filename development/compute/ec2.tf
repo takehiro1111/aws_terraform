@@ -66,7 +66,7 @@ module "ec2_prometheus_server" {
 
   env = "stg"
   ec2_instance = {
-    state                             = "stopped"
+    state                             = "running"
     inastance_name                    = "prometheus-server"
     ami                               = "ami-0037237888be2fe22"
     instance_type                     = "t3.micro"
@@ -99,6 +99,13 @@ module "ec2_prometheus_server" {
     sudo systemctl enable grafana-server
     sudo wget https://github.com/prometheus/prometheus/releases/download/v2.53.3/prometheus-2.53.3.linux-amd64.tar.gz
     /bin/tar -zxvf prometheus-2.53.3.linux-amd64.tar.gz
+
+    sudo yum install -y docker
+    sudo systemctl start docker
+    sudo systemctl enable docker
+
+    wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+    /bin/tar -zxvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
   END
 }
 
@@ -110,7 +117,7 @@ module "ec2_node_exporter" {
 
   env = "stg"
   ec2_instance = {
-    state                             = "stopped"
+    state                             = "running"
     inastance_name                    = "node-exporter"
     ami                               = "ami-0037237888be2fe22"
     instance_type                     = "t3.nano"
