@@ -503,7 +503,7 @@ module "s3_bucket_vpc_flow_logs" {
 
     target_object_key_format = {
       partitioned_prefix = {
-      partition_date_source = "DeliveryTime"
+        partition_date_source = "DeliveryTime"
       }
     }
   }
