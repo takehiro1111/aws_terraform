@@ -85,7 +85,7 @@ module "s3_bucket_logging_target" {
       id     = "delete_old_objects"
       status = "Enabled"
       expiration = {
-        days = 1
+        days = 30
       }
     },
     {
@@ -235,7 +235,7 @@ module "s3_bucket_alb_accesslog" {
       id     = "delete_old_objects"
       status = "Enabled"
       expiration = {
-        days = 1
+        days = 30
       }
     },
     {
@@ -331,7 +331,7 @@ module "s3_bucket_cdn_accesslog" {
       id     = "delete_old_objects"
       status = "Enabled"
       expiration = {
-        days = 1
+        days = 30
       }
     },
     {
@@ -503,7 +503,7 @@ module "s3_bucket_vpc_flow_logs" {
 
     target_object_key_format = {
       partitioned_prefix = {
-        partition_date_source = "DeliveryTime"
+      partition_date_source = "DeliveryTime"
       }
     }
   }
