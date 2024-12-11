@@ -3,23 +3,23 @@
 ################################################################################
 locals {
   ec2_instance = {
-    prometheus_server ={
-      name = module.ec2_prometheus_server.tags_all.Name
-      source_instance_id = module.ec2_prometheus_server.instance_id
+    prometheus_server = {
+      name                    = module.ec2_prometheus_server.tags_all.Name
+      source_instance_id      = module.ec2_prometheus_server.instance_id
       snapshot_without_reboot = false
     }
-    node_exporter ={
-      name = module.ec2_node_exporter.tags_all.Name
-      source_instance_id = module.ec2_node_exporter.instance_id
+    node_exporter = {
+      name                    = module.ec2_node_exporter.tags_all.Name
+      source_instance_id      = module.ec2_node_exporter.instance_id
       snapshot_without_reboot = false
     }
   }
 }
 
 resource "aws_ami_from_instance" "this" {
-  for_each = local.ec2_instance
-  name               = each.value.name
-  source_instance_id = each.value.source_instance_id
+  for_each                = local.ec2_instance
+  name                    = each.value.name
+  source_instance_id      = each.value.source_instance_id
   snapshot_without_reboot = each.value.snapshot_without_reboot
 }
 
