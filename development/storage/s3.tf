@@ -91,6 +91,10 @@ module "s3_bucket_logging_target" {
     {
       id     = "delete_old_versions"
       status = "Enabled"
+      expiration = {
+        days                         = 0
+        expired_object_delete_marker = true
+      }
       noncurrent_version_expiration = {
         newer_noncurrent_versions = 1
         noncurrent_days           = 1
@@ -241,6 +245,10 @@ module "s3_bucket_alb_accesslog" {
     {
       id     = "Delete-Old-Versions"
       status = "Enabled"
+      expiration = {
+        days                         = 0
+        expired_object_delete_marker = true
+      }
       noncurrent_version_expiration = {
         newer_noncurrent_versions = 1
         noncurrent_days           = 1
@@ -337,6 +345,10 @@ module "s3_bucket_cdn_accesslog" {
     {
       id     = "Delete-Old-Versions"
       status = "Enabled"
+      expiration = {
+        days                         = 0
+        expired_object_delete_marker = true
+      }
       noncurrent_version_expiration = {
         newer_noncurrent_versions = 1
         noncurrent_days           = 1
