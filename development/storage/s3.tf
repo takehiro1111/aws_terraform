@@ -96,8 +96,7 @@ module "s3_bucket_logging_target" {
         expired_object_delete_marker = true
       }
       noncurrent_version_expiration = {
-        newer_noncurrent_versions = 1
-        noncurrent_days           = 1
+        noncurrent_days = 1
       }
     },
     {
@@ -250,8 +249,7 @@ module "s3_bucket_alb_accesslog" {
         expired_object_delete_marker = true
       }
       noncurrent_version_expiration = {
-        newer_noncurrent_versions = 1
-        noncurrent_days           = 1
+        noncurrent_days = 1
       }
     },
   ]
@@ -350,8 +348,7 @@ module "s3_bucket_cdn_accesslog" {
         expired_object_delete_marker = true
       }
       noncurrent_version_expiration = {
-        newer_noncurrent_versions = 1
-        noncurrent_days           = 1
+        noncurrent_days = 1
       }
     }
   ]
@@ -477,13 +474,18 @@ module "s3_bucket_static_site_web" {
       id     = "Transition-Gracier"
       status = "Enabled"
       noncurrent_version_transition = {
-        noncurrent_days = 1
+        noncurrent_days = 0
         storage_class   = "GLACIER_IR"
       }
     },
     {
       id     = "Delete-Old-Versions"
       status = "Enabled"
+
+      expiration = {
+        days                         = 0
+        expired_object_delete_marker = true
+      }
       noncurrent_version_expiration = {
         newer_noncurrent_versions = 3
         noncurrent_days           = 1
