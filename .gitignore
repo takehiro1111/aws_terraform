@@ -95,3 +95,5 @@ modules/variable/home_ips.tf
 modules/variable/user.tf
 modules/variable/org_id.tf
 **/.terragrunt-cache/**
+*/.DS_Store
+.DS_Store
