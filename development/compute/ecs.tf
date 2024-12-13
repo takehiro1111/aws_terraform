@@ -52,7 +52,7 @@ resource "aws_ecs_service" "web_nginx" {
   name                              = "nginx-service-stg"
   cluster                           = aws_ecs_cluster.web.arn
   task_definition                   = "nginx-task-define"
-  desired_count                     = 0
+  desired_count                     = 1
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 60
@@ -153,7 +153,10 @@ resource "aws_ecs_task_definition" "web_nginx" {
 #######################################################################################
 # Application AutoScaling
 #######################################################################################
-module "appautoscaling_scheduled_action_web" {
+/* 
+ * Schedule AutoScaling
+ */
+module "appautoscaling_scheduled" {
   source = "../../modules/ecs/app_autoscaling/schedule"
 
   create_auto_scaling_target = false
@@ -165,19 +168,16 @@ module "appautoscaling_scheduled_action_web" {
   use_scheduled_action = false
   schedule_app_auto_scale = {
     scale_out = {
-      schedule     = "at(2024-12-06T18:51:00)"
+      schedule     = "cron(57 18 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 2
     }
     scale_in = {
-      schedule     = "at(2024-12-06T18:53:00)"
-      max_capacity = 1
-      min_capacity = 1
-    }
-    reset = {
-      schedule     = "cron(57 16 ? * MON-FRI *)"
+      schedule     = "cron(59 18 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 1
     }
   }
 }
+
+

@@ -19,7 +19,7 @@ output "ecs_service_name_web_nginx" {
 #########################################################################################
 # EC2
 #########################################################################################
-output "ec2_instance_id_prometheus_server" {
-  description = "Prometheus用EC2インスタンスID"
-  value       = module.ec2_prometheus_server.instance_id
-}
+# output "ec2_instance_id_prometheus_server" {
+#   description = "Prometheus用EC2インスタンスID"
+#   value       = module.ec2_prometheus_server.instance_id
+# }

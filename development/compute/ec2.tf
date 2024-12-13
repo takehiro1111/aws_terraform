@@ -1,40 +1,40 @@
 #################################################################################
 # AMI
 ################################################################################
-locals {
-  ec2_instance = {
-    prometheus_server = {
-      name                    = module.ec2_prometheus_server.tags_all.Name
-      source_instance_id      = module.ec2_prometheus_server.instance_id
-      snapshot_without_reboot = false
-    }
-    node_exporter = {
-      name                    = module.ec2_node_exporter.tags_all.Name
-      source_instance_id      = module.ec2_node_exporter.instance_id
-      snapshot_without_reboot = false
-    }
-  }
-}
+# locals {
+#   ec2_instance = {
+#     prometheus_server = {
+#       name                    = module.ec2_prometheus_server.tags_all.Name
+#       source_instance_id      = module.ec2_prometheus_server.instance_id
+#       snapshot_without_reboot = false
+#     }
+#     node_exporter = {
+#       name                    = module.ec2_node_exporter.tags_all.Name
+#       source_instance_id      = module.ec2_node_exporter.instance_id
+#       snapshot_without_reboot = false
+#     }
+#   }
+# }
 
-resource "aws_ami_from_instance" "this" {
-  for_each                = local.ec2_instance
-  name                    = each.value.name
-  source_instance_id      = each.value.source_instance_id
-  snapshot_without_reboot = each.value.snapshot_without_reboot
-}
+# resource "aws_ami_from_instance" "this" {
+#   for_each                = local.ec2_instance
+#   name                    = each.value.name
+#   source_instance_id      = each.value.source_instance_id
+#   snapshot_without_reboot = each.value.snapshot_without_reboot
+# }
 
-data "aws_ami" "amazon_linux_2023" {
-  most_recent = true
-  filter {
-    name   = "name"
-    values = ["al2023-ami-2023.6.20241121.0-kernel-6.1-x86_64"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  owners = ["137112412989"] # Amazonの所有者ID
-}
+# data "aws_ami" "amazon_linux_2023" {
+#   most_recent = true
+#   filter {
+#     name   = "name"
+#     values = ["al2023-ami-2023.6.20241121.0-kernel-6.1-x86_64"]
+#   }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+#   owners = ["137112412989"] # Amazonの所有者ID
+# }
 
 #################################################################################
 # AutoScaling
@@ -107,90 +107,90 @@ data "aws_ami" "amazon_linux_2023" {
 /*
  * Prometheus Server (Prometheus,Grafana)
  */
-module "ec2_prometheus_server" {
-  source = "../../modules/ec2/general_instance"
+# module "ec2_prometheus_server" {
+#   source = "../../modules/ec2/general_instance"
 
-  env = "stg"
-  ec2_instance = {
-    state                             = "running"
-    inastance_name                    = "prometheus-server"
-    ami                               = "ami-0037237888be2fe22"
-    instance_type                     = "t3.micro"
-    subnet_id                         = data.terraform_remote_state.development_network.outputs.public_subnet_a_development
-    vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
-    iam_instance_profile              = aws_iam_instance_profile.this.name
-    associate_public_ip_address       = true
-    create_additonal_ebs_block_device = false
-    root_block_device = {
-      type                  = "gp3"
-      size                  = 30
-      delete_on_termination = true
-      encrypted             = true
-    }
-  }
+#   env = "stg"
+#   ec2_instance = {
+#     state                             = "running"
+#     inastance_name                    = "prometheus-server"
+#     ami                               = "ami-0037237888be2fe22"
+#     instance_type                     = "t3.micro"
+#     subnet_id                         = data.terraform_remote_state.development_network.outputs.public_subnet_a_development
+#     vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
+#     iam_instance_profile              = aws_iam_instance_profile.this.name
+#     associate_public_ip_address       = true
+#     create_additonal_ebs_block_device = false
+#     root_block_device = {
+#       type                  = "gp3"
+#       size                  = 30
+#       delete_on_termination = true
+#       encrypted             = true
+#     }
+#   }
 
-  metadata_options = {
-    http_tokens = "required"
-  }
+#   metadata_options = {
+#     http_tokens = "required"
+#   }
 
-  # https://grafana.com/grafana/download
-  # OSSのエディションを選択
-  # EC2用 ※ディストリビューションによってパッケージを選択する。
-  # ref: https://zenn.dev/takehiro1111/articles/prometheus_grafana_20240303
-  user_data = <<END
-    #!/bin/bash
-    cd ~
-    sudo yum install -y https://dl.grafana.com/oss/release/grafana-11.3.2-1.x86_64.rpm
-    sudo systemctl start grafana-server
-    sudo systemctl enable grafana-server
-    sudo wget https://github.com/prometheus/prometheus/releases/download/v2.53.3/prometheus-2.53.3.linux-amd64.tar.gz
-    /bin/tar -zxvf prometheus-2.53.3.linux-amd64.tar.gz
+#   # https://grafana.com/grafana/download
+#   # OSSのエディションを選択
+#   # EC2用 ※ディストリビューションによってパッケージを選択する。
+#   # ref: https://zenn.dev/takehiro1111/articles/prometheus_grafana_20240303
+#   user_data = <<END
+#     #!/bin/bash
+#     cd ~
+#     sudo yum install -y https://dl.grafana.com/oss/release/grafana-11.3.2-1.x86_64.rpm
+#     sudo systemctl start grafana-server
+#     sudo systemctl enable grafana-server
+#     sudo wget https://github.com/prometheus/prometheus/releases/download/v2.53.3/prometheus-2.53.3.linux-amd64.tar.gz
+#     /bin/tar -zxvf prometheus-2.53.3.linux-amd64.tar.gz
 
-    sudo yum install -y docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
+#     sudo yum install -y docker
+#     sudo systemctl start docker
+#     sudo systemctl enable docker
 
-    wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
-    /bin/tar -zxvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
-  END
-}
+#     wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+#     /bin/tar -zxvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
+#   END
+# }
 
 /*
  * Node Exporter用 
  */
-module "ec2_node_exporter" {
-  source = "../../modules/ec2/general_instance"
+# module "ec2_node_exporter" {
+#   source = "../../modules/ec2/general_instance"
 
-  env = "stg"
-  ec2_instance = {
-    state                             = "running"
-    inastance_name                    = "node-exporter"
-    ami                               = "ami-0037237888be2fe22"
-    instance_type                     = "t3.nano"
-    subnet_id                         = data.terraform_remote_state.development_network.outputs.public_subnet_a_development
-    vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
-    iam_instance_profile              = aws_iam_instance_profile.this.name
-    associate_public_ip_address       = true
-    create_additonal_ebs_block_device = false
-    root_block_device = {
-      type                  = "gp3"
-      size                  = 30
-      delete_on_termination = true
-      encrypted             = true
-    }
-  }
+#   env = "stg"
+#   ec2_instance = {
+#     state                             = "running"
+#     inastance_name                    = "node-exporter"
+#     ami                               = "ami-0037237888be2fe22"
+#     instance_type                     = "t3.nano"
+#     subnet_id                         = data.terraform_remote_state.development_network.outputs.public_subnet_a_development
+#     vpc_security_group_ids            = [data.terraform_remote_state.development_security.outputs.sg_id_ec2_ssm]
+#     iam_instance_profile              = aws_iam_instance_profile.this.name
+#     associate_public_ip_address       = true
+#     create_additonal_ebs_block_device = false
+#     root_block_device = {
+#       type                  = "gp3"
+#       size                  = 30
+#       delete_on_termination = true
+#       encrypted             = true
+#     }
+#   }
 
-  metadata_options = {
-    http_tokens = "required"
-  }
+#   metadata_options = {
+#     http_tokens = "required"
+#   }
 
-  user_data = <<END
-    #!/bin/bash
-    cd ~
-    wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
-    tar xvzf node_exporter-1.8.2.linux-amd64.tar.gz
-  END
-}
+#   user_data = <<END
+#     #!/bin/bash
+#     cd ~
+#     wget https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+#     tar xvzf node_exporter-1.8.2.linux-amd64.tar.gz
+#   END
+# }
 
 ############################################################
 # EBS

@@ -49,11 +49,6 @@ variable "schedule_app_auto_scale" {
       max_capacity = number
       min_capacity = number
     })
-    reset = object({
-      schedule     = string
-      max_capacity = number
-      min_capacity = number
-    })
   })
   default = null
 }
