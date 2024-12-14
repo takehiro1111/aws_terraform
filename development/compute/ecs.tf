@@ -52,7 +52,7 @@ resource "aws_ecs_service" "web_nginx" {
   name                              = "nginx-service-stg"
   cluster                           = aws_ecs_cluster.web.arn
   task_definition                   = "nginx-task-define"
-  desired_count                     = 1
+  desired_count                     = 0
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 60
@@ -156,10 +156,10 @@ resource "aws_ecs_task_definition" "web_nginx" {
 /* 
  * Schedule AutoScaling
  */
-module "appautoscaling_scheduled" {
-  source = "../../modules/ecs/app_autoscaling/schedule"
+module "appautoscaling_web" {
+  source = "../../modules/ecs/appautoscaling"
 
-  create_auto_scaling_target = false
+  create_auto_scaling_target = true
   cluster_name               = aws_ecs_cluster.web.name
   service_name               = aws_ecs_service.web_nginx.name
   max_capacity               = 3
@@ -178,6 +178,141 @@ module "appautoscaling_scheduled" {
       min_capacity = 1
     }
   }
+
+  use_target_tracking = true
+  target_tracking = {
+    target_tracking_scaling_policy_configuration = {
+      cpu = {
+        target_value       = 50
+        scale_in_cooldown  = 60
+        scale_out_cooldown = 30
+      }
+      memory = {
+        target_value       = 50
+        scale_in_cooldown  = 60
+        scale_out_cooldown = 30
+      }
+    }
+  }
+
+  use_step_scaling = true
+  step_scaling = {
+    scale_out_cpu = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_lower_bound = 0
+        scaling_adjustment          = 1
+      }
+    }
+    scale_in_cpu = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_upper_bound = 0
+        scaling_adjustment          = -1
+      }
+    }
+    scale_out_memory = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_lower_bound = 0
+        scaling_adjustment          = 1
+      }
+    }
+    scale_in_memory = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_upper_bound = 0
+        scaling_adjustment          = -1
+      }
+    }
+  }
 }
 
+#######################################################################################
+# Cloudwatch Alarm
+#######################################################################################
+module "cw_alarm_for_ecs" {
+  source = "../../modules/cloudwatch/ecs/appautoscaling"
 
+  cluster_name = aws_ecs_cluster.web.name
+  service_name = aws_ecs_service.web_nginx.name
+
+  use_ecs_threshold_watch = true
+  sns_topic_arn           = data.terraform_remote_state.development_management.outputs.sns_topic_arn_ecs_cw_alert
+  ecs_threshold_watch = {
+    cpu = {
+      comparison_operator = "GreaterThanThreshold"
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 60
+      statistic           = "Maximum"
+      threshold           = 60
+      unit                = "Percent"
+    }
+    memory = {
+      comparison_operator = "GreaterThanThreshold"
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 60
+      statistic           = "Maximum"
+      threshold           = 60
+      unit                = "Percent"
+    }
+  }
+
+  use_cpu_alerm = true
+  cpu_alerm = {
+    high = {
+      datapoints_to_alarm = 1
+      evaluation_periods  = 1
+      period              = 60
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_out_cpu
+    }
+    low = {
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 300
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_in_cpu
+    }
+  }
+
+  use_memory_alerm = true
+  memory_alerm = {
+    high = {
+      datapoints_to_alarm = 1
+      evaluation_periods  = 1
+      period              = 60
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_out_memory
+    }
+    low = {
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 300
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_in_memory
+    }
+  }
+}

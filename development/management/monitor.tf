@@ -388,6 +388,18 @@ data "aws_iam_policy_document" "sns_notify_chatbot" {
   }
 }
 
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/sns/aws/latest
+module "sns_notify_chatbot_ecs_cw_alert" {
+  source  = "terraform-aws-modules/sns/aws"
+  version = "6.1.1"
+
+  create       = true
+  name         = "sns_notify_chatbot_ecs_cw_alert"
+  display_name = "sns_notify_chatbot_ecs_cw_alert"
+
+  create_topic_policy = false
+}
+
 ######################################################################
 # Chatbot
 ######################################################################
@@ -416,6 +428,7 @@ resource "aws_chatbot_slack_channel_configuration" "dev" {
   sns_topic_arns = [
     aws_sns_topic.slack_alert.arn,
     module.sns_notify_chatbot.topic_arn,
+    module.sns_notify_chatbot_ecs_cw_alert.topic_arn,
     # module.cloudtrail_event_notify_development.sns_topic_arn
   ]
 
