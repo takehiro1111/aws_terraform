@@ -80,6 +80,38 @@ resource "aws_ecs_service" "web_nginx" {
   }
 }
 
+resource "aws_ecs_service" "locust" {
+  name                              = "locust"
+  cluster                           = aws_ecs_cluster.web.arn
+  task_definition                   = "locust-task-define"
+  desired_count                     = 1
+  launch_type                       = "FARGATE"
+  platform_version                  = "1.4.0" # LATESTの挙動
+  health_check_grace_period_seconds = 60
+  enable_execute_command            = true
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  network_configuration {
+    subnets          = data.terraform_remote_state.development_network.outputs.private_subnets_id_development
+    security_groups  = [data.terraform_remote_state.development_security.outputs.sg_id_ecs]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = data.terraform_remote_state.development_network.outputs.target_group_arn_locust // TGがALBのリスナールールに設定されていないとエラーになるので注意。
+    container_name   = "locust-container"                                                            // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_port   = 8089 // locustのデフォルトでDockerfileで定義している。
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}
+
 // タスク定義
 resource "aws_ecs_task_definition" "web_nginx" {
   family                   = "nginx-task-define"
@@ -100,7 +132,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
   container_definitions = jsonencode([
     {
       name      = "nginx-container"
-      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:latest"
+      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/locust:latest"
       cpu       = 256
       memory    = 512
       essential = true
@@ -150,6 +182,63 @@ resource "aws_ecs_task_definition" "web_nginx" {
   # }
 }
 
+resource "aws_ecs_task_definition" "locust" {
+  family                   = "locust-task-define"
+  cpu                      = 256
+  memory                   = 512
+  requires_compatibilities = ["FARGATE"]
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+
+  network_mode       = "awsvpc"
+  task_role_arn      = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_role_web
+  execution_role_arn = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_execute_role_web
+  track_latest       = true
+
+  container_definitions = jsonencode([
+    {
+      name      = "locust-container" 
+      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/locust:latest"
+      cpu       = 256
+      memory    = 512
+      essential = true
+      portMappings = [
+        {
+          protocol      = "tcp"
+          containerPort = 8089
+          hostPort      = 8089
+        },
+        # {
+        #   protocol      = "tcp"
+        #   containerPort = 5557
+        #   hostPort      = 5557
+        # },
+        # {
+        #   protocol      = "tcp"
+        #   containerPort = 5558
+        #   hostPort      = 5558
+        # },
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-stream-prefix = "locust"
+          awslogs-create-group  = false
+          awslogs-group         = data.terraform_remote_state.development_management.outputs.cw_log_group_name_ecs_locust
+          awslogs-region        = data.aws_region.default.name
+        }
+      }
+    }
+  ])
+
+  # lifecycle {
+  #   ignore_changes = [container_definitions,task_definition]
+  # }
+}
+
 #######################################################################################
 # Application AutoScaling
 #######################################################################################
@@ -159,7 +248,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
 module "appautoscaling_web" {
   source = "../../modules/ecs/appautoscaling"
 
-  create_auto_scaling_target = true
+  create_auto_scaling_target = false
   cluster_name               = aws_ecs_cluster.web.name
   service_name               = aws_ecs_service.web_nginx.name
   max_capacity               = 3
@@ -179,7 +268,7 @@ module "appautoscaling_web" {
     }
   }
 
-  use_target_tracking = true
+  use_target_tracking = false
   target_tracking = {
     target_tracking_scaling_policy_configuration = {
       cpu = {
@@ -195,7 +284,7 @@ module "appautoscaling_web" {
     }
   }
 
-  use_step_scaling = true
+  use_step_scaling = false
   step_scaling = {
     scale_out_cpu = {
       adjustment_type          = "ChangeInCapacity"

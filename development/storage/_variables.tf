@@ -6,5 +6,6 @@ variable "ecr" {
   type        = list(string)
   default = [
     "nginx",
+    "locust"
   ]
 }

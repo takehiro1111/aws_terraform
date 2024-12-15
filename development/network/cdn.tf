@@ -272,6 +272,79 @@ module "cloudfront_grafana_takehiro1111_com" {
   }
 }
 
+/* 
+ * locust.takehiro1111.com
+ */
+# ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
+module "cloudfront_locust_takehiro1111_com" {
+  source  = "terraform-aws-modules/cloudfront/aws"
+  version = "3.4.1"
+
+  # aws_cloudfront_origin_access_control
+  create_origin_access_control = false
+
+  # aws_cloudfront_distribution
+  create_distribution = true
+  aliases             = [module.value.locust_takehiro1111_com]
+  comment             = module.value.locust_takehiro1111_com
+  enabled             = true
+  is_ipv6_enabled     = true
+  price_class         = "PriceClass_All"
+  retain_on_delete    = false
+  # web_acl_id =  WAF作成時にコメントイン予定
+
+  logging_config = {
+    bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
+    prefix          = replace(module.value.locust_takehiro1111_com, ".", "-")
+    include_cookies = false
+  }
+
+  // ALB
+  origin = {
+    origin_alb = {
+      domain_name = module.alb_wildcard_takehiro1111_com.dns_name
+      origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
+
+      custom_origin_config = {
+        http_port                = 80
+        https_port               = 443
+        origin_protocol_policy   = "https-only"
+        origin_ssl_protocols     = ["TLSv1.2"]
+        origin_keepalive_timeout = 5
+        origin_read_timeout      = 20
+      }
+    }
+  }
+
+  default_cache_behavior = {
+    target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
+    viewer_protocol_policy = "redirect-to-https"
+    allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
+    cached_methods         = ["GET", "HEAD"]
+    compress               = true
+    use_forwarded_values   = false
+
+    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+  }
+
+  viewer_certificate = {
+    acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
+    cloudfront_default_certificate = "false"
+    minimum_protocol_version       = "TLSv1.2_2021"
+    ssl_support_method             = "sni-only"
+  }
+
+  geo_restriction = {
+    restriction_type = "none"
+  }
+
+  tags = {
+    Name = module.value.locust_takehiro1111_com
+  }
+}
+
 
 
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest

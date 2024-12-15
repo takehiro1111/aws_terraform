@@ -62,7 +62,28 @@ module "alb_wildcard_takehiro1111_com" {
               target_group_arn = aws_lb_target_group.web.arn
             }
           ]
-        }
+        },
+        locust = {
+          priority = 3
+          conditions = [
+            {
+              host_header = {
+                values = [module.value.locust_takehiro1111_com]
+              }
+            },
+            {
+              path_pattern = {
+                values = ["*"]
+              }
+            }
+          ]
+          actions = [
+            {
+              type             = "forward"
+              target_group_arn = aws_lb_target_group.locust.arn
+            }
+          ]
+        },
         # prometheus = {
         #   priority = 10
         #   conditions = [
@@ -137,6 +158,27 @@ module "alb_wildcard_takehiro1111_com" {
 
 resource "aws_lb_target_group" "web" {
   name                 = "web"
+  port                 = 80
+  protocol             = "HTTP"
+  vpc_id               = module.vpc_development.vpc_id
+  deregistration_delay = "60"
+  proxy_protocol_v2    = false
+  target_type          = "ip"
+  health_check {
+    enabled             = true
+    healthy_threshold   = 5
+    interval            = 60
+    matcher             = "200"
+    path                = "/"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 30
+    unhealthy_threshold = 2
+  }
+}
+
+resource "aws_lb_target_group" "locust" {
+  name                 = "locust"
   port                 = 80
   protocol             = "HTTP"
   vpc_id               = module.vpc_development.vpc_id
