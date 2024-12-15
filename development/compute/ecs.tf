@@ -103,8 +103,8 @@ resource "aws_ecs_service" "locust" {
 
   load_balancer {
     target_group_arn = data.terraform_remote_state.development_network.outputs.target_group_arn_locust // TGがALBのリスナールールに設定されていないとエラーになるので注意。
-    container_name   = "locust-container"                                                            // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
-    container_port   = 8089 // locustのデフォルトでDockerfileで定義している。
+    container_name   = "locust-container"                                                              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_port   = 8089                                                                            // locustのデフォルトでDockerfileで定義している。
   }
 
   lifecycle {
@@ -200,7 +200,7 @@ resource "aws_ecs_task_definition" "locust" {
 
   container_definitions = jsonencode([
     {
-      name      = "locust-container" 
+      name      = "locust-container"
       image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/locust:latest"
       cpu       = 256
       memory    = 512
