@@ -1,4 +1,4 @@
-name: tf_apply_expandddd
+name: tf_apply_expand
 run-name: ${{ github.workflow }} triggered by ${{ github.actor }}
 
 on:
