@@ -75,4 +75,17 @@ module "s3_bucket_tfstate" {
       }
     ]
   })
+
+  # 検証で様子見（2024/12/11）
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
+    {
+      id     = "Delete-Old-Versions"
+      status = "Enabled"
+      noncurrent_version_expiration = {
+        newer_noncurrent_versions = 3
+        noncurrent_days           = 1
+      }
+    },
+  ]
 }

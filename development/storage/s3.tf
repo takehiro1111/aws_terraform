@@ -85,26 +85,23 @@ module "s3_bucket_logging_target" {
       id     = "delete_old_objects"
       status = "Enabled"
       expiration = {
-        days = 1
+        days = 30
       }
     },
     {
       id     = "delete_old_versions"
       status = "Enabled"
       expiration = {
+        days                         = 0
         expired_object_delete_marker = true
+      }
+      noncurrent_version_expiration = {
+        noncurrent_days = 1
       }
     },
     {
       id     = "intelligent-tireling"
       status = "Enabled"
-      filter = {
-        object_size_greater_than = 131072
-      }
-      noncurrent_version_expiration = {
-        newer_noncurrent_versions = 3
-        noncurrent_days           = 30
-      }
       transition = {
         days          = 0
         storage_class = "INTELLIGENT_TIERING"
@@ -241,16 +238,20 @@ module "s3_bucket_alb_accesslog" {
       id     = "delete_old_objects"
       status = "Enabled"
       expiration = {
-        days = 1
+        days = 30
       }
     },
     {
-      id     = "delete_old_versions"
+      id     = "Delete-Old-Versions"
       status = "Enabled"
       expiration = {
+        days                         = 0
         expired_object_delete_marker = true
       }
-    }
+      noncurrent_version_expiration = {
+        noncurrent_days = 1
+      }
+    },
   ]
 }
 
@@ -336,14 +337,18 @@ module "s3_bucket_cdn_accesslog" {
       id     = "delete_old_objects"
       status = "Enabled"
       expiration = {
-        days = 1
+        days = 30
       }
     },
     {
-      id     = "delete_old_versions"
+      id     = "Delete-Old-Versions"
       status = "Enabled"
       expiration = {
+        days                         = 0
         expired_object_delete_marker = true
+      }
+      noncurrent_version_expiration = {
+        noncurrent_days = 1
       }
     }
   ]
@@ -462,6 +467,31 @@ module "s3_bucket_static_site_web" {
       }
     ]
   })
+
+  # aws_s3_bucket_lifecycle_configuration
+  lifecycle_rule = [
+    {
+      id     = "Transition-Gracier"
+      status = "Enabled"
+      noncurrent_version_transition = {
+        noncurrent_days = 0
+        storage_class   = "GLACIER_IR"
+      }
+    },
+    {
+      id     = "Delete-Old-Versions"
+      status = "Enabled"
+
+      expiration = {
+        days                         = 0
+        expired_object_delete_marker = true
+      }
+      noncurrent_version_expiration = {
+        newer_noncurrent_versions = 3
+        noncurrent_days           = 1
+      }
+    },
+  ]
 }
 
 ##################################################################################
