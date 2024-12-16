@@ -80,6 +80,38 @@ resource "aws_ecs_service" "web_nginx" {
   }
 }
 
+resource "aws_ecs_service" "locust" {
+  name                              = "locust"
+  cluster                           = aws_ecs_cluster.web.arn
+  task_definition                   = "locust-task-define"
+  desired_count                     = 1
+  launch_type                       = "FARGATE"
+  platform_version                  = "1.4.0" # LATESTの挙動
+  health_check_grace_period_seconds = 60
+  enable_execute_command            = true
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
+  network_configuration {
+    subnets          = data.terraform_remote_state.development_network.outputs.private_subnets_id_development
+    security_groups  = [data.terraform_remote_state.development_security.outputs.sg_id_ecs]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = data.terraform_remote_state.development_network.outputs.target_group_arn_locust // TGがALBのリスナールールに設定されていないとエラーになるので注意。
+    container_name   = "locust-container"                                                              // ALBに紐づけるコンテナの名前(コンテナ定義のnameと一致させる必要がある)
+    container_port   = 8089                                                                            // locustのデフォルトでDockerfileで定義している。
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
+}
+
 // タスク定義
 resource "aws_ecs_task_definition" "web_nginx" {
   family                   = "nginx-task-define"
@@ -100,7 +132,7 @@ resource "aws_ecs_task_definition" "web_nginx" {
   container_definitions = jsonencode([
     {
       name      = "nginx-container"
-      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/nginx:latest"
+      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/locust:latest"
       cpu       = 256
       memory    = 512
       essential = true
@@ -150,11 +182,71 @@ resource "aws_ecs_task_definition" "web_nginx" {
   # }
 }
 
+resource "aws_ecs_task_definition" "locust" {
+  family                   = "locust-task-define"
+  cpu                      = 256
+  memory                   = 512
+  requires_compatibilities = ["FARGATE"]
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+
+  network_mode       = "awsvpc"
+  task_role_arn      = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_role_web
+  execution_role_arn = data.terraform_remote_state.development_security.outputs.iam_role_arn_ecs_task_execute_role_web
+  track_latest       = true
+
+  container_definitions = jsonencode([
+    {
+      name      = "locust-container"
+      image     = "${data.aws_caller_identity.self.account_id}.dkr.ecr.${data.aws_region.default.name}.amazonaws.com/locust:latest"
+      cpu       = 256
+      memory    = 512
+      essential = true
+      portMappings = [
+        {
+          protocol      = "tcp"
+          containerPort = 8089
+          hostPort      = 8089
+        },
+        # {
+        #   protocol      = "tcp"
+        #   containerPort = 5557
+        #   hostPort      = 5557
+        # },
+        # {
+        #   protocol      = "tcp"
+        #   containerPort = 5558
+        #   hostPort      = 5558
+        # },
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-stream-prefix = "locust"
+          awslogs-create-group  = false
+          awslogs-group         = data.terraform_remote_state.development_management.outputs.cw_log_group_name_ecs_locust
+          awslogs-region        = data.aws_region.default.name
+        }
+      }
+    }
+  ])
+
+  # lifecycle {
+  #   ignore_changes = [container_definitions,task_definition]
+  # }
+}
+
 #######################################################################################
 # Application AutoScaling
 #######################################################################################
-module "appautoscaling_scheduled_action_web" {
-  source = "../../modules/ecs/app_autoscaling/schedule"
+/* 
+ * Schedule AutoScaling
+ */
+module "appautoscaling_web" {
+  source = "../../modules/ecs/appautoscaling"
 
   create_auto_scaling_target = false
   cluster_name               = aws_ecs_cluster.web.name
@@ -165,19 +257,151 @@ module "appautoscaling_scheduled_action_web" {
   use_scheduled_action = false
   schedule_app_auto_scale = {
     scale_out = {
-      schedule     = "at(2024-12-06T18:51:00)"
+      schedule     = "cron(57 18 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 2
     }
     scale_in = {
-      schedule     = "at(2024-12-06T18:53:00)"
-      max_capacity = 1
-      min_capacity = 1
-    }
-    reset = {
-      schedule     = "cron(57 16 ? * MON-FRI *)"
+      schedule     = "cron(59 18 ? * MON-FRI *)"
       max_capacity = 3
       min_capacity = 1
+    }
+  }
+
+  use_target_tracking = false
+  target_tracking = {
+    target_tracking_scaling_policy_configuration = {
+      cpu = {
+        target_value       = 50
+        scale_in_cooldown  = 60
+        scale_out_cooldown = 30
+      }
+      memory = {
+        target_value       = 50
+        scale_in_cooldown  = 60
+        scale_out_cooldown = 30
+      }
+    }
+  }
+
+  use_step_scaling = false
+  step_scaling = {
+    scale_out_cpu = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_lower_bound = 0
+        scaling_adjustment          = 1
+      }
+    }
+    scale_in_cpu = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_upper_bound = 0
+        scaling_adjustment          = -1
+      }
+    }
+    scale_out_memory = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_lower_bound = 0
+        scaling_adjustment          = 1
+      }
+    }
+    scale_in_memory = {
+      adjustment_type          = "ChangeInCapacity"
+      cooldown                 = 180
+      metric_aggregation_type  = "Average"
+      min_adjustment_magnitude = 0
+      step_adjustment = {
+        metric_interval_upper_bound = 0
+        scaling_adjustment          = -1
+      }
+    }
+  }
+}
+
+#######################################################################################
+# Cloudwatch Alarm
+#######################################################################################
+module "cw_alarm_for_ecs" {
+  source = "../../modules/cloudwatch/ecs/appautoscaling"
+
+  cluster_name = aws_ecs_cluster.web.name
+  service_name = aws_ecs_service.web_nginx.name
+
+  use_ecs_threshold_watch = true
+  sns_topic_arn           = data.terraform_remote_state.development_management.outputs.sns_topic_arn_ecs_cw_alert
+  ecs_threshold_watch = {
+    cpu = {
+      comparison_operator = "GreaterThanThreshold"
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 60
+      statistic           = "Maximum"
+      threshold           = 60
+      unit                = "Percent"
+    }
+    memory = {
+      comparison_operator = "GreaterThanThreshold"
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 60
+      statistic           = "Maximum"
+      threshold           = 60
+      unit                = "Percent"
+    }
+  }
+
+  use_cpu_alerm = true
+  cpu_alerm = {
+    high = {
+      datapoints_to_alarm = 1
+      evaluation_periods  = 1
+      period              = 60
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_out_cpu
+    }
+    low = {
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 300
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_in_cpu
+    }
+  }
+
+  use_memory_alerm = true
+  memory_alerm = {
+    high = {
+      datapoints_to_alarm = 1
+      evaluation_periods  = 1
+      period              = 60
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_out_memory
+    }
+    low = {
+      datapoints_to_alarm = 3
+      evaluation_periods  = 3
+      period              = 300
+      statistic           = "Average"
+      threshold           = 60
+      unit                = "Percent"
+      alarm_actions       = module.appautoscaling_web.app_autoscaling_policy_arn_scale_in_memory
     }
   }
 }

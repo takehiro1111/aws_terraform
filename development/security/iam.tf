@@ -76,7 +76,9 @@ data "aws_iam_policy_document" "ecs_task" {
       "ssmmessages:CreateDataChannel",
       "ssmmessages:OpenControlChannel",
       "ssmmessages:OpenDataChannel",
-      "logs:CreateLogGroup"
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
     ]
     #tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["*"]
@@ -106,6 +108,15 @@ data "aws_iam_policy_document" "ecs_task_execute_web" {
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ssm:GetParameters",
+      "kms:Decrypt",
+      "s3:GetObject",
+      "s3:PutObject"
     ]
     #tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["*"]

@@ -42,7 +42,13 @@ output "target_group_arn_web" {
   value       = aws_lb_target_group.web.arn
 }
 
-output "target_group_arn_ec2_promehteus_server" {
+output "target_group_arn_locust" {
   description = "The ARN of the development ALB Target Group"
-  value       = aws_lb_target_group.prometheus_server.arn
+  value       = aws_lb_target_group.locust.arn
 }
+
+
+# output "target_group_arn_ec2_promehteus_server" {
+#   description = "The ARN of the development ALB Target Group"
+#   value       = aws_lb_target_group.prometheus_server.arn
+# }

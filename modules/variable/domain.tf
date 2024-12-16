@@ -31,3 +31,8 @@ output "grafana_takehiro1111_com" {
   value       = "grafana.takehiro1111.com"
 }
 
+output "locust_takehiro1111_com" {
+  description = "LOCUST用ドメイン"
+  value       = "locust.takehiro1111.com"
+}
+
