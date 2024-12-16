@@ -48,11 +48,11 @@ jobs:
         working-directory: ${{ matrix.config.working_directory }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
     # https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS Credentials OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ env.ROLE_TO_ASSUME}}
@@ -60,7 +60,7 @@ jobs:
     # https://github.com/aws-actions/amazon-ecr-login
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2
 
       - name: Push the image to Amazon ECR
         env:
@@ -75,7 +75,7 @@ jobs:
       
     # https://github.com/actions/upload-artifact
       - name: upload the Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: image-uri
           path: ${{ matrix.config.working_directory }}/image-uri.txt
@@ -96,10 +96,10 @@ jobs:
 
     steps: 
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Configure AWS Credentials OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ env.ROLE_TO_ASSUME}}
@@ -107,7 +107,7 @@ jobs:
 
       # https://github.com/actions/download-artifact
       - name: Download the Artifact
-        uses: actions/download-artifact@v4 # uploadと同じバージョン(v4),nameを指定しないとエラーになるので注意。
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4 # uploadと同じバージョン(v4),nameを指定しないとエラーになるので注意。
         with:
           name: image-uri
           path: download/artifacts #ランナーの中でダウンロード先のディレクトリが動的に作成されるのでこちらは任意のパスを記載。 
@@ -120,7 +120,7 @@ jobs:
       # https://github.com/aws-actions/amazon-ecs-render-task-definition
       - name: Fill in the new image URI in the amazon ECS task definition
         id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        uses: aws-actions/amazon-ecs-render-task-definition@469db592f4341616e992bf7f231e19b3ab9b4efa # v1
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION_API }}
           container-name: ${{ env.CONTAINER_NAME}}
@@ -128,7 +128,7 @@ jobs:
 
       #  https://github.com/aws-actions/amazon-ecs-deploy-task-definition
       - name: Deploy ECS task
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2
         with:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
