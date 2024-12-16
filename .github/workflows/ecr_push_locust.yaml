@@ -18,30 +18,13 @@ permissions:
   contents: read
 
 jobs:
-  set-matrix:
+  ecr-push:
     runs-on: ubuntu-latest
-    outputs:
-      matrix_config: ${{ toJson(matrix.config) }}
     strategy:
       matrix:
         config:
           - working_directory: docker/locust
             ecr_repository: locust
-            ecs_cluster: cluster-web
-            ecs_service: locust
-            ecs_task_difinition_api: .aws/task/locust_task_definition.json
-            container_name: locust-container # タスク定義内の"name"と合わせる必要がある。
-    steps:
-      - name: Set matrix output
-        id: set-matrix
-        run: echo "Matrix configuration is ready!"
-
-  ecr-push:
-    needs: set-matrix
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config: ${{ fromJson(needs.set-matrix.outputs.matrix_config) }}
     env:
       ECR_REPOSITORY: ${{ matrix.config.ecr_repository }}
     defaults:
@@ -85,10 +68,14 @@ jobs:
   # Deploy
   ecr-deploy:
     runs-on: ubuntu-latest
-    needs: [ecr-push,set-matrix]
+    needs: [ecr-push]
     strategy:
       matrix:
-        config: ${{ fromJson(needs.set-matrix.outputs.matrix_config) }}
+        config:
+          - ecs_cluster: cluster-web
+            ecs_service: locust
+            ecs_task_difinition_api: .aws/task/locust_task_definition.json
+            container_name: locust-container # タスク定義内の"name"と合わせる必要がある。
     env:
       ECS_CLUSTER: ${{ matrix.config.ecs_cluster }}
       ECS_SERVICE: ${{ matrix.config.ecs_service }}
