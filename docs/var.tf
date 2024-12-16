@@ -141,3 +141,9 @@ variable "names" {
 output "variables_name" {
   value = "%{for element, value in var.names} (${element}) ${value}, %{endfor}"
 }
+
+# %{for ...} → listやmapの要素を反復処理するためのループ構文。
+# element → インデックス
+# value → 要素の値。
+# ${} → 文字列補間で値を埋め込む。
+# %{endfor} → forループの終了を示す。ループで作成したすべての要素を1つの文字列に連結させる役割。
