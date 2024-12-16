@@ -11,7 +11,7 @@ resource "aws_cloudwatch_log_group" "ecs_nginx" {
 #trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.
 resource "aws_cloudwatch_log_group" "ecs_locust" {
   retention_in_days = 1
-  name              = "aws/ecs/locust"
+  name              = "ecslogs/locust"
 }
 
 #trivy:ignore:avd-aws-0017 // (LOW): Log group is not encrypted.

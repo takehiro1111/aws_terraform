@@ -45,6 +45,7 @@ resource "aws_service_discovery_service" "web" {
   health_check_custom_config {
     failure_threshold = 1
   }
+  
 }
 
 // ECSサービス
@@ -52,7 +53,7 @@ resource "aws_ecs_service" "web_nginx" {
   name                              = "nginx-service-stg"
   cluster                           = aws_ecs_cluster.web.arn
   task_definition                   = "nginx-task-define"
-  desired_count                     = 0
+  desired_count                     = 1
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 60
@@ -77,6 +78,10 @@ resource "aws_ecs_service" "web_nginx" {
 
   lifecycle {
     ignore_changes = [task_definition]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.web.arn
   }
 }
 
@@ -107,9 +112,15 @@ resource "aws_ecs_service" "locust" {
     container_port   = 8089                                                                            // locustのデフォルトでDockerfileで定義している。
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.web.arn
+  }
+
   lifecycle {
     ignore_changes = [task_definition]
   }
+
+  depends_on = [ aws_ecs_task_definition.locust ]
 }
 
 // タスク定義
@@ -226,7 +237,7 @@ resource "aws_ecs_task_definition" "locust" {
         logDriver = "awslogs"
         options = {
           awslogs-stream-prefix = "locust"
-          awslogs-create-group  = false
+          awslogs-create-group  = "true"
           awslogs-group         = data.terraform_remote_state.development_management.outputs.cw_log_group_name_ecs_locust
           awslogs-region        = data.aws_region.default.name
         }
@@ -234,9 +245,9 @@ resource "aws_ecs_task_definition" "locust" {
     }
   ])
 
-  # lifecycle {
-  #   ignore_changes = [container_definitions,task_definition]
-  # }
+  lifecycle {
+    ignore_changes = [container_definitions,task_definition]
+  }
 }
 
 #######################################################################################

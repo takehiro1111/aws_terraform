@@ -72,7 +72,7 @@ module "route53_records_takehiro1111_com" {
       name = trimsuffix(module.value.locust_takehiro1111_com, ".${module.value.takehiro1111_com}")
       type = "A"
       alias = {
-        name                   = module.cloudfront_locusttakehiro1111_com.cloudfront_distribution_domain_name
+        name                   = module.cloudfront_locust_takehiro1111_com.cloudfront_distribution_domain_name
         zone_id                = module.cloudfront_locust_takehiro1111_com.cloudfront_distribution_hosted_zone_id
         evaluate_target_health = false
       }
