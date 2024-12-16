@@ -45,7 +45,7 @@ resource "aws_service_discovery_service" "web" {
   health_check_custom_config {
     failure_threshold = 1
   }
-  
+
 }
 
 // ECSサービス
@@ -120,7 +120,7 @@ resource "aws_ecs_service" "locust" {
     ignore_changes = [task_definition]
   }
 
-  depends_on = [ aws_ecs_task_definition.locust ]
+  depends_on = [aws_ecs_task_definition.locust]
 }
 
 // タスク定義
@@ -246,7 +246,7 @@ resource "aws_ecs_task_definition" "locust" {
   ])
 
   lifecycle {
-    ignore_changes = [container_definitions,task_definition]
+    ignore_changes = [container_definitions, task_definition]
   }
 }
 

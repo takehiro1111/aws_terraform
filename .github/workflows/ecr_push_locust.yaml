@@ -33,10 +33,11 @@ jobs:
             container_name: locust-container # タスク定義内の"name"と合わせる必要がある。
     steps:
       - name: Set matrix output
+        id: set-matrix
         run: echo "Matrix configuration is ready!"
 
   ecr-push:
-    needs: [set-matrix]
+    needs: set-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
