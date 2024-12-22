@@ -212,7 +212,7 @@ resource "aws_db_parameter_group" "mysql_8_aurora" {
 # refarence: https://registry.terraform.io/modules/terraform-aws-modules/rds-aurora/aws/latest
 module "aurora_mysql_takehiro1111_com" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.10.0"
+  version = "9.11.0"
 
   create = false
 
