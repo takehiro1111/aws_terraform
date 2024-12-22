@@ -1,0 +1,22 @@
+groups:
+  - name: blackbox_exporter
+    rules:
+      - alert: URL Alert(critical)
+        expr: probe_success == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          identifier: '{{ $labels.product }} : {{ $labels.target }}'
+          summary: Instance {{ $labels.target }} down
+          description: '{{ $labels.target }} has been down for more than 5 minutes.'
+
+      - alert: URL Alert(warning)
+        expr: probe_success == 0
+        for: 10s
+        labels:
+          severity: error
+        annotations:
+          identifier: '{{ $labels.product }} : {{ $labels.target }}'
+          summary: '{{ $labels.product }} : {{ $labels.target }}'
+          description:  '{{ $labels.target }} has been down for more than 2 minutes.'
