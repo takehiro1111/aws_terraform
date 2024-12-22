@@ -363,7 +363,7 @@ resource "aws_sns_topic_policy" "slack_alert" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/sns/aws/latest
 module "sns_notify_chatbot" {
   source  = "terraform-aws-modules/sns/aws"
-  version = "6.1.1"
+  version = "6.1.2"
 
   create       = true
   name         = "slack_notify"
@@ -391,7 +391,7 @@ data "aws_iam_policy_document" "sns_notify_chatbot" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/sns/aws/latest
 module "sns_notify_chatbot_ecs_cw_alert" {
   source  = "terraform-aws-modules/sns/aws"
-  version = "6.1.1"
+  version = "6.1.2"
 
   create       = true
   name         = "sns_notify_chatbot_ecs_cw_alert"
