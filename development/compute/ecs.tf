@@ -1,3 +1,79 @@
+####################################################
+# SSM Doocument
+####################################################
+module "auto_stop_start_ecs" {
+  source = "../../modules/ssm/ecs"
+}
+
+####################################################
+# EventBridge
+####################################################
+// 年始の第一営業日に一斉に起動するための一時的な設定。(2024/12/23)
+module "autoEcsStart_new_year_first_working_day" {
+  source = "../../modules/event_bridge/ecs/auto_start"
+
+  ecs_service_list = [
+    aws_ecs_service.web_nginx.name,
+    aws_ecs_service.locust.name,
+  ]
+  state               = "ENABLED"
+  ecs_cluster_name    = aws_ecs_cluster.web.name
+  name                = "StartEcsStg-new-year-first-working-day"
+  schedule_expression = "cron(43 10 23 12 ? 2024)" # JST: 2025年1月6日 8:00
+}
+
+module "autoEcsSop_new_year_first_working_day" {
+  source = "../../modules/event_bridge/ecs/auto_stop"
+
+  ecs_service_list = [
+    aws_ecs_service.web_nginx.name,
+    aws_ecs_service.locust.name,
+  ]
+  state               = "ENABLED"
+  ecs_cluster_name    = aws_ecs_cluster.web.name
+  name                = "SopEcsStg-new-year-first-working-day"
+  schedule_expression = "cron(49 10 23 12 ? 2024)" # JST: 2025年1月6日 8:00
+}
+
+####################################################
+# IAM
+####################################################
+/* 
+ * ECS AutoStop Start
+ */
+resource "aws_iam_role" "ecs_auto_contorol" {
+  name = "ecs-auto-control"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "events.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy_document" "ecs_auto_contorol" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "*"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "ecs_auto_contorol" {
+  name   = aws_iam_role.ecs_auto_contorol.name
+  role   = aws_iam_role.ecs_auto_contorol.name
+  policy = data.aws_iam_policy_document.ecs_auto_contorol.json
+}
+
+
 #####################################################################################
 # ECS
 #####################################################################################
@@ -56,7 +132,7 @@ resource "aws_ecs_service" "web_nginx" {
   desired_count                     = 0
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
-  health_check_grace_period_seconds = 60
+  health_check_grace_period_seconds = 0
   enable_execute_command            = true
 
   deployment_circuit_breaker {
@@ -92,7 +168,7 @@ resource "aws_ecs_service" "locust" {
   desired_count                     = 0
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
-  health_check_grace_period_seconds = 60
+  health_check_grace_period_seconds = 0
   enable_execute_command            = true
 
   deployment_circuit_breaker {
