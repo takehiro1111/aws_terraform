@@ -6,20 +6,20 @@ module "sg_vpc_origin" {
   version = "5.2.0"
 
   use_name_prefix = false
-  name        = "CloudFront-VPCOrigins-Service-SG"
-  description = "CloudFront configured SecurityGroup"
-  vpc_id      = data.terraform_remote_state.development_network.outputs.vpc_id_development
+  name            = "CloudFront-VPCOrigins-Service-SG"
+  description     = "CloudFront configured SecurityGroup"
+  vpc_id          = data.terraform_remote_state.development_network.outputs.vpc_id_development
   egress_with_cidr_blocks = [
     {
-      from_port = 0
-      to_port = 0
-      protocol = "all"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "all"
       cidr_blocks = "0.0.0.0/0"
     }
   ]
 
   tags = {
-    Name = "sg-vpc-origin"
+    Name                       = "sg-vpc-origin"
     "aws.cloudfront.vpcorigin" = "enabled"
   }
 }
@@ -50,11 +50,11 @@ resource "aws_security_group" "alb_stg" {
 # }
 
 resource "aws_vpc_security_group_ingress_rule" "alb_vpc_origin" {
-  security_group_id = aws_security_group.alb_stg.id
-  description       = "Allow inbound rule for https"
-  from_port         = 443
-  to_port           = 443
-  ip_protocol       = "tcp"
+  security_group_id            = aws_security_group.alb_stg.id
+  description                  = "Allow inbound rule for https"
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
   referenced_security_group_id = "sg-0f5f3aeba40341fbb"
 
   tags = {
