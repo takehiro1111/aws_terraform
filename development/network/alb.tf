@@ -10,11 +10,11 @@ module "alb_wildcard_takehiro1111_com" {
   create                     = true
   name                       = local.env_yml.env
   load_balancer_type         = "application"
-  internal                   = false
+  internal                   = true
   enable_deletion_protection = false
 
   vpc_id  = module.vpc_development.vpc_id
-  subnets = module.vpc_development.public_subnets
+  subnets = module.vpc_development.private_subnets
 
   create_security_group = false
   security_groups = [

@@ -1,3 +1,29 @@
+/* 
+ * VPC Origin
+ */
+module "sg_vpc_origin" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "5.2.0"
+
+  use_name_prefix = false
+  name            = "CloudFront-VPCOrigins-Service-SG"
+  description     = "CloudFront configured SecurityGroup"
+  vpc_id          = data.terraform_remote_state.development_network.outputs.vpc_id_development
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "all"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+
+  tags = {
+    Name                       = "sg-vpc-origin"
+    "aws.cloudfront.vpcorigin" = "enabled"
+  }
+}
+
 # ALB--------------------------------------
 resource "aws_security_group" "alb_stg" {
   name        = "alb-stg"
@@ -9,16 +35,30 @@ resource "aws_security_group" "alb_stg" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "alb_stg_443" {
-  security_group_id = aws_security_group.alb_stg.id
-  description       = "Allow inbound rule for https"
-  from_port         = 443
-  to_port           = 443
-  ip_protocol       = "tcp"
-  prefix_list_id    = data.aws_ec2_managed_prefix_list.cdn.id
+// VPCオリジンの運用に変更したため削除。(2024/12/24)
+# resource "aws_vpc_security_group_ingress_rule" "alb_stg_443" {
+#   security_group_id = aws_security_group.alb_stg.id
+#   description       = "Allow inbound rule for https"
+#   from_port         = 443
+#   to_port           = 443
+#   ip_protocol       = "tcp"
+#   prefix_list_id    = data.aws_ec2_managed_prefix_list.cdn.id
+
+#   tags = {
+#     Name = "alb-stg-443"
+#   }
+# }
+
+resource "aws_vpc_security_group_ingress_rule" "alb_vpc_origin" {
+  security_group_id            = aws_security_group.alb_stg.id
+  description                  = "Allow inbound rule for https"
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = "sg-0f5f3aeba40341fbb"
 
   tags = {
-    Name = "alb-stg-443"
+    Name = "sg-vpc-origin"
   }
 }
 
