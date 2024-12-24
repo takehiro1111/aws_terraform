@@ -31,7 +31,7 @@ output "public_subnet_a_development" {
 ######################################################################
 output "cloudfront_arn_cdn_takehiro1111_com" {
   description = "The ARN of the development CloudFront"
-  value       = aws_cloudfront_distribution.this.arn
+  value       = module.cdn_takehiro1111_com.cloudfront_distribution_arn
 }
 
 ######################################################################
