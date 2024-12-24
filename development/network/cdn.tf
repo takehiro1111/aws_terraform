@@ -348,7 +348,7 @@ module "cloudfront_locust_takehiro1111_com" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 # module "cloudfront_api_takehiro1111_com" {
 #   source  = "terraform-aws-modules/cloudfront/aws"
-#   version = "3.4.1"
+#   version = "4.0.0"
 
 #   # aws_cloudfront_origin_access_control
 #   create_origin_access_control = false
