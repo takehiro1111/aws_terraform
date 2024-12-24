@@ -49,28 +49,6 @@ module "cdn_takehiro1111_com" {
     include_cookies = false
   }
 
-  create_vpc_origin = true
-  vpc_origin = [
-    {
-      name = "alb-web"
-      arn  = ""
-      # http_port = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols = {
-        items    = ["TLSv1.2"]
-        quantity = 1
-      }
-    }
-  ]
-
-  vpc_origin_config = {
-    vpc_origin_id            = module.cdn_takehiro1111_com.cloudfront_vpc_origin_ids
-    origin_keepalive_timeout = 5
-    origin_read_timeout      = 30
-  }
-
-
   // ALB
   origin = {
     origin_alb = {
@@ -84,6 +62,12 @@ module "cdn_takehiro1111_com" {
         origin_ssl_protocols     = ["TLSv1.2"]
         origin_keepalive_timeout = 5
         origin_read_timeout      = 20
+      }
+
+      vpc_origin_config = {
+        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.arn
+        origin_keepalive_timeout = 5
+        origin_read_timeout      = 30
       }
     },
 
@@ -440,5 +424,34 @@ module "cloudfront_locust_takehiro1111_com" {
 
 #   tags = {
 #     Name = module.value.api_takehiro1111_com
+#   }
+# }
+
+resource "aws_cloudfront_vpc_origin" "alb" {
+  vpc_origin_endpoint_config {
+    name                   = "alb-web"
+    arn                    = module.alb_wildcard_takehiro1111_com.arn
+    http_port              = 80
+    https_port             = 443
+    origin_protocol_policy = "https-only"
+
+    origin_ssl_protocols {
+      items    = ["TLSv1.2"]
+      quantity = 1
+    }
+  }
+}
+
+# vpc_origin_endpoint_config = {
+#   vpc_origin = {
+#     name = "alb-web"
+#     arn  = ""
+#     # http_port = 80
+#     https_port             = 443
+#     origin_protocol_policy = "https-only"
+#     origin_ssl_protocols = {
+#       items    = ["TLSv1.2"]
+#       quantity = 1
+#     }
 #   }
 # }
