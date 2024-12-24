@@ -55,21 +55,24 @@ module "cdn_takehiro1111_com" {
       domain_name = module.alb_wildcard_takehiro1111_com.dns_name
       origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
 
-      custom_origin_config = {
-        http_port                = 80
-        https_port               = 443
-        origin_protocol_policy   = "https-only"
-        origin_ssl_protocols     = ["TLSv1.2"]
-        origin_keepalive_timeout = 5
-        origin_read_timeout      = 20
-      }
+      # custom_origin_config = {
+      #   http_port                = 80
+      #   https_port               = 443
+      #   origin_protocol_policy   = "https-only"
+      #   origin_ssl_protocols     = ["TLSv1.2"]
+      #   origin_keepalive_timeout = 5
+      #   origin_read_timeout      = 20
+      # }
 
       vpc_origin_config = {
-        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.arn
-        origin_keepalive_timeout = 5
+        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
+        origin_keepalive_timeout = 10
         origin_read_timeout      = 30
       }
+
     },
+
+
 
     origin_s3 = {
       domain_name           = data.terraform_remote_state.development_storage.outputs.s3_bucket_regional_domain_name_static_site_web
@@ -85,7 +88,7 @@ module "cdn_takehiro1111_com" {
 
   default_cache_behavior = {
     target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = "allow-all"
     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
     cached_methods         = ["GET", "HEAD"]
     compress               = true
@@ -93,7 +96,7 @@ module "cdn_takehiro1111_com" {
 
     cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+    # response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
 
     min_ttl     = 0
     default_ttl = 0
