@@ -45,8 +45,8 @@ module "route53_records_takehiro1111_com" {
       name = trimsuffix(module.value.cdn_takehiro1111_com, ".${module.value.takehiro1111_com}")
       type = "A"
       alias = {
-        name                   = module.cdn_takehiro1111_com.cloudfront_distribution_domain_name
-        zone_id                = module.cdn_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        name                   = aws_cloudfront_distribution.this.domain_name
+        zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
         evaluate_target_health = false
       }
     },
