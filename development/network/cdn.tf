@@ -94,8 +94,8 @@ module "cdn_takehiro1111_com" {
     compress               = true
     use_forwarded_values   = false
 
-    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+    cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
     # response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
 
     min_ttl     = 0
