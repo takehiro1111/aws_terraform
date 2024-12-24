@@ -37,137 +37,137 @@ resource "aws_cloudfront_vpc_origin" "alb" {
 
 
 resource "aws_cloudfront_origin_access_control" "this" {
-  description                       = "cdn.takehiro1111.com" 
-  name                              = "oac_takehiro1111_com" 
+  description                       = "cdn.takehiro1111.com"
+  name                              = "oac_takehiro1111_com"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
 
 resource "aws_cloudfront_distribution" "this" {
-    aliases                         = [
-        "cdn.takehiro1111.com",
+  aliases = [
+    "cdn.takehiro1111.com",
+  ]
+  comment          = "cdn.takehiro1111.com"
+  enabled          = true
+  is_ipv6_enabled  = true
+  price_class      = "PriceClass_All"
+  retain_on_delete = false
+
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 500
+    response_code         = 500
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 501
+    response_code         = 501
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 502
+    response_code         = 502
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+  custom_error_response {
+    error_caching_min_ttl = 10
+    error_code            = 504
+    response_code         = 504
+    response_page_path    = "/maintenance/maintenance.html"
+  }
+
+  default_cache_behavior {
+    allowed_methods = [
+      "DELETE",
+      "GET",
+      "HEAD",
+      "OPTIONS",
+      "PATCH",
+      "POST",
+      "PUT",
     ]
-    comment                         = "cdn.takehiro1111.com"
-    enabled                         = true
-    is_ipv6_enabled                 = true
-    price_class                     = "PriceClass_All"
-    retain_on_delete                = false
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+    cached_methods = [
+      "GET",
+      "HEAD",
+    ]
+    compress                 = true
+    default_ttl              = 0
+    max_ttl                  = 0
+    min_ttl                  = 0
+    origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3"
+    target_origin_id         = "internal-development-1279856694.ap-northeast-1.elb.amazonaws.com"
+    viewer_protocol_policy   = "allow-all"
+  }
 
-    custom_error_response {
-        error_caching_min_ttl = 10
-        error_code            = 500
-        response_code         = 500
-        response_page_path    = "/maintenance/maintenance.html"
-    }
-    custom_error_response {
-        error_caching_min_ttl = 10
-        error_code            = 501
-        response_code         = 501
-        response_page_path    = "/maintenance/maintenance.html"
-    }
-    custom_error_response {
-        error_caching_min_ttl = 10
-        error_code            = 502
-        response_code         = 502
-        response_page_path    = "/maintenance/maintenance.html"
-    }
-    custom_error_response {
-        error_caching_min_ttl = 10
-        error_code            = 504
-        response_code         = 504
-        response_page_path    = "/maintenance/maintenance.html"
-    }
+  logging_config {
+    bucket          = "cdn-log-650251692423.s3.amazonaws.com"
+    include_cookies = false
+    prefix          = "cdn-takehiro1111-com"
+  }
 
-    default_cache_behavior {
-        allowed_methods            = [
-            "DELETE",
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "PATCH",
-            "POST",
-            "PUT",
-        ]
-        cache_policy_id            = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
-        cached_methods             = [
-            "GET",
-            "HEAD",
-        ]
-        compress                   = true
-        default_ttl                = 0
-        max_ttl                    = 0
-        min_ttl                    = 0
-        origin_request_policy_id   = "216adef6-5c7f-47e4-b989-5492eafa07d3"
-        target_origin_id           = "internal-development-1279856694.ap-northeast-1.elb.amazonaws.com"
-        viewer_protocol_policy     = "allow-all"
+  ordered_cache_behavior {
+    allowed_methods = [
+      "GET",
+      "HEAD",
+    ]
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    cached_methods = [
+      "GET",
+      "HEAD",
+    ]
+    compress               = false
+    default_ttl            = 0
+    max_ttl                = 0
+    min_ttl                = 0
+    path_pattern           = "/static/*"
+    target_origin_id       = "static-site-web-650251692423.s3.ap-northeast-1.amazonaws.com"
+    viewer_protocol_policy = "redirect-to-https"
+  }
+
+  origin {
+    connection_attempts = 3
+    connection_timeout  = 10
+    domain_name         = "internal-development-1279856694.ap-northeast-1.elb.amazonaws.com"
+    origin_id           = "internal-development-1279856694.ap-northeast-1.elb.amazonaws.com"
+
+
+
+    vpc_origin_config {
+      vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
+      origin_keepalive_timeout = 5
+      origin_read_timeout      = 30
     }
 
-    logging_config {
-        bucket          = "cdn-log-650251692423.s3.amazonaws.com"
-        include_cookies = false
-        prefix          = "cdn-takehiro1111-com"
+  }
+  origin {
+    connection_attempts      = 3
+    connection_timeout       = 10
+    domain_name              = "static-site-web-650251692423.s3.ap-northeast-1.amazonaws.com"
+    origin_access_control_id = "E312XNBHM6QQDD"
+    origin_id                = "static-site-web-650251692423.s3.ap-northeast-1.amazonaws.com"
+
+    origin_shield {
+      enabled              = true
+      origin_shield_region = "ap-northeast-1"
     }
+  }
 
-    ordered_cache_behavior {
-        allowed_methods            = [
-            "GET",
-            "HEAD",
-        ]
-        cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
-        cached_methods             = [
-            "GET",
-            "HEAD",
-        ]
-        compress                   = false
-        default_ttl                = 0
-        max_ttl                    = 0
-        min_ttl                    = 0
-        path_pattern               = "/static/*"
-        target_origin_id           = "static-site-web-650251692423.s3.ap-northeast-1.amazonaws.com"
-        viewer_protocol_policy     = "redirect-to-https"
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
     }
+  }
 
-    origin {
-        connection_attempts      = 3
-        connection_timeout       = 10
-        domain_name              = "internal-development-1279856694.ap-northeast-1.elb.amazonaws.com"
-        origin_id                = "internal-development-1279856694.ap-northeast-1.elb.amazonaws.com"
-
-        
-
-      vpc_origin_config  {
-        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
-        origin_keepalive_timeout = 5
-        origin_read_timeout      = 30
-      }
-
-    }
-    origin {
-        connection_attempts      = 3
-        connection_timeout       = 10
-        domain_name              = "static-site-web-650251692423.s3.ap-northeast-1.amazonaws.com"
-        origin_access_control_id = "E312XNBHM6QQDD"
-        origin_id                = "static-site-web-650251692423.s3.ap-northeast-1.amazonaws.com"
-
-        origin_shield {
-            enabled              = true
-            origin_shield_region = "ap-northeast-1"
-        }
-    }
-
-    restrictions {
-        geo_restriction {
-            restriction_type = "none"
-        }
-    }
-
-    viewer_certificate {
-        acm_certificate_arn            = "arn:aws:acm:us-east-1:650251692423:certificate/33a8920a-bb1d-4f3a-9b0a-f108cabcb882"
-        cloudfront_default_certificate = false
-        minimum_protocol_version       = "TLSv1.2_2021"
-        ssl_support_method             = "sni-only"
-    }
+  viewer_certificate {
+    acm_certificate_arn            = "arn:aws:acm:us-east-1:650251692423:certificate/33a8920a-bb1d-4f3a-9b0a-f108cabcb882"
+    cloudfront_default_certificate = false
+    minimum_protocol_version       = "TLSv1.2_2021"
+    ssl_support_method             = "sni-only"
+  }
 }
 
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
