@@ -53,9 +53,9 @@ module "cdn_takehiro1111_com" {
   vpc_origin = [
     {
       name = "alb-web"
-      arn = ""
+      arn  = ""
       # http_port = 80
-      https_port = 443
+      https_port             = 443
       origin_protocol_policy = "https-only"
       origin_ssl_protocols = {
         items    = ["TLSv1.2"]
@@ -65,9 +65,9 @@ module "cdn_takehiro1111_com" {
   ]
 
   vpc_origin_config = {
-    vpc_origin_id = module.cdn_takehiro1111_com.cloudfront_vpc_origin_ids
+    vpc_origin_id            = module.cdn_takehiro1111_com.cloudfront_vpc_origin_ids
     origin_keepalive_timeout = 5
-    origin_read_timeout = 30
+    origin_read_timeout      = 30
   }
 
 
