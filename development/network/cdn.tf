@@ -49,6 +49,28 @@ module "cdn_takehiro1111_com" {
     include_cookies = false
   }
 
+  create_vpc_origin = true
+  vpc_origin = [
+    {
+      name = "alb-web"
+      arn = ""
+      # http_port = 80
+      https_port = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols = {
+        items    = ["TLSv1.2"]
+        quantity = 1
+      }
+    }
+  ]
+
+  vpc_origin_config = {
+    vpc_origin_id = module.cdn_takehiro1111_com.cloudfront_vpc_origin_ids
+    origin_keepalive_timeout = 5
+    origin_read_timeout = 30
+  }
+
+
   // ALB
   origin = {
     origin_alb = {
