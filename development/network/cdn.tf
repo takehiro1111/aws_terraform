@@ -64,17 +64,41 @@ module "cdn_takehiro1111_com" {
     include_cookies = false
   }
 
+  create_vpc_origin = true
+  vpc_origin = {
+    test_vpc_origin = {
+      name = "test-vpc-origin"
+      arn = module.alb_wildcard_takehiro1111_com.arn
+      http_port = 80
+      https_port = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols = {
+        items = ["TLSv1.2"]
+        quantity = 1
+      }
+    }
+  }
+
   // ALB
   origin = {
     origin_alb = {
       domain_name = module.alb_wildcard_takehiro1111_com.dns_name
-      origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
+      origin_id   = "test-alb-origin"
 
       vpc_origin_config = {
-        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
+        vpc_origin_id            = module.cdn_takehiro1111_com.cloudfront_vpc_origin_ids[0]
         origin_keepalive_timeout = 5
         origin_read_timeout      = 30
       }
+
+      # custom_origin_config = {
+      #   http_port                = 80
+      #   https_port               = 443
+      #   origin_protocol_policy   = "https-only"
+      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      #   origin_keepalive_timeout = 5
+      #   origin_read_timeout      = 20
+      # }
     }
     origin_s3 = {
       domain_name           = data.terraform_remote_state.development_storage.outputs.s3_bucket_regional_domain_name_static_site_web
@@ -89,7 +113,7 @@ module "cdn_takehiro1111_com" {
   }
 
   default_cache_behavior = {
-    target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
+    target_origin_id       = "test-alb-origin"
     viewer_protocol_policy = "allow-all"
     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
     cached_methods         = ["GET", "HEAD"]
@@ -173,6 +197,15 @@ module "cloudfront_prometheus_takehiro1111_com" {
         origin_keepalive_timeout = 10
         origin_read_timeout      = 30
       }
+
+      # custom_origin_config = {
+      #   http_port                = 80
+      #   https_port               = 443
+      #   origin_protocol_policy   = "https-only"
+      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      #   origin_keepalive_timeout = 5
+      #   origin_read_timeout      = 20
+      # }
     }
   }
 
@@ -242,6 +275,15 @@ module "cloudfront_grafana_takehiro1111_com" {
         origin_keepalive_timeout = 10
         origin_read_timeout      = 30
       }
+
+      # custom_origin_config = {
+      #   http_port                = 80
+      #   https_port               = 443
+      #   origin_protocol_policy   = "https-only"
+      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      #   origin_keepalive_timeout = 5
+      #   origin_read_timeout      = 20
+      # }
     }
   }
 
@@ -311,6 +353,15 @@ module "cloudfront_locust_takehiro1111_com" {
         origin_keepalive_timeout = 10
         origin_read_timeout      = 30
       }
+
+      #  custom_origin_config = {
+      #   http_port                = 80
+      #   https_port               = 443
+      #   origin_protocol_policy   = "https-only"
+      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+      #   origin_keepalive_timeout = 5
+      #   origin_read_timeout      = 20
+      # }
     }
   }
 

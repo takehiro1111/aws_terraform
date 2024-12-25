@@ -20,7 +20,7 @@ module "vpc_development" {
   create_igw = true
 
   ### NAT GW ###
-  enable_nat_gateway     = true // Will be changed to true when using compute resources.
+  enable_nat_gateway     = false // Will be changed to true when using compute resources.
   single_nat_gateway     = true // To reduce costs, each private subnet points to a single NAT GW.
   one_nat_gateway_per_az = true // Place NAT GW in a single AZ for cost reasons. Because Accept reduced availability.
 
