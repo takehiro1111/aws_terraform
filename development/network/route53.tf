@@ -77,6 +77,18 @@ module "route53_records_takehiro1111_com" {
         evaluate_target_health = false
       }
     },
+    // 別アカウントでLocustを検証したいため、ドメインの移譲対応を行なっている。(2024/12/26)
+    # {
+    #   name = trimsuffix("common-dev.${module.value.takehiro1111_com}", ".${module.value.takehiro1111_com}")
+    #   type = "NS"
+    #   ttl  = 300
+    #   records = [
+    #     "ns-1954.awsdns-52.co.uk",
+    #     "ns-716.awsdns-25.net",
+    #     "ns-1464.awsdns-55.org",
+    #     "ns-327.awsdns-40.com"
+    #   ]
+    # },
     # # {
     #   name = trimsuffix(module.value.api_takehiro1111_com, ".${module.value.takehiro1111_com}")
     #   type = "A"
