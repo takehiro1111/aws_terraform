@@ -25,7 +25,7 @@ jobs:
           aqua_version: v2.40.0
 
       # 変更のあった作業ディレクトリを取得する Action
-      - uses: suzuki-shunsuke/tfaction/list-targets@f56d1ae7fd22841f64c1c092148bc55bcb1f24d4 # v1.13.4
+      - uses: suzuki-shunsuke/tfaction/list-targets@cf44a60e11fae9acf1ab973dff4af3e4761d91f7 # v1.13.5
         id: list-targets
 
   # plan で setup で取得した変更のある作業ディレクトリを並列に実行する
@@ -57,11 +57,11 @@ jobs:
           private_key: ${{ secrets.PRIVATE_KEY }}
 
       # terraform init などの準備を行う Action
-      - uses: suzuki-shunsuke/tfaction/setup@f56d1ae7fd22841f64c1c092148bc55bcb1f24d4 # v1.13.4
+      - uses: suzuki-shunsuke/tfaction/setup@cf44a60e11fae9acf1ab973dff4af3e4761d91f7 # v1.13.5
         with:
           github_app_token: ${{ steps.github_app_token.outputs.token }}
 
       # terraform plan を実行する Action
-      - uses: suzuki-shunsuke/tfaction/plan@f56d1ae7fd22841f64c1c092148bc55bcb1f24d4 # v1.13.4
+      - uses: suzuki-shunsuke/tfaction/plan@cf44a60e11fae9acf1ab973dff4af3e4761d91f7 # v1.13.5
         with:
           github_app_token: ${{ steps.github_app_token.outputs.token }}
