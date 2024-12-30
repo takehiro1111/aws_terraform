@@ -1,0 +1,14 @@
+# 状態ファイルと.terraformディレクトリを除外
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# ローカル開発用ファイルを除外
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# その他の一時ファイル
+.DS_Store
+*.backup

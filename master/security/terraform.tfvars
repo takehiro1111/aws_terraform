@@ -1,0 +1,1 @@
+TFC_AWS_PROVIDER_AUTH = true
