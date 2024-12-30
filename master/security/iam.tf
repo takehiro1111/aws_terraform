@@ -12,6 +12,29 @@ module "iam_role_github_actions_deploy" {
   github_actions_repo = ["repo:takehiro1111/aws_terraform:*"]
 }
 
+resource "aws_iam_role" "github_actions_for_waf" {
+  name = "deploy-github-actions-for-waf"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Effect = "Allow"
+        Principal = {
+          Federated = module.oidc_github_actions.oidc_arn
+        },
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" : [
+              "repo:takehiro1111/aws_terraform:*",
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
+
 ###################################################################
 # Authentication for HCP Terraform
 ###################################################################
