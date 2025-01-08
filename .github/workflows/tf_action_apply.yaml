@@ -7,23 +7,12 @@ on:
     types: [closed]
     branches:
       - main    # mainブランチへのPRが対象
+      - '!renovate/**'    # 除外するブランチはここで指定
+      - '!dependabot/**'
     paths:
       - 'master/**'
       - 'development/**'
       - 'modules/**'
-    branches-ignore:
-      - 'dependabot/**'
-      - 'renovate/**'
-
-  # push:
-    # branches:
-    #   - main
-    # paths:
-    #   - 'master/**'
-    #   - 'development/**'
-    #   - 'modules/**'
-    # branches-ignore:
-    #   - 'renovate/**' 
 
 env:
   TFACTION_IS_APPLY: 'true'
