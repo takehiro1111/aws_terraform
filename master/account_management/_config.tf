@@ -12,9 +12,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "tfstate-685339645368"
-    key     = "account_management/tfstate"
-    region  = "ap-northeast-1"
+    bucket = "tfstate-685339645368"
+    key    = "account_management/tfstate"
+    region = "ap-northeast-1"
   }
 }
 
@@ -22,7 +22,7 @@ terraform {
 # Provider Block
 #####################################################
 provider "aws" {
-  region  = "ap-northeast-1"
+  region = "ap-northeast-1"
 
   default_tags {
     tags = {
@@ -34,8 +34,8 @@ provider "aws" {
 }
 
 provider "aws" {
-  region  = "us-east-1"
-  alias   = "us-east-1"
+  region = "us-east-1"
+  alias  = "us-east-1"
 
   default_tags {
     tags = {
