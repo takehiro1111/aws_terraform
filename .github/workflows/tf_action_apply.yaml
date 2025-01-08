@@ -9,9 +9,6 @@ on:
     branches:
       - 'feature/**'
 
-    branches-ignore:
-      - 'renovate/**'
-      - 'dependabot/**'
   # push:
     # branches:
     #   - main
