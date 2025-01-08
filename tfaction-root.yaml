@@ -26,8 +26,8 @@ target_groups:
     terraform_apply_config:
       aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-apply
 
-  - working_directory: master/security
-    target: master/security
+  - working_directory: master/storage
+    target: master/storage
     aws_region: ap-northeast-1
     terraform_plan_config:
       aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-plan

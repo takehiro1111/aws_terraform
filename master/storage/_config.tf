@@ -15,7 +15,6 @@ terraform {
     bucket  = "tfstate-685339645368"
     key     = "sam/tfstate"
     region  = "ap-northeast-1"
-    profile = "master_administrator"
   }
 }
 
@@ -24,7 +23,6 @@ terraform {
 #####################################################
 provider "aws" {
   region  = "ap-northeast-1"
-  profile = "master_administrator"
 
   default_tags {
     tags = {
