@@ -11,8 +11,6 @@ on:
       - '!dependabot/**'
     paths:
       - 'master/**'
-      - 'development/**'
-      - 'modules/**'
 
 env:
   TFACTION_IS_APPLY: 'true'
