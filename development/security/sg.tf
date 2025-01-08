@@ -3,7 +3,7 @@
  */
 module "sg_vpc_origin" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
   use_name_prefix = false
   name            = "CloudFront-VPCOrigins-Service-SG"
@@ -173,7 +173,7 @@ resource "aws_vpc_security_group_egress_rule" "ecs_stg_egress" {
 #MySQL ------------------------------------- 
 module "sg_mysql" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
   // SG本体
   name        = "aurora-mysql"
@@ -230,7 +230,7 @@ resource "aws_vpc_security_group_ingress_rule" "mysql_stg_cdn" {
 
 module "vpc_endpoint" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
 
   name        = "stats-fluentd"
@@ -252,7 +252,7 @@ module "vpc_endpoint" {
 
 module "vpce_ssm" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
 
   name        = "vpce-ssm"
@@ -277,7 +277,7 @@ module "vpce_ssm" {
 
 module "sg_ec2_ssm" {
   source      = "terraform-aws-modules/security-group/aws"
-  version     = "5.2.0"
+  version     = "5.3.0"
   name        = "vpce-ssm"
   description = "SG for log routing"
   vpc_id      = data.terraform_remote_state.development_network.outputs.vpc_id_development
