@@ -10,7 +10,6 @@ terraform:
     template: |
       {{ .Message }}
       {{if .Result}}
-      {{ .WorkingDir }}
       ```
       {{ .Result }}
       ```
@@ -25,6 +24,4 @@ terraform:
       {{end}}
       ```
       {{ .Body }}
-      ```
-      {{end}}
       ```
