@@ -7,8 +7,6 @@ on:
     types: [closed]
     branches:
       - main    # mainブランチへのPRが対象
-      - '!renovate/**'    # 除外するブランチはここで指定
-      - '!dependabot/**'
     paths:
       - 'master/**'
 
