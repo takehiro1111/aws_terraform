@@ -1,3 +1,5 @@
+# refrence: https://github.com/mercari/tfnotify
+
 ci: github-actions
 notifier:
   slack:
