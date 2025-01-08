@@ -41,3 +41,13 @@ resource "aws_iam_role" "github_actions_for_waf" {
 module "iam_role_hcp" {
   source = "../../modules/iam/hcp"
 }
+
+
+locals {
+  name = toset(["test1-4"])
+}
+
+resource "aws_iam_user" "test" {
+  for_each = local.name
+  name     = each.key
+}
