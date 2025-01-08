@@ -89,7 +89,7 @@ resource "aws_iam_role_policy_attachment" "config_configuration_aggregator" {
 }
 
 locals {
-  name = toset(["test1-3"])
+  name = toset(["test1-4"])
 }
 
 resource "aws_iam_user" "test" {
