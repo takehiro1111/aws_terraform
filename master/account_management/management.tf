@@ -87,3 +87,14 @@ resource "aws_iam_role_policy_attachment" "config_configuration_aggregator" {
   role       = aws_iam_role.config_configuration_aggregator.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRoleForOrganizations"
 }
+
+
+
+locals {
+  name = toset(["test1-5"])
+}
+
+resource "aws_iam_user" "test" {
+  for_each = local.name
+  name     = each.key
+}
