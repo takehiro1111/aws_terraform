@@ -15,3 +15,14 @@ terraform:
       {{ .Result }}
       ```
       {{end}}
+  plan:
+    template: |
+      {{ .Message }}
+      {{if .Result}}
+      ```
+      {{ .Result }}
+      ```
+      {{end}}
+      ```
+      {{ .Body }}
+      ```
