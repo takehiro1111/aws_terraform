@@ -1,0 +1,17 @@
+ci: github-actions
+notifier:
+  slack:
+    token: $SLACK_TOKEN
+    channel: $SLACK_CHANNEL_ID
+    bot: $SLACK_BOT_NAME
+terraform:
+  use_raw_output: false
+  apply:
+    template: |
+      {{ .Message }}
+      {{if .Result}}
+      {{ .WorkingDir }}
+      ```
+      {{ .Result }}
+      ```
+      {{end}}
