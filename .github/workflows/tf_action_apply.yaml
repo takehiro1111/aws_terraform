@@ -26,7 +26,6 @@ permissions:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.merged }} == true
     outputs:
       targets: ${{ steps.list-targets.outputs.targets }}
     timeout-minutes: 300
@@ -97,7 +96,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
         with:
           aws-region: ${{env.AWS_REGION}}
-          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE }}
+          role-to-assume: ${{ secrets.MASTER_APPLY_ROLE }}
           role-session-name: GithubActions_AssumeRole
 
       - name: terraform init
