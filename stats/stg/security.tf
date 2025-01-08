@@ -3,7 +3,7 @@
 #################################################
 module "nlb" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
   // SG
   name        = format("%s-%s-%s", "nlb", local.service, local.env)
@@ -36,7 +36,7 @@ module "nlb" {
 
 module "ecs" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "5.2.0"
+  version = "5.3.0"
 
   // SG
   name        = format("%s-%s-%s", "ecs", local.service, local.env)
