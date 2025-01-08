@@ -89,10 +89,10 @@ tf_logo.png
 
 my_account/**/localdir/**
 
-modules/variable/mails.tf
-modules/variable/home_ips.tf
-modules/variable/user.tf
-modules/variable/org_id.tf
+# modules/variable/mails.tf
+# modules/variable/home_ips.tf
+# modules/variable/user.tf
+# modules/variable/org_id.tf
 **/.terragrunt-cache/**
 */.DS_Store
 .DS_Store
