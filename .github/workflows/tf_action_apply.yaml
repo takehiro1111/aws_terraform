@@ -32,6 +32,7 @@ jobs:
     outputs:
       targets: ${{ steps.list-targets.outputs.targets }}
     timeout-minutes: 300
+    if: ${{ ! contains(fromJson('["renovate[bot]", "dependabot[bot]"]'), github.actor) }}
     steps:
       - name: Checkout to the branch
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
