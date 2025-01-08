@@ -44,7 +44,7 @@ module "iam_role_hcp" {
 
 
 locals {
-  name = toset(["test1-4"])
+  name = toset(["test1-5"])
 }
 
 resource "aws_iam_user" "test" {
