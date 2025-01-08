@@ -18,3 +18,12 @@ output "s3_bucket_arn_config_audit_log" {
   description = "Config S3Bucket"
   value       = module.s3_bucket_config_audit_log.s3_bucket_arn
 }
+
+locals {
+  name = toset(["test2-10"])
+}
+
+resource "aws_iam_user" "test" {
+  for_each = local.name
+  name     = each.key
+}
