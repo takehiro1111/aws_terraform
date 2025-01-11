@@ -2,7 +2,7 @@
 # Terraform Block
 #####################################################
 terraform {
-  required_version = "1.10.4"
+  required_version = "1.10.3"
 
   cloud {
     organization = "takehiro1111"
@@ -69,7 +69,7 @@ module "value" {
 #####################################################
 # Data Block
 #####################################################
-# data "aws_caller_identity" "self" {}
+data "aws_caller_identity" "self" {}
 
 # data "aws_partition" "current" {}
 
