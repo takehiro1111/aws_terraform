@@ -56,7 +56,7 @@ resource "aws_iam_role" "deploy_github_actions" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Effect = "Allow"
         Principal = {
-          Federated = module.oidc.oidc_arn
+          Federated = module.oidc_github_actions.oidc_arn
         },
         Condition = {
           StringLike = {
@@ -76,50 +76,6 @@ resource "aws_iam_role" "deploy_github_actions" {
 
 // 許可ポリシーの設定。
 data "aws_iam_policy_document" "deploy_github_actions" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:*",
-      "s3-object-lambda:*"
-    ]
-    resources = ["*"]
-  }
-  statement {
-    sid       = "GithubActions"
-    effect    = "Allow"
-    actions   = ["sts:*"]
-    resources = ["arn:aws:iam::${data.aws_caller_identity.self.account_id}:role/myaccount_actions"]
-  }
-  statement {
-    sid    = "GetItem"
-    effect = "Allow"
-    actions = [
-      "dynamodb:GetItem",
-      "dynamodb:PutItem",
-    ]
-    resources = ["arn:aws:dynamodb:ap-northeast-1:${data.aws_caller_identity.self.account_id}:table/tfstate-locks"]
-  }
-  statement {
-    sid       = "PushECR"
-    effect    = "Allow"
-    actions   = ["ecr:*"]
-    resources = ["*"]
-  }
-  statement {
-    sid       = "DeployECS"
-    effect    = "Allow"
-    actions   = ["ecs:*"]
-    resources = ["*"]
-  }
-  statement {
-    sid     = "PassRole"
-    effect  = "Allow"
-    actions = ["iam:PassRole"]
-    resources = [
-      "arn:aws:iam::${data.aws_caller_identity.self.account_id}:role/ecsTaskExecutionRole",
-      "arn:aws:iam::${data.aws_caller_identity.self.account_id}:role/secure-ecs-tasks-stg@common"
-    ]
-  }
   statement {
     sid     = "ALL"
     effect  = "Allow"
