@@ -1,5 +1,5 @@
 name: Terraform Apply
-run-name: ${{ github.workflow }} by @${{ github.actor }}
+# run-name: ${{ github.workflow }} by @${{ github.actor }}
 
 on:
   workflow_dispatch:

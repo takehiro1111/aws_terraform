@@ -1,4 +1,4 @@
-name: Notify Apply Result
+name: Notify Terraform Workflow Result
 
 
 on:
