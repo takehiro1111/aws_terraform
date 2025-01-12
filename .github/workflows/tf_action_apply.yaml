@@ -107,9 +107,9 @@ jobs:
       - name: terraform apply
         working-directory: ${{ matrix.target.target }}
         run: |
-          terraform apply -auto-approve -no-color | tfnotify --config ${{ github.workspace }}/.tfnotify/slack.yaml apply --message "${{ github.repository }}"
+          terraform apply -auto-approve -no-color | tfnotify --config ${{ github.workspace }}/.tfnotify/slack.yaml apply --message "${{ matrix.target.target }}\n@${{ github.actor }}"
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-          SLACK_BOT_NAME: ${{ secrets.SLACK_BOT_NAME }}
+          SLACK_BOT_NAME: ${{ github.repository }}
 

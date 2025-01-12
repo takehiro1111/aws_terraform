@@ -67,7 +67,7 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name:
+      - name: aquas install
         uses: aquaproj/aqua-installer@f13c5d2f0357708d85477aabe50fd3f725528745 # v3.1.0
         with:
           aqua_version: v2.42.2
@@ -94,6 +94,7 @@ jobs:
         with:
           terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
 
+      # aquaでインストール済みのため不要。
       # - name: setup tfcmt
       #   env:
       #     TFCMT_VERSION: v4.14.1
