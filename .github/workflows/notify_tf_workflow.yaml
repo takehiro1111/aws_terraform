@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
             {
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
             {
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v2.0.0
+        uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
             {
