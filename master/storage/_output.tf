@@ -20,7 +20,7 @@ output "s3_bucket_arn_config_audit_log" {
 }
 
 locals {
-  name = toset(["test3-14"])
+  name = toset(["test4-14"])
 }
 
 resource "aws_iam_user" "test" {
