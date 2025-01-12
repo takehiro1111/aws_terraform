@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.name == 'Terraform Apply'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844 # v1.23.0
         with:
           payload: |
             {
@@ -52,10 +52,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.name == 'Terraform Apply' 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844 # v1.23.0
         with:
           payload: |
             {
@@ -93,10 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.name == 'Terraform Plan' 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       - name: Send GitHub Action trigger data to Slack workflow
         id: slack
-        uses: slackapi/slack-github-action@v1.23.0
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844 # v1.23.0
         with:
           payload: |
             {
