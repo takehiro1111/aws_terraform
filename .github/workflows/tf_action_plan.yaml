@@ -94,10 +94,14 @@ jobs:
         with:
           terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
 
-      # - name: Setup tfcmt
-      #   uses: shmokmt/actions-setup-tfcmt@v2
-      #   with:
-      #     version: v4.14.1
+      # - name: setup tfcmt
+      #   env:
+      #     TFCMT_VERSION: v4.14.1
+      #   run: |
+      #     wget "https://github.com/suzuki-shunsuke/tfcmt/releases/download/${TFCMT_VERSION}/tfcmt_linux_amd64.tar.gz" -O /tmp/tfcmt.tar.gz
+      #     tar xzf /tmp/tfcmt.tar.gz -C /tmp
+      #     mv /tmp/tfcmt /usr/local/bin
+      #     tfcmt --version
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
@@ -111,12 +115,17 @@ jobs:
         run: |
           terraform init -no-color
 
-      - name: terraform apply
+      - name: terraform plan
         working-directory: ${{ matrix.target.target }}
         run: |
-          terraform plan -no-color | tfnotify --config ${{ github.workspace }}/.tfnotify/slack.yaml plan --message "${{ github.repository }}"
+          tfcmt plan -patch -- terraform plan -no-color -input=false
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-          SLACK_BOT_NAME: ${{ secrets.SLACK_BOT_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Slack Failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: ${{ matrix.target.target }} terraform plan Failure
+          SLACK_COLOR: danger
 
