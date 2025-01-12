@@ -15,7 +15,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.83.0"
+      version = "5.83.1"
     }
   }
 
@@ -69,7 +69,7 @@ module "value" {
 #####################################################
 # Data Block
 #####################################################
-# data "aws_caller_identity" "self" {}
+data "aws_caller_identity" "self" {}
 
 # data "aws_partition" "current" {}
 
