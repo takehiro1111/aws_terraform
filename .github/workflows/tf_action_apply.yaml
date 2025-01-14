@@ -1,5 +1,5 @@
 name: Terraform Apply
-# run-name: ${{ github.workflow }} by @${{ github.actor }}
+run-name: ${{ github.workflow }} by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -11,10 +11,11 @@ on:
       - 'master/**'
 
 env:
-  TFACTION_IS_APPLY: 'true'
-  AQUA_ROOT_DIR: /home/runner/.local/share/aquaproj-aqua
-  TFACTION_CONFIG: tfaction-root.yaml
   AWS_REGION: ap-northeast-1
+  AQUA_ROOT_DIR: /home/runner/.local/share/aquaproj-aqua
+  # TFACTION_CONFIG: tfaction-root.yaml
+  # TFACTION_IS_APPLY: 'true'
+  
 
 permissions:
   id-token: write
@@ -56,10 +57,10 @@ jobs:
       run:
         shell: bash
 
-    env:
-      TFACTION_TARGET: ${{ matrix.target.target }}
-      TFACTION_JOB_TYPE: terraform
-      TFACTION_IS_APPLY: "true" # apply する場合は TFACTION_IS_APPLY を "true" に指定
+    # env:
+    #   TFACTION_TARGET: ${{ matrix.target.target }}
+    #   TFACTION_JOB_TYPE: terraform
+    #   TFACTION_IS_APPLY: "true" # apply する場合は TFACTION_IS_APPLY を "true" に指定
 
     steps:
       - name: Checkout to the branch
@@ -70,12 +71,12 @@ jobs:
         with:
           aqua_version: v2.42.2
 
-      - name: Generate Github token
-        id: generate_token
-        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
-        with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.PRIVATE_KEY }}
+      # - name: Generate Github token
+      #   id: generate_token
+      #   uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
+      #   with:
+      #     app_id: ${{ secrets.APP_ID }}
+      #     private_key: ${{ secrets.PRIVATE_KEY }}
 
       - name: Detect Terraform Version
         env:
@@ -103,13 +104,20 @@ jobs:
         working-directory: ${{ matrix.target.target }}
         run: |
           terraform init -no-color
-
+    
       - name: terraform apply
         working-directory: ${{ matrix.target.target }}
         run: |
-          terraform apply -auto-approve -no-color | tfnotify --config ${{ github.workspace }}/.tfnotify/slack.yaml apply --message "${{ matrix.target.target }} by @${{ github.actor }}"
+          tfcmt -repo "$REPO" apply -- terraform apply -auto-approve
         env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-          SLACK_BOT_NAME: ${{ github.repository }}
+          REPO: ${{github.action_repository}}
+
+      # - name: terraform apply
+      #   working-directory: ${{ matrix.target.target }}
+      #   run: |
+      #     terraform apply -auto-approve -no-color | tfnotify --config ${{ github.workspace }}/.tfnotify/slack.yaml apply --message "${{ matrix.target.target }} by @${{ github.actor }}"
+      #   env:
+      #     SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+      #     SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+      #     SLACK_BOT_NAME: ${{ github.repository }}
 
