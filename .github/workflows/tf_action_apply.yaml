@@ -108,7 +108,7 @@ jobs:
       - name: terraform apply
         working-directory: ${{ matrix.target.target }}
         run: |
-          tfcmt -repo "$REPO" apply -- terraform apply -auto-approve
+          tfcmt apply -- terraform apply -auto-approve
         env:
           REPO: ${{github.action_repository}}
 
