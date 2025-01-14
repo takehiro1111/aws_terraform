@@ -110,7 +110,7 @@ jobs:
         run: |
           tfcmt apply -- terraform apply -auto-approve
         env:
-          REPO: ${{github.action_repository}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: terraform apply
       #   working-directory: ${{ matrix.target.target }}
