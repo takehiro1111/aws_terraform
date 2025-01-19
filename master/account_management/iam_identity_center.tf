@@ -68,8 +68,8 @@ module "iam_identity_center_user_group_association" {
   users = {
     takehiro1111 = {
       name = {
-        family_name = substr(module.value.name_takehiro1111, 9, 8)
-        given_name  = substr(module.value.name_takehiro1111, 0, 8)
+        family_name = data.aws_ssm_parameter.family_name.value
+        given_name  = data.aws_ssm_parameter.given_name.value
       }
       eamils = [
         module.value.my_gmail_address

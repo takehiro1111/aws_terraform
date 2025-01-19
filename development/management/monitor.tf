@@ -289,6 +289,13 @@ locals {
       description = "通知用のSlackチャンネルID"
     }
   }
+
+  ap_northeast_1 = {
+    my_ip = {
+      name        = "/ip/my_home"
+      description = "自宅のGIP"
+    }
+  }
 }
 
 resource "aws_ssm_parameter" "slack_info" {
@@ -303,6 +310,23 @@ resource "aws_ssm_parameter" "slack_info" {
     ignore_changes = [value]
   }
 }
+
+resource "aws_ssm_parameter" "ap_northeast_1" {
+  for_each    = { for k, v in local.ap_northeast_1 : k => v }
+  name        = each.value.name
+  description = each.value.description
+  type        = "SecureString"
+  value       = "コンソール画面で設定する。"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+data "aws_ssm_parameter" "my_ip" {
+  name = local.ap_northeast_1.my_ip.name
+}
+
 
 # Aurora ---------------------------------
 resource "aws_ssm_parameter" "aurora_mysql" {

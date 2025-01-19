@@ -28,3 +28,12 @@ output "sns_topic_arn_ecs_cw_alert" {
   description = "ECSの負荷に関する通知"
   value       = module.sns_notify_chatbot_ecs_cw_alert.topic_arn
 }
+
+########################################################################
+# Parameter Store
+########################################################################
+output "ssm_parameter_store_my_ip" {
+  description = "自宅のGIP"
+  value       = data.aws_ssm_parameter.my_ip.value
+  sensitive   = true
+}

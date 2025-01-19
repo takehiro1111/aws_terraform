@@ -5,7 +5,7 @@ module "aws_cloudtrail_ap_northeast_1" {
   source = "../../modules/cloudtrail"
   create = true
 
-  name                          = "${replace(local.service_name, "_", "-")}-${module.value.org_id}"
+  name                          = "${replace(local.service_name, "_", "-")}-${data.aws_ssm_parameter.org_id.value}"
   s3_bucket_name                = data.terraform_remote_state.master_storage.outputs.s3_bucket_id_cloudtrail_audit_log
   include_global_service_events = true
   is_multi_region_trail         = true
@@ -97,4 +97,51 @@ locals {
 resource "aws_iam_user" "test" {
   for_each = local.name
   name     = each.key
+}
+
+###############################################################################
+# SSM Parameter Store
+###############################################################################
+locals {
+  ap_northeast_1 = {
+    family_name = {
+      name        = "/name/FamilyName"
+      description = "苗字"
+      type        = "String"
+    }
+    given_name = {
+      name        = "/name/GiveNname"
+      description = "名前"
+      type        = "String"
+    }
+    org_id = {
+      name        = "/id/organizations"
+      description = "ユーザーネーム"
+      type        = "SecureString"
+    }
+  }
+}
+
+resource "aws_ssm_parameter" "ap_northeast_1" {
+  for_each    = { for k, v in local.ap_northeast_1 : k => v }
+  name        = each.value.name
+  description = each.value.description
+  type        = each.value.type
+  value       = "コンソール画面で設定する。"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+data "aws_ssm_parameter" "family_name" {
+  name = local.ap_northeast_1.family_name.name
+}
+
+data "aws_ssm_parameter" "given_name" {
+  name = local.ap_northeast_1.given_name.name
+}
+
+data "aws_ssm_parameter" "org_id" {
+  name = local.ap_northeast_1.org_id.name
 }

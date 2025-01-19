@@ -67,13 +67,13 @@ module "cdn_takehiro1111_com" {
   create_vpc_origin = true
   vpc_origin = {
     test_vpc_origin = {
-      name = "test-vpc-origin"
-      arn = module.alb_wildcard_takehiro1111_com.arn
-      http_port = 80
-      https_port = 443
+      name                   = "test-vpc-origin"
+      arn                    = module.alb_wildcard_takehiro1111_com.arn
+      http_port              = 80
+      https_port             = 443
       origin_protocol_policy = "https-only"
       origin_ssl_protocols = {
-        items = ["TLSv1.2"]
+        items    = ["TLSv1.2"]
         quantity = 1
       }
     }

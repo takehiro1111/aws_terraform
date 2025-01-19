@@ -8,7 +8,7 @@ module "s3_bucket_cloudtrail_audit_log" {
   create_bucket = true
 
   # aws_s3_bucket
-  bucket              = "aws-cloudtrail-${module.value.org_id}-${data.aws_region.default.name}"
+  bucket              = "aws-cloudtrail-${data.terraform_remote_state.master_account_management.outputs.org_id}-${data.aws_region.default.name}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
@@ -108,7 +108,7 @@ data "aws_iam_policy_document" "cloudtrail_audit_log" {
       identifiers = ["cloudtrail.${data.aws_partition.current.dns_suffix}"]
     }
     actions   = ["s3:PutObject"]
-    resources = ["${module.s3_bucket_cloudtrail_audit_log.s3_bucket_arn}/AWSLogs/${module.value.org_id}/*"]
+    resources = ["${module.s3_bucket_cloudtrail_audit_log.s3_bucket_arn}/AWSLogs/${data.terraform_remote_state.master_account_management.outputs.org_id}/*"]
     condition {
       test     = "StringEquals"
       variable = "s3:x-amz-acl"
@@ -132,7 +132,7 @@ module "s3_bucket_config_audit_log" {
   create_bucket = true
 
   # aws_s3_bucket
-  bucket              = "aws-config-${module.value.org_id}"
+  bucket              = "aws-config-${data.terraform_remote_state.master_account_management.outputs.org_id}"
   force_destroy       = true // オブジェクトが入っていても強制的に削除可能
   object_lock_enabled = false
 
