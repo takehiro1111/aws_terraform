@@ -69,7 +69,7 @@ module "s3_bucket_gh_tfstate" {
         ]
         "Condition" : {
           "StringEquals" : {
-            "aws:PrincipalOrgID" : module.value.org_id
+            "aws:PrincipalOrgID" : data.terraform_remote_state.master_account_management.outputs.org_id
           }
         }
       }

@@ -81,9 +81,6 @@ stg/.envrc
 
 **/cert/**
 
-# 自宅のIPアドレス
-modules/variable/my_ip.tf
-
 #policy/*
 tf_logo.png
 
@@ -97,3 +94,4 @@ my_account/**/localdir/**
 */.DS_Store
 .DS_Store
 __pycache__
+.vscode/**

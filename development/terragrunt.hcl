@@ -8,7 +8,6 @@ remote_state {
     bucket = "tfstate-650251692423"
     key    = "development/${path_relative_to_include()}/tfstate"
     region = "ap-northeast-1"
-    profile = "development_administrator"
   }
 
   generate = {
@@ -26,7 +25,6 @@ generate "provider" {
 
   contents = <<EOF
 provider "aws" {
-  profile = "development_administrator"
   region  = "ap-northeast-1"
 
   default_tags {

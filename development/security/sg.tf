@@ -97,14 +97,12 @@ resource "aws_vpc_security_group_ingress_rule" "alb_stg_9000_cdn" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "alb_stg_9000_myip" {
-  for_each = module.value.my_ips
-
   security_group_id = aws_security_group.alb_9000.id
   description       = "Allow developers for blue-green deployments"
   from_port         = 9000
   to_port           = 9000
   ip_protocol       = "tcp"
-  cidr_ipv4         = each.value
+  cidr_ipv4         = data.terraform_remote_state.development_management.outputs.ssm_parameter_store_my_ip
 
   tags = {
     Name = "alb-stg-9000-my-ip"

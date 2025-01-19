@@ -12,10 +12,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "tfstate-650251692423"
-    key     = "state/development"
-    region  = "ap-northeast-1"
-    profile = "development_administrator"
+    bucket = "tfstate-650251692423"
+    key    = "state/development"
+    region = "ap-northeast-1"
   }
 }
 
@@ -23,8 +22,7 @@ terraform {
 # Provider Block
 #####################################################
 provider "aws" {
-  region  = "ap-northeast-1"
-  profile = "development_administrator"
+  region = "ap-northeast-1"
 
   default_tags {
     tags = {
@@ -51,6 +49,15 @@ data "terraform_remote_state" "master_state" {
   config = {
     bucket = "tfstate-685339645368"
     key    = "state/state_prod"
+    region = "ap-northeast-1"
+  }
+}
+
+data "terraform_remote_state" "master_account_management" {
+  backend = "s3"
+  config = {
+    bucket = "tfstate-685339645368"
+    key    = "account_management/tfstate"
     region = "ap-northeast-1"
   }
 }

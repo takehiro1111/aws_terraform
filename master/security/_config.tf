@@ -24,7 +24,6 @@ terraform {
   #     bucket  = "tfstate-685339645368"
   #     key     = "security/tfstate"
   #     region  = "ap-northeast-1"
-  #     profile = "master_administrator"
   #   }
 }
 
@@ -33,7 +32,6 @@ terraform {
 #####################################################
 provider "aws" {
   region = "ap-northeast-1"
-  # profile = "master_administrator"
 
   default_tags {
     tags = {
@@ -48,7 +46,6 @@ provider "aws" {
   region = "us-east-1"
   alias  = "us-east-1"
   // HCP Terraformの場合はローカルの認証ファイルにアクセスできないため、必要ない。
-  # profile = "master_administrator"
 
   default_tags {
     tags = {

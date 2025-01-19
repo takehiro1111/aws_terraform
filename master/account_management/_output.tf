@@ -9,3 +9,8 @@ output "sso_identity_store_id" {
 output "cloudtrail_arn" {
   value = module.aws_cloudtrail_ap_northeast_1.cloudtrail_arn
 }
+
+output "org_id" {
+  value     = data.aws_ssm_parameter.org_id.value
+  sensitive = true
+}
