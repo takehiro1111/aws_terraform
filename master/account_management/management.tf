@@ -102,26 +102,6 @@ resource "aws_iam_user" "test" {
 ###############################################################################
 # SSM Parameter Store
 ###############################################################################
-locals {
-  ap_northeast_1 = {
-    family_name = {
-      name        = "/name/FamilyName"
-      description = "苗字"
-      type        = "String"
-    }
-    given_name = {
-      name        = "/name/GiveNname"
-      description = "名前"
-      type        = "String"
-    }
-    org_id = {
-      name        = "/id/organizations"
-      description = "ユーザーネーム"
-      type        = "SecureString"
-    }
-  }
-}
-
 resource "aws_ssm_parameter" "ap_northeast_1" {
   for_each    = { for k, v in local.ap_northeast_1 : k => v }
   name        = each.value.name
@@ -144,4 +124,24 @@ data "aws_ssm_parameter" "given_name" {
 
 data "aws_ssm_parameter" "org_id" {
   name = local.ap_northeast_1.org_id.name
+}
+
+data "aws_ssm_parameter" "slack_workspace_id" {
+  name = local.ap_northeast_1.slack_workspace_id.name
+}
+
+data "aws_ssm_parameter" "slack_channel_id_aws_alert" {
+  name = local.ap_northeast_1.slack_channel_id_aws_alert.name
+}
+
+data "aws_ssm_parameter" "my_gmail_address" {
+  name = local.ap_northeast_1.my_gmail_address.name
+}
+
+data "aws_ssm_parameter" "my_gmail_alias_address" {
+  name = local.ap_northeast_1.my_gmail_alias_address.name
+}
+
+data "aws_ssm_parameter" "company_mail_address" {
+  name = local.ap_northeast_1.company_mail_address.name
 }

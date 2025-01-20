@@ -14,3 +14,28 @@ output "org_id" {
   value     = data.aws_ssm_parameter.org_id.value
   sensitive = true
 }
+
+output "slack_workspace_id" {
+  value     = data.aws_ssm_parameter.slack_workspace_id.value
+  sensitive = true
+}
+
+output "slack_channel_id_aws_alert" {
+  value     = data.aws_ssm_parameter.slack_channel_id_aws_alert.value
+  sensitive = true
+}
+
+output "my_gmail_address" {
+  value     = data.aws_ssm_parameter.my_gmail_address.value
+  sensitive = true
+}
+
+output "my_gmail_alias_address" {
+  value     = data.aws_ssm_parameter.my_gmail_alias_address.value
+  sensitive = true
+}
+
+output "company_mail_address" {
+  value     = data.aws_ssm_parameter.company_mail_address.value
+  sensitive = true
+}

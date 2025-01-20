@@ -72,7 +72,7 @@ module "iam_identity_center_user_group_association" {
         given_name  = data.aws_ssm_parameter.given_name.value
       }
       eamils = [
-        module.value.my_gmail_address
+        data.terraform_remote_state.master_account_management.outputs.my_gmail_address
       ]
     }
   }

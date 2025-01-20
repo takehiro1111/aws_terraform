@@ -83,3 +83,12 @@ data "terraform_remote_state" "master_storage" {
   }
 }
 
+data "terraform_remote_state" "master_account_management" {
+  backend = "s3"
+  config = {
+    bucket = "tfstate-685339645368"
+    key    = "account_management/tfstate"
+    region = "ap-northeast-1"
+  }
+}
+

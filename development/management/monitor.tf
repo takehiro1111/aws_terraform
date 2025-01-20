@@ -270,7 +270,10 @@ resource "aws_budgets_budget" "notify_slack" {
       threshold                  = notification.value
       threshold_type             = "ABSOLUTE_VALUE"
       subscriber_sns_topic_arns  = [aws_sns_topic.slack_alert.arn]
-      subscriber_email_addresses = [module.value.my_gmail_address, module.value.company_mail_address]
+      subscriber_email_addresses = [
+        data.terraform_remote_state.master_account_management.outputs.my_gmail_address,
+        data.terraform_remote_state.master_account_management.outputs.company_mail_address
+      ]
     }
   }
 }
@@ -431,8 +434,8 @@ locals {
   chatbots = {
     personal = {
       name               = "common-alert-notify"
-      slack_workspace_id = module.value.slack_workspace_id
-      slack_channel_id   = module.value.aws_alert_slack_channel_id
+      slack_workspace_id = data.terraform_remote_state.master_account_management.outputs.slack_workspace_id
+      slack_channel_id   = data.terraform_remote_state.master_account_management.outputs.slack_channel_id_aws_alert
     }
   }
 }

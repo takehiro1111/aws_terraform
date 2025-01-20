@@ -14,7 +14,7 @@ locals {
   members = {
     dev = {
       name       = "development"
-      email      = module.value.my_gmail_alias_address.dev_takehiro11111
+      email      = data.aws_ssm_parameter.my_gmail_alias_address.value
       parent_id  = aws_organizations_organizational_unit.ou["ou_2"].id
       account_id = data.terraform_remote_state.development_state.outputs.account_id
     }
@@ -62,6 +62,54 @@ locals {
   sso_managed_policy = {
     administrator = {
       policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+    }
+  }
+}
+
+/* 
+ * SSM Pasrameter Store
+ */
+locals {
+  ap_northeast_1 = {
+    family_name = {
+      name        = "/name/FamilyName"
+      description = "苗字"
+      type        = "String"
+    }
+    given_name = {
+      name        = "/name/GiveNname"
+      description = "名前"
+      type        = "String"
+    }
+    org_id = {
+      name        = "/id/organizations"
+      description = "ユーザーネーム"
+      type        = "SecureString"
+    }
+    slack_workspace_id = {
+      name        = "/slack/personal/workspace_id"
+      description = "個人用のSlackワークスペースID"
+      type        = "SecureString"
+    }
+    slack_channel_id_aws_alert = {
+      name        = "/slack/personal/channel_id"
+      description = "個人用のSlackチャンネルID"
+      type        = "SecureString"
+    }
+    my_gmail_address = {
+      name        = "/mail/personal/gmail"
+      description = "個人用のメールアドレス"
+      type        = "SecureString"
+    }
+    my_gmail_alias_address = {
+      name        = "/mail/personal/alias"
+      description = "developmentアカウントで登録しているメールアドレス"
+      type        = "SecureString"
+    }
+    company_mail_address = {
+      name        = "/slack/company/mail_address"
+      description = "会社用のメールアドレス"
+      type        = "SecureString"
     }
   }
 }
