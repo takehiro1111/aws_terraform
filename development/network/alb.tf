@@ -14,7 +14,8 @@ module "alb_wildcard_takehiro1111_com" {
   enable_deletion_protection = false
 
   vpc_id  = module.vpc_development.vpc_id
-  subnets = module.vpc_development.private_subnets
+  # subnets = module.vpc_development.private_subnets
+  subnets = module.vpc_development.public_subnets
 
   create_security_group = false
   security_groups = [
@@ -169,7 +170,7 @@ resource "aws_lb_target_group" "web" {
     healthy_threshold   = 5
     interval            = 60
     matcher             = "200"
-    path                = "/"
+    path                = "/ping"
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 30

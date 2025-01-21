@@ -129,7 +129,7 @@ resource "aws_ecs_service" "web_nginx" {
   name                              = "nginx-service-stg"
   cluster                           = aws_ecs_cluster.web.arn
   task_definition                   = "nginx-task-define"
-  desired_count                     = 0
+  desired_count                     = 1
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0" # LATESTの挙動
   health_check_grace_period_seconds = 0
@@ -335,7 +335,7 @@ resource "aws_ecs_task_definition" "locust" {
 module "appautoscaling_web" {
   source = "../../modules/ecs/appautoscaling"
 
-  create_auto_scaling_target = false
+  create_auto_scaling_target = true
   cluster_name               = aws_ecs_cluster.web.name
   service_name               = aws_ecs_service.web_nginx.name
   max_capacity               = 3
@@ -371,7 +371,7 @@ module "appautoscaling_web" {
     }
   }
 
-  use_step_scaling = false
+  use_step_scaling = true
   step_scaling = {
     scale_out_cpu = {
       adjustment_type          = "ChangeInCapacity"
