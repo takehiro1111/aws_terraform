@@ -36,31 +36,44 @@ resource "aws_security_group" "alb_stg" {
 }
 
 // VPCオリジンの運用に変更したため削除。(2024/12/24)
-# resource "aws_vpc_security_group_ingress_rule" "alb_stg_443" {
-#   security_group_id = aws_security_group.alb_stg.id
-#   description       = "Allow inbound rule for https"
-#   from_port         = 443
-#   to_port           = 443
-#   ip_protocol       = "tcp"
-#   prefix_list_id    = data.aws_ec2_managed_prefix_list.cdn.id
-
-#   tags = {
-#     Name = "alb-stg-443"
-#   }
-# }
-
-resource "aws_vpc_security_group_ingress_rule" "alb_vpc_origin" {
-  security_group_id            = aws_security_group.alb_stg.id
-  description                  = "Allow inbound rule for https"
-  from_port                    = 443
-  to_port                      = 443
-  ip_protocol                  = "tcp"
-  referenced_security_group_id = "sg-0f5f3aeba40341fbb"
+resource "aws_vpc_security_group_ingress_rule" "full" {
+  security_group_id = aws_security_group.alb_stg.id
+  description       = "Allow inbound rule for https"
+  from_port         = 0
+  to_port           = 0
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
 
   tags = {
-    Name = "sg-vpc-origin"
+    Name = "alb-stg-443"
   }
 }
+
+resource "aws_vpc_security_group_ingress_rule" "alb_stg_443" {
+  security_group_id = aws_security_group.alb_stg.id
+  description       = "Allow inbound rule for https"
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  prefix_list_id    = data.aws_ec2_managed_prefix_list.cdn.id
+
+  tags = {
+    Name = "alb-stg-443"
+  }
+}
+
+# resource "aws_vpc_security_group_ingress_rule" "alb_vpc_origin" {
+#   security_group_id            = aws_security_group.alb_stg.id
+#   description                  = "Allow inbound rule for https"
+#   from_port                    = 443
+#   to_port                      = 443
+#   ip_protocol                  = "tcp"
+#   referenced_security_group_id = "sg-0f5f3aeba40341fbb"
+
+#   tags = {
+#     Name = "sg-vpc-origin"
+#   }
+# }
 
 resource "aws_vpc_security_group_egress_rule" "alb_stg_eggress" {
   security_group_id = aws_security_group.alb_stg.id
@@ -96,18 +109,18 @@ resource "aws_vpc_security_group_ingress_rule" "alb_stg_9000_cdn" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "alb_stg_9000_myip" {
-  security_group_id = aws_security_group.alb_9000.id
-  description       = "Allow developers for blue-green deployments"
-  from_port         = 9000
-  to_port           = 9000
-  ip_protocol       = "tcp"
-  cidr_ipv4         = data.terraform_remote_state.development_management.outputs.ssm_parameter_store_my_ip
+# resource "aws_vpc_security_group_ingress_rule" "alb_stg_9000_myip" {
+#   security_group_id = aws_security_group.alb_9000.id
+#   description       = "Allow developers for blue-green deployments"
+#   from_port         = 9000
+#   to_port           = 9000
+#   ip_protocol       = "tcp"
+#   cidr_ipv4         = data.terraform_remote_state.development_management.outputs.ssm_parameter_store_my_ip
 
-  tags = {
-    Name = "alb-stg-9000-my-ip"
-  }
-}
+#   tags = {
+#     Name = "alb-stg-9000-my-ip"
+#   }
+# }
 
 resource "aws_vpc_security_group_egress_rule" "alb_9000_eggress" {
   security_group_id = aws_security_group.alb_9000.id
