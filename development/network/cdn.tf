@@ -35,7 +35,7 @@ resource "aws_cloudfront_vpc_origin" "alb" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "cdn_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.0.0"
+  version = "4.1.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = true
@@ -166,7 +166,7 @@ module "cdn_takehiro1111_com" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "cloudfront_prometheus_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.0.0"
+  version = "4.1.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = false
@@ -244,7 +244,7 @@ module "cloudfront_prometheus_takehiro1111_com" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "cloudfront_grafana_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.0.0"
+  version = "4.1.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = false
@@ -322,7 +322,7 @@ module "cloudfront_grafana_takehiro1111_com" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "cloudfront_locust_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.0.0"
+  version = "4.1.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = false
