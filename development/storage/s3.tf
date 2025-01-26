@@ -5,7 +5,7 @@
 #trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_logging_target" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -168,7 +168,7 @@ module "s3_bucket_logging_target" {
 #trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_alb_accesslog" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -262,7 +262,7 @@ module "s3_bucket_alb_accesslog" {
 #trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_cdn_accesslog" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   providers = {
@@ -393,7 +393,7 @@ module "s3_bucket_cdn_accesslog" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_static_site_web" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -502,7 +502,7 @@ module "s3_bucket_static_site_web" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_vpc_flow_logs" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -557,7 +557,7 @@ module "s3_bucket_vpc_flow_logs" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_athena" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   # aws_s3_bucket
@@ -612,7 +612,7 @@ module "s3_bucket_athena" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_athena_query_result" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -706,7 +706,7 @@ module "s3_bucket_athena_query_result" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_inventory_dist" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   # aws_s3_bucket
@@ -790,7 +790,7 @@ module "s3_inventory_dist" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_batch_operation_dist" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   # aws_s3_bucket
@@ -880,7 +880,7 @@ module "s3_batch_operation_dist" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_batch_operation_report_dist" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   # aws_s3_bucket
@@ -973,7 +973,7 @@ module "s3_batch_operation_report_dist" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_cloudwatchlogs_to_s3" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   # aws_s3_bucket
@@ -1091,7 +1091,7 @@ module "s3_bucket_cloudwatchlogs_to_s3" {
 // aws_s3_bucket_loggingについては、クロスリージョンのロギングが出来ないため未設定。
 module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   providers = {
@@ -1209,7 +1209,7 @@ module "s3_bucket_cloudwatchlogs_to_s3_us_east_1" {
 #trivy:ignore:AVD-AWS-0089 // (LOW): Bucket has logging disabled
 module "s3_bucket_sam_deploy" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -1298,7 +1298,7 @@ module "s3_bucket_sam_deploy" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "firehose_delivery_logs" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   providers = {
@@ -1401,7 +1401,7 @@ module "firehose_delivery_logs" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_lambda_event" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.3.0"
+  version       = "4.5.0"
   create_bucket = false
 
   # aws_s3_bucket
