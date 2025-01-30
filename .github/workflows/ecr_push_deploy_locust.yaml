@@ -116,7 +116,7 @@ jobs:
 
       #  https://github.com/aws-actions/amazon-ecs-deploy-task-definition
       - name: Deploy ECS task
-        uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2
+        uses: aws-actions/amazon-ecs-deploy-task-definition@8230edfe842008418c5275908cae75e51d3befb2 # v2
         with:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
