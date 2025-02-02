@@ -607,8 +607,7 @@ resource "aws_iam_role" "monitor_waf_rule" {
         Effect = "Allow",
         Principal = {
           AWS = [
-            "arn:aws:iam::421643133281:role/monitor-waf-rule-lambda-execution-role",
-            "arn:aws:iam::789003075721:role/monitor-waf-lambda-execution-role",
+            "arn:aws:iam::685339645368:role/monitor-waf-lambda-execution-role",
           ]
         }
       }
@@ -622,6 +621,7 @@ data "aws_iam_policy_document" "monitor_waf_rule" {
     actions = [
       "wafv2:ListWebACLs",
       "wafv2:GetWebACL",
+      "wafv2:ListTagsForResource",
     ]
     resources = ["arn:aws:wafv2:us-east-1:${data.aws_caller_identity.self.account_id}:global/webacl/*/*"]
   }
