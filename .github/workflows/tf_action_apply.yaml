@@ -32,14 +32,14 @@ jobs:
     if: ${{ ! contains(fromJson('["renovate[bot]", "dependabot[bot]"]'), github.actor) }}
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - uses: aquaproj/aqua-installer@f13c5d2f0357708d85477aabe50fd3f725528745 # v3.1.0
+      - uses: aquaproj/aqua-installer@e2d0136abcf70b7a2f6f505720640750557c4b33 # v3.1.1
         with:
-          aqua_version: v2.42.2
+          aqua_version: v2.43.0
 
       # 変更のあった作業ディレクトリを取得
-      - uses: suzuki-shunsuke/tfaction/list-targets@5bab03f77836a1d34a5f89f3c61cf0176b7822c1 # v1.15.1
+      - uses: suzuki-shunsuke/tfaction/list-targets@98cdb1548f3638f49ed35a88dac04b46ad65478e # v1.15.2
         id: list-targets
 
 
@@ -67,9 +67,9 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name:
-        uses: aquaproj/aqua-installer@f13c5d2f0357708d85477aabe50fd3f725528745 # v3.1.0
+        uses: aquaproj/aqua-installer@e2d0136abcf70b7a2f6f505720640750557c4b33 # v3.1.1
         with:
-          aqua_version: v2.42.2
+          aqua_version: v2.43.0
 
       # - name: Generate Github token
       #   id: generate_token
@@ -94,7 +94,7 @@ jobs:
           terraform_version: ${{ steps.get_tf_version.outputs.TF_VERSION }}
 
       - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
+        uses: aws-actions/configure-aws-credentials@4fc4975a852c8cd99761e2de1f4ba73402e44dd9 # v4
         with:
           aws-region: ${{env.AWS_REGION}}
           role-to-assume: ${{ secrets.MASTER_APPLY_ROLE }}
