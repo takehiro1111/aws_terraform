@@ -13,10 +13,10 @@ packages:
 - name: cli/cli@v2.66.1
 - name: junegunn/fzf@v0.59.0
 - name: hashicorp/terraform@v1.10.5
-- name: suzuki-shunsuke/tfcmt@v4.14.1
+- name: suzuki-shunsuke/tfcmt@v4.14.2
 - name: suzuki-shunsuke/github-comment@v6.3.2
 - name: suzuki-shunsuke/ci-info@v2.3.1
 - name: int128/ghcp@v1.13.5
-- name: suzuki-shunsuke/tfcmt@v4.14.1
+- name: suzuki-shunsuke/tfcmt@v4.14.2
 - name: mercari/tfnotify@v0.8.0
 - name: gruntwork-io/terragrunt@v0.72.6
