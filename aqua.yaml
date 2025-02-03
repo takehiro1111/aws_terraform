@@ -14,7 +14,7 @@ packages:
 - name: junegunn/fzf@v0.59.0
 - name: hashicorp/terraform@v1.10.5
 - name: suzuki-shunsuke/tfcmt@v4.14.1
-- name: suzuki-shunsuke/github-comment@v6.3.1
+- name: suzuki-shunsuke/github-comment@v6.3.2
 - name: suzuki-shunsuke/ci-info@v2.3.1
 - name: int128/ghcp@v1.13.5
 - name: suzuki-shunsuke/tfcmt@v4.14.1
