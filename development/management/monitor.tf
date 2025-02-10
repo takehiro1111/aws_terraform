@@ -212,6 +212,54 @@ module "event_bridge_ecs_app_autoscaling" {
 #   arn       = aws_lambda_function.update_waf_rule.arn
 # }
 
+/*
+ * RDS Event通知用の設定
+ */
+// ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
+module "rds_event" {
+  source  = "terraform-aws-modules/eventbridge/aws"
+  version = "3.14.3"
+
+  rules = {
+    rds_event = {
+      name        = "RDSEvent"
+      bus_name    = "default"
+      enabled     = "ENABLED"
+      description = "RDS Event Notification Slack"
+      event_pattern = jsonencode({
+        source = [
+          "aws.rds"
+        ],
+        detail-type = [
+          "RDS DB Cluster Event",
+          "RDS DB Cluster Snapshot Event",
+          "RDS DB Instance Event",
+          "RDS DB Parameter Group Event",
+          "RDS DB Snapshot Event",
+          "RDS DB Security Group Event"
+        ]
+        resources = [
+          "arn:aws:rds:ap-northeast-1:650251692423:db:hcl-mysql8-0",
+        ]
+      })
+    }
+  }
+  targets = {
+    rds_event = [{
+      name = "RDSEvent"
+      arn  = module.sns_notify_chatbot.topic_arn
+    }]
+  }
+
+  create_role         = false
+  create_bus          = false
+  append_rule_postfix = false
+
+  tags = {
+    Name = "RDSEvent"
+  }
+}
+
 #####################################################
 # AWS Config
 #####################################################
