@@ -41,7 +41,7 @@ resource "aws_db_instance" "mysql_8" {
   db_subnet_group_name   = aws_db_subnet_group.mysql_8.name
   vpc_security_group_ids = [data.terraform_remote_state.development_security.outputs.sg_id_mysql]
   engine                 = "mysql"
-  engine_version         = "8.0.28"
+  engine_version         = "8.0.40"
   instance_class         = "db.t3.micro"
 
   #db_name = "" // インスタンス稼働後にSQLで作成のため設定しない
