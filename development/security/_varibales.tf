@@ -14,5 +14,5 @@ variable "waf_rule_regional_limit" {
 variable "waf_regional_limit" {
   description = "trueにすると国別アクセスをCountするためのWAFが作成される"
   type        = bool
-  default     = true
+  default     = false
 }
