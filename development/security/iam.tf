@@ -633,6 +633,51 @@ resource "aws_iam_role_policy" "monitor_waf_rule" {
   policy = data.aws_iam_policy_document.monitor_waf_rule.json
 }
 
+resource "aws_iam_role" "monitor_ecs_capacity_provider" {
+  name = "monitor-ecs-service-capacity-provider"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          AWS = [
+            "arn:aws:iam::685339645368:role/monitor-ecs-lambda-execution-role",
+          ]
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy_document" "monitor_ecs_capacity_provider" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecs:ListClusters",
+      "ecs:ListTagsForResource",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecs:ListServices",
+      "ecs:DescribeServices",
+      "ecs:UpdateService",
+    ]
+    resources = ["arn:aws:ecs:ap-northeast-1:${data.aws_caller_identity.self.account_id}:service/*/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "monitor_ecs_capacity_provider" {
+  name   = aws_iam_role.monitor_ecs_capacity_provider.name
+  role   = aws_iam_role.monitor_ecs_capacity_provider.name
+  policy = data.aws_iam_policy_document.monitor_ecs_capacity_provider.json
+}
+
+
 /* 
  * Chatbot
  */
