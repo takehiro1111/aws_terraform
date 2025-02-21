@@ -29,6 +29,11 @@
       "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.308.0/registry.yaml",
       "checksum": "B7A90E397A883B9D2595F4D1F1A8C442524353B3E708FB8E28114BE85E0C05A6CBA296C3D433060B549C591F46696B4B5E3A32C7FDD4315F7E631DAECBCE6C5D",
       "algorithm": "sha512"
+    },
+    {
+      "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.318.1/registry.yaml",
+      "checksum": "9DB3A693F12638B62765B62F293041B7BD99F74F521EAE75ADB669872BE4B168E9CB3C18D9680F584B38B71780AB0735D7AEF1AF14188070923235A2971E5974",
+      "algorithm": "sha512"
     }
   ]
 }

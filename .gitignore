@@ -95,3 +95,6 @@ my_account/**/localdir/**
 .DS_Store
 __pycache__
 .vscode/**
+
+# dependencies
+node_modules
