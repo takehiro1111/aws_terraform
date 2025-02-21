@@ -1,0 +1,20 @@
+{
+  "name": "aws_terraform",
+  "version": "1.0.0",
+  "description": "![Terraform](https://img.shields.io/badge/Terraform-v1.0+-623ce4?logo=terraform&logoColor=white) ![AWS](https://img.shields.io/badge/AWS-Ready-FF9900?logo=amazonaws&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Enabled-2088FF?logo=github-actions&logoColor=white)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3"
+  }
+}

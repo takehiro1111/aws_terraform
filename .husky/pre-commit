@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# エラーハンドリングを改善
+set -e
+trap 'echo "An error occurred. Exiting..."; exit 1' ERR
+
+# PATH を更新
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+# 変更されたファイルのディレクトリを取得
+changed_dirs=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.tf$' | xargs -I {} dirname {} | sort -u)
+
+# 結果を格納する変数
+overall_fmt_exit_code=0
+overall_tflint_exit_code=0
+overall_trivy_exit_code=0
+
+for dir in $changed_dirs; do
+    echo "Checking directory: $dir"
+    # ディレクトリが存在する場合のみ処理を行う
+    if [ -d "$dir" ]; then
+        cd "$dir"
+        echo "Current directory: $(pwd)"
+
+        echo "Running terraform fmt -check..."
+        if ! terraform fmt -check -recursive; then
+            echo "Terraform files are not properly formatted. Running terraform fmt..."
+            terraform fmt -recursive
+            overall_fmt_exit_code=1
+        fi
+
+        echo "Running tflint..."
+        if ! tflint; then
+            echo "TFLint found issues in the Terraform code."
+            overall_tflint_exit_code=1
+        fi
+
+        echo "Running trivy config..."
+        if ! trivy config --exit-code 1 .; then
+            echo "Trivy found security issues in the configuration."
+            overall_trivy_exit_code=1
+        fi
+
+        cd - > /dev/null
+    else
+        echo "Directory $dir does not exist, skipping..."
+    fi
+done
+
+# 最終結果の判定
+if [ $overall_fmt_exit_code -ne 0 ]; then
+    echo "Terraform formatting was required and has been applied. Please review and stage the changes."
+    exit 1
+elif [ $overall_tflint_exit_code -ne 0 ]; then
+    echo "TFLint found issues. Please fix them before committing."
+    exit 1
+elif [ $overall_trivy_exit_code -ne 0 ]; then
+    echo "Trivy found security issues. Please review and fix them before committing."
+    exit 1
+else
+    echo "All Terraform files are properly formatted and passed TFLint checks."
+    exit 0
+fi
