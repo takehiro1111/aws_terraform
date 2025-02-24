@@ -27,7 +27,7 @@ resource "aws_cloudfront_vpc_origin" "alb" {
 
     origin_ssl_protocols {
       items    = ["TLSv1.2"]
-      quantity = 1
+      quantity = length(toset(["TLSv1.2"]))
     }
   }
 }
