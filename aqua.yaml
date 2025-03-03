@@ -19,4 +19,4 @@ packages:
 - name: int128/ghcp@v1.13.5
 - name: suzuki-shunsuke/tfcmt@v4.14.2
 - name: mercari/tfnotify@v0.8.0
-- name: gruntwork-io/terragrunt@v0.73.16
+- name: gruntwork-io/terragrunt@v0.75.0
