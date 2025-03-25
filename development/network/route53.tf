@@ -6,7 +6,7 @@
  */
 module "route53_zones" {
   source  = "terraform-aws-modules/route53/aws//modules/zones"
-  version = "4.1.0"
+  version = "5.0.0"
 
   create = true
   zones = {
@@ -19,7 +19,7 @@ module "route53_zones" {
 
 module "route53_records_takehiro1111_com" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
-  version = "4.1.0"
+  version = "5.0.0"
 
   create     = true
   zone_id    = module.route53_zones.route53_zone_zone_id.takehiro1111_com
