@@ -469,3 +469,27 @@ module "cloudfront_locust_takehiro1111_com" {
 #     Name = module.value.api_takehiro1111_com
 #   }
 # }
+
+###########################################################################################
+# Cloudfront Log For V2
+###########################################################################################
+module "cloudfront_log_v2" {
+  source = "../../modules/cloudfront-log-v2"
+  providers = {
+    aws   = aws.us-east-1
+    awscc = awscc.us-east-1
+  }
+
+  delivery_destination_arn = data.terraform_remote_state.stats_stg.outputs.aws_cloudwatch_log_delivery_destination_for_cloudfront_arn["kidsna-travel"]
+
+  cloudfront_distributions = [
+    {
+      name         = "stg_travel_kidsna_com"
+      resource_arn = aws_cloudfront_distribution.ngx_kidsna_travel_com.arn
+    },
+    {
+      name         = "admin-stg_travel_kidsna_com"
+      resource_arn = aws_cloudfront_distribution.stg_admin_kidsna_travel_com.arn
+    },
+  ]
+}
