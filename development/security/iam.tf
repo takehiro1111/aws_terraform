@@ -721,3 +721,51 @@ resource "aws_iam_role_policy" "chatbot" {
   role   = aws_iam_role.chatbot.name
   policy = data.aws_iam_policy_document.chatbot.json
 }
+
+########################################################################
+# Error Log Transfer V3
+########################################################################
+resource "aws_iam_role" "lambda_transfer_error_log" {
+  name = "lambda-transfer-error-log"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = [
+            "lambda.amazonaws.com"
+          ]
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy" "readonly_dynamodb" {
+  arn = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
+}
+
+data "aws_iam_policy" "readonly_s3" {
+  arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
+
+data "aws_iam_policy" "readonly_ssm" {
+  arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+}
+
+data "aws_iam_policy" "lambda_basic_execution" {
+  arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_transfer_error_log" {
+  for_each = toset([
+    data.aws_iam_policy.readonly_dynamodb.arn,
+    data.aws_iam_policy.readonly_s3.arn,
+    data.aws_iam_policy.readonly_ssm.arn,
+    data.aws_iam_policy.lambda_basic_execution.arn
+  ])
+  role       = aws_iam_role.lambda_transfer_error_log.name
+  policy_arn = each.key
+}

@@ -11,6 +11,11 @@
       "algorithm": "sha256"
     },
     {
+      "id": "http/releases.hashicorp.com/terraform/1.11.3/terraform_1.11.3_darwin_arm64.zip",
+      "checksum": "C0C64FA7B859F505FDCEFDAB89317E98B268F68D401DA87DF0B0021E827CF197",
+      "algorithm": "sha256"
+    },
+    {
       "id": "http/releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_darwin_arm64.zip",
       "checksum": "873D7B925D08578FB6BB9C12C7CD92AE73E289E07C360F2FDD69F9036B7BAAAB",
       "algorithm": "sha256"
@@ -43,6 +48,11 @@
     {
       "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.324.0/registry.yaml",
       "checksum": "3EA7D5F8690028CB1CEABC8267182E16F663FF8ECA0ADB5451721560F2455826195BE678E29436BABF22EA839F50AF075EC3C5E46478B7573A50BF7E5913BBD1",
+      "algorithm": "sha512"
+    },
+    {
+      "id": "registries/github_content/github.com/aquaproj/aqua-registry/v4.333.0/registry.yaml",
+      "checksum": "32113D9414119FE8948C58C912E02D5C6BA2DFAFDA4F863E8B2E12392B778775D7E2505E4C4EC3371B46282A2A112F3BFCCA1DACA695692132A65BE0ADFBBD83",
       "algorithm": "sha512"
     }
   ]

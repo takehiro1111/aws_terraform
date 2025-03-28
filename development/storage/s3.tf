@@ -1476,3 +1476,46 @@ module "s3_bucket_lambda_event" {
     ]
   })
 }
+
+########################################################################
+# Error Log Transfer V3
+########################################################################
+resource "aws_s3_bucket" "fluentd_log_stg" {
+  bucket = "stg-fluentd-log-test"
+}
+
+resource "aws_s3_bucket_versioning" "fluentd_log_stg" {
+  bucket = aws_s3_bucket.fluentd_log_stg.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "fluentd_log_stg" {
+  bucket = aws_s3_bucket.fluentd_log_stg.bucket
+
+  rule {
+    status = "Enabled"
+    id     = "autoDeleteMarker"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+    expiration {
+      days = 30
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 1
+    }
+  }
+}
+
+# resource "aws_s3_bucket_notification" "nextbeat_stats_fluentd_log" {
+#   bucket = aws_s3_bucket.fluentd_log_stg.id
+
+#   lambda_function {
+#     lambda_function_arn = data.aws_lambda_function.nextbeat_stats_fluentd_log.arn
+#     events              = ["s3:ObjectCreated:*"]
+#   }
+# }
