@@ -2,11 +2,11 @@
 # Terraform Block
 ##########################################################################
 terraform {
-  required_version = "1.11.3"
+  required_version = "1.11.4"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.93.0"
+      version = "5.94.1"
     }
     random = {
       source  = "hashicorp/random"
@@ -18,7 +18,7 @@ terraform {
     }
     awscc = {
       source  = "hashicorp/awscc"
-      version = "1.35.0"
+      version = "1.36.0"
     }
   }
 }
