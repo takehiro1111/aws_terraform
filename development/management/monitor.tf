@@ -15,7 +15,7 @@
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_stopped" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.15.0"
+  version = "3.16.0"
 
   create              = true
   create_role         = false
@@ -83,7 +83,7 @@ module "event_bridge_ecs_stopped" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.15.0"
+  version = "3.16.0"
 
   create              = true
   create_role         = false
@@ -129,7 +129,7 @@ module "event_bridge_ecs_autoscaling" {
 # // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_app_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.15.0"
+  version = "3.16.0"
 
   create              = true
   create_role         = false
@@ -218,7 +218,7 @@ module "event_bridge_ecs_app_autoscaling" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "rds_event" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.15.0"
+  version = "3.16.0"
 
   rules = {
     rds_event = {
