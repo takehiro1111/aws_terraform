@@ -4,7 +4,7 @@
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/alb/aws/latest
 module "alb_wildcard_takehiro1111_com" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "9.15.0"
+  version = "9.16.0"
 
   # aws_lb
   create                     = true
