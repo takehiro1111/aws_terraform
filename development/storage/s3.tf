@@ -1476,3 +1476,70 @@ module "s3_bucket_lambda_event" {
     ]
   })
 }
+
+########################################################################
+# Error Log Transfer V3
+########################################################################
+resource "aws_s3_bucket" "fluentd_log_stg" {
+  bucket = "stg-fluentd-log-test"
+}
+
+resource "aws_s3_bucket_versioning" "fluentd_log_stg" {
+  bucket = aws_s3_bucket.fluentd_log_stg.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "fluentd_log_stg" {
+  bucket = aws_s3_bucket.fluentd_log_stg.bucket
+
+  rule {
+    status = "Enabled"
+    id     = "autoDeleteMarker"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
+    expiration {
+      days = 30
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 1
+    }
+  }
+}
+
+resource "aws_s3_bucket_notification" "fluentd_log_stg" {
+  bucket = aws_s3_bucket.fluentd_log_stg.id
+
+  lambda_function {
+    lambda_function_arn = data.aws_lambda_function.fluentd_log_stg.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+}
+
+data "aws_lambda_function" "fluentd_log_stg" {
+  function_name = "stg_errorLogtransfer_v3"
+}
+
+resource "aws_lambda_permission" "fluentd_log_stg" {
+  statement_id  = "AllowExecutionFromS3"
+  action        = "lambda:InvokeFunction"
+  function_name = data.aws_lambda_function.fluentd_log_stg.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.fluentd_log_stg.arn
+}
+
+resource "aws_ssm_parameter" "fluentd_log_stg" {
+  name  = "/stats/stg/slack/bot_token"
+  type  = "SecureString"
+  value = "コードにの残らないようにマネコンで設定を行う"
+
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
