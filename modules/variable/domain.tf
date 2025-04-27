@@ -36,3 +36,9 @@ output "locust_takehiro1111_com" {
   value       = "locust.takehiro1111.com"
 }
 
+output "func_takehiro1111_com" {
+  description = "CloudFront Functionsのテスト用ドメイン"
+  value       = "func.takehiro1111.com"
+}
+
+
