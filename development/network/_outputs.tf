@@ -29,10 +29,10 @@ output "public_subnet_a_development" {
 ######################################################################
 # CloudFront
 ######################################################################
-# output "cloudfront_arn_cdn_takehiro1111_com" {
-#   description = "The ARN of the development CloudFront"
-#   value       = module.cdn_takehiro1111_com.cloudfront_distribution_arn
-# }
+output "cloudfront_arn_cdn_takehiro1111_com" {
+  description = "The ARN of the development CloudFront"
+  value       = module.cdn_takehiro1111_com.cloudfront_distribution_arn
+}
 
 ######################################################################
 # ALB

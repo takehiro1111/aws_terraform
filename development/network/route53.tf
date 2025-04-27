@@ -77,6 +77,15 @@ module "route53_records_takehiro1111_com" {
     #     evaluate_target_health = false
     #   }
     # },
+    {
+      name = trimsuffix(module.value.func_takehiro1111_com, ".${module.value.takehiro1111_com}")
+      type = "A"
+      alias = {
+        name                   = module.cloudfront_func_takehiro1111_com.cloudfront_distribution_domain_name
+        zone_id                = module.cloudfront_func_takehiro1111_com.cloudfront_distribution_hosted_zone_id
+        evaluate_target_health = false
+      }
+    },
     // 別アカウントでLocustを検証したいため、ドメインの移譲対応を行なっている。(2024/12/26)
     # {
     #   name = trimsuffix("common-dev.${module.value.takehiro1111_com}", ".${module.value.takehiro1111_com}")
