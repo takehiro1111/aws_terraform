@@ -17,9 +17,9 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "Managed-SecurityHeadersPolicy"
 }
 
-resource "aws_cloudfront_vpc_origin" "alb" {
+resource "aws_cloudfront_vpc_origin" "cdn_takehiro1111_com" {
   vpc_origin_endpoint_config {
-    name                   = "alb-web"
+    name                   = replace(module.value.cdn_takehiro1111_com, ".", "-")
     arn                    = module.alb_wildcard_takehiro1111_com.arn
     http_port              = 80
     https_port             = 443
@@ -64,20 +64,7 @@ module "cdn_takehiro1111_com" {
     include_cookies = false
   }
 
-  create_vpc_origin = true
-  vpc_origin = {
-    test_vpc_origin = {
-      name                   = "test-vpc-origin"
-      arn                    = module.alb_wildcard_takehiro1111_com.arn
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols = {
-        items    = ["TLSv1.2"]
-        quantity = 1
-      }
-    }
-  }
+  create_vpc_origin = false
 
   // ALB
   origin = {
@@ -86,7 +73,7 @@ module "cdn_takehiro1111_com" {
       origin_id   = "test-alb-origin"
 
       vpc_origin_config = {
-        vpc_origin_id            = module.cdn_takehiro1111_com.cloudfront_vpc_origin_ids[0]
+        vpc_origin_id            = aws_cloudfront_vpc_origin.cdn_takehiro1111_com.id
         origin_keepalive_timeout = 5
         origin_read_timeout      = 30
       }
@@ -164,235 +151,235 @@ module "cdn_takehiro1111_com" {
  * promehteus.takehiro1111.com
  */
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
-module "cloudfront_prometheus_takehiro1111_com" {
-  source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.1.0"
+# module "cloudfront_prometheus_takehiro1111_com" {
+#   source  = "terraform-aws-modules/cloudfront/aws"
+#   version = "4.1.0"
 
-  # aws_cloudfront_origin_access_control
-  create_origin_access_control = false
+#   # aws_cloudfront_origin_access_control
+#   create_origin_access_control = false
 
-  # aws_cloudfront_distribution
-  create_distribution = true
-  aliases             = [module.value.prometheus_takehiro1111_com]
-  comment             = module.value.prometheus_takehiro1111_com
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_All"
-  retain_on_delete    = false
-  # web_acl_id =  WAF作成時にコメントイン予定
+#   # aws_cloudfront_distribution
+#   create_distribution = true
+#   aliases             = [module.value.prometheus_takehiro1111_com]
+#   comment             = module.value.prometheus_takehiro1111_com
+#   enabled             = true
+#   is_ipv6_enabled     = true
+#   price_class         = "PriceClass_All"
+#   retain_on_delete    = false
+#   # web_acl_id =  WAF作成時にコメントイン予定
 
-  logging_config = {
-    bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
-    prefix          = replace(module.value.prometheus_takehiro1111_com, ".", "-")
-    include_cookies = false
-  }
+#   logging_config = {
+#     bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
+#     prefix          = replace(module.value.prometheus_takehiro1111_com, ".", "-")
+#     include_cookies = false
+#   }
 
-  // ALB
-  origin = {
-    origin_alb = {
-      domain_name = module.alb_wildcard_takehiro1111_com.dns_name
-      origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
-      vpc_origin_config = {
-        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
-        origin_keepalive_timeout = 10
-        origin_read_timeout      = 30
-      }
+#   // ALB
+#   origin = {
+#     origin_alb = {
+#       domain_name = module.alb_wildcard_takehiro1111_com.dns_name
+#       origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
+#       vpc_origin_config = {
+#         vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
+#         origin_keepalive_timeout = 10
+#         origin_read_timeout      = 30
+#       }
 
-      # custom_origin_config = {
-      #   http_port                = 80
-      #   https_port               = 443
-      #   origin_protocol_policy   = "https-only"
-      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      #   origin_keepalive_timeout = 5
-      #   origin_read_timeout      = 20
-      # }
-    }
-  }
+#       # custom_origin_config = {
+#       #   http_port                = 80
+#       #   https_port               = 443
+#       #   origin_protocol_policy   = "https-only"
+#       #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+#       #   origin_keepalive_timeout = 5
+#       #   origin_read_timeout      = 20
+#       # }
+#     }
+#   }
 
-  default_cache_behavior = {
-    target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
-    cached_methods         = ["GET", "HEAD"]
-    compress               = true
-    use_forwarded_values   = false
+#   default_cache_behavior = {
+#     target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
+#     viewer_protocol_policy = "redirect-to-https"
+#     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
+#     cached_methods         = ["GET", "HEAD"]
+#     compress               = true
+#     use_forwarded_values   = false
 
-    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
-  }
+#     cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+#     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+#     response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+#   }
 
-  viewer_certificate = {
-    acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
-    cloudfront_default_certificate = "false"
-    minimum_protocol_version       = "TLSv1.2_2021"
-    ssl_support_method             = "sni-only"
-  }
+#   viewer_certificate = {
+#     acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
+#     cloudfront_default_certificate = "false"
+#     minimum_protocol_version       = "TLSv1.2_2021"
+#     ssl_support_method             = "sni-only"
+#   }
 
-  geo_restriction = {
-    restriction_type = "none"
-  }
+#   geo_restriction = {
+#     restriction_type = "none"
+#   }
 
-  tags = {
-    Name = module.value.prometheus_takehiro1111_com
-  }
-}
+#   tags = {
+#     Name = module.value.prometheus_takehiro1111_com
+#   }
+# }
 
-/* 
- * grafana.takehiro1111.com
- */
-# ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
-module "cloudfront_grafana_takehiro1111_com" {
-  source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.1.0"
+# /* 
+#  * grafana.takehiro1111.com
+#  */
+# # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
+# module "cloudfront_grafana_takehiro1111_com" {
+#   source  = "terraform-aws-modules/cloudfront/aws"
+#   version = "4.1.0"
 
-  # aws_cloudfront_origin_access_control
-  create_origin_access_control = false
+#   # aws_cloudfront_origin_access_control
+#   create_origin_access_control = false
 
-  # aws_cloudfront_distribution
-  create_distribution = true
-  aliases             = [module.value.grafana_takehiro1111_com]
-  comment             = module.value.grafana_takehiro1111_com
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_All"
-  retain_on_delete    = false
-  # web_acl_id =  WAF作成時にコメントイン予定
+#   # aws_cloudfront_distribution
+#   create_distribution = true
+#   aliases             = [module.value.grafana_takehiro1111_com]
+#   comment             = module.value.grafana_takehiro1111_com
+#   enabled             = true
+#   is_ipv6_enabled     = true
+#   price_class         = "PriceClass_All"
+#   retain_on_delete    = false
+#   # web_acl_id =  WAF作成時にコメントイン予定
 
-  logging_config = {
-    bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
-    prefix          = replace(module.value.grafana_takehiro1111_com, ".", "-")
-    include_cookies = false
-  }
+#   logging_config = {
+#     bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
+#     prefix          = replace(module.value.grafana_takehiro1111_com, ".", "-")
+#     include_cookies = false
+#   }
 
-  // ALB
-  origin = {
-    origin_alb = {
-      domain_name = module.alb_wildcard_takehiro1111_com.dns_name
-      origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
-      vpc_origin_config = {
-        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
-        origin_keepalive_timeout = 10
-        origin_read_timeout      = 30
-      }
+#   // ALB
+#   origin = {
+#     origin_alb = {
+#       domain_name = module.alb_wildcard_takehiro1111_com.dns_name
+#       origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
+#       vpc_origin_config = {
+#         vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
+#         origin_keepalive_timeout = 10
+#         origin_read_timeout      = 30
+#       }
 
-      # custom_origin_config = {
-      #   http_port                = 80
-      #   https_port               = 443
-      #   origin_protocol_policy   = "https-only"
-      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      #   origin_keepalive_timeout = 5
-      #   origin_read_timeout      = 20
-      # }
-    }
-  }
+#       # custom_origin_config = {
+#       #   http_port                = 80
+#       #   https_port               = 443
+#       #   origin_protocol_policy   = "https-only"
+#       #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+#       #   origin_keepalive_timeout = 5
+#       #   origin_read_timeout      = 20
+#       # }
+#     }
+#   }
 
-  default_cache_behavior = {
-    target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
-    cached_methods         = ["GET", "HEAD"]
-    compress               = true
-    use_forwarded_values   = false
+#   default_cache_behavior = {
+#     target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
+#     viewer_protocol_policy = "redirect-to-https"
+#     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
+#     cached_methods         = ["GET", "HEAD"]
+#     compress               = true
+#     use_forwarded_values   = false
 
-    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
-  }
+#     cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+#     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+#     response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+#   }
 
-  viewer_certificate = {
-    acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
-    cloudfront_default_certificate = "false"
-    minimum_protocol_version       = "TLSv1.2_2021"
-    ssl_support_method             = "sni-only"
-  }
+#   viewer_certificate = {
+#     acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
+#     cloudfront_default_certificate = "false"
+#     minimum_protocol_version       = "TLSv1.2_2021"
+#     ssl_support_method             = "sni-only"
+#   }
 
-  geo_restriction = {
-    restriction_type = "none"
-  }
+#   geo_restriction = {
+#     restriction_type = "none"
+#   }
 
-  tags = {
-    Name = module.value.grafana_takehiro1111_com
-  }
-}
+#   tags = {
+#     Name = module.value.grafana_takehiro1111_com
+#   }
+# }
 
-/* 
- * locust.takehiro1111.com
- */
-# ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
-module "cloudfront_locust_takehiro1111_com" {
-  source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.1.0"
+# /* 
+#  * locust.takehiro1111.com
+#  */
+# # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
+# module "cloudfront_locust_takehiro1111_com" {
+#   source  = "terraform-aws-modules/cloudfront/aws"
+#   version = "4.1.0"
 
-  # aws_cloudfront_origin_access_control
-  create_origin_access_control = false
+#   # aws_cloudfront_origin_access_control
+#   create_origin_access_control = false
 
-  # aws_cloudfront_distribution
-  create_distribution = true
-  aliases             = [module.value.locust_takehiro1111_com]
-  comment             = module.value.locust_takehiro1111_com
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_All"
-  retain_on_delete    = false
-  # web_acl_id =  WAF作成時にコメントイン予定
+#   # aws_cloudfront_distribution
+#   create_distribution = true
+#   aliases             = [module.value.locust_takehiro1111_com]
+#   comment             = module.value.locust_takehiro1111_com
+#   enabled             = true
+#   is_ipv6_enabled     = true
+#   price_class         = "PriceClass_All"
+#   retain_on_delete    = false
+#   # web_acl_id =  WAF作成時にコメントイン予定
 
-  logging_config = {
-    bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
-    prefix          = replace(module.value.locust_takehiro1111_com, ".", "-")
-    include_cookies = false
-  }
+#   logging_config = {
+#     bucket          = data.terraform_remote_state.development_storage.outputs.s3_bucket_domain_name_cdn_access_log
+#     prefix          = replace(module.value.locust_takehiro1111_com, ".", "-")
+#     include_cookies = false
+#   }
 
-  // ALB
-  origin = {
-    origin_alb = {
-      domain_name = module.alb_wildcard_takehiro1111_com.dns_name
-      origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
-      vpc_origin_config = {
-        vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
-        origin_keepalive_timeout = 10
-        origin_read_timeout      = 30
-      }
+#   // ALB
+#   origin = {
+#     origin_alb = {
+#       domain_name = module.alb_wildcard_takehiro1111_com.dns_name
+#       origin_id   = module.alb_wildcard_takehiro1111_com.dns_name
+#       vpc_origin_config = {
+#         vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
+#         origin_keepalive_timeout = 10
+#         origin_read_timeout      = 30
+#       }
 
-      #  custom_origin_config = {
-      #   http_port                = 80
-      #   https_port               = 443
-      #   origin_protocol_policy   = "https-only"
-      #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      #   origin_keepalive_timeout = 5
-      #   origin_read_timeout      = 20
-      # }
-    }
-  }
+#       #  custom_origin_config = {
+#       #   http_port                = 80
+#       #   https_port               = 443
+#       #   origin_protocol_policy   = "https-only"
+#       #   origin_ssl_protocols     = ["TLSv1", "TLSv1.1", "TLSv1.2"]
+#       #   origin_keepalive_timeout = 5
+#       #   origin_read_timeout      = 20
+#       # }
+#     }
+#   }
 
-  default_cache_behavior = {
-    target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
-    cached_methods         = ["GET", "HEAD"]
-    compress               = true
-    use_forwarded_values   = false
+#   default_cache_behavior = {
+#     target_origin_id       = module.alb_wildcard_takehiro1111_com.dns_name
+#     viewer_protocol_policy = "redirect-to-https"
+#     allowed_methods        = ["GET", "HEAD", "PUT", "POST", "OPTIONS", "PATCH", "DELETE"]
+#     cached_methods         = ["GET", "HEAD"]
+#     compress               = true
+#     use_forwarded_values   = false
 
-    cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
-    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
-  }
+#     cache_policy_id            = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+#     origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_allviewer.id
+#     response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+#   }
 
-  viewer_certificate = {
-    acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
-    cloudfront_default_certificate = "false"
-    minimum_protocol_version       = "TLSv1.2_2021"
-    ssl_support_method             = "sni-only"
-  }
+#   viewer_certificate = {
+#     acm_certificate_arn            = module.acm_takehiro1111_com_us_east_1.acm_certificate_arn
+#     cloudfront_default_certificate = "false"
+#     minimum_protocol_version       = "TLSv1.2_2021"
+#     ssl_support_method             = "sni-only"
+#   }
 
-  geo_restriction = {
-    restriction_type = "none"
-  }
+#   geo_restriction = {
+#     restriction_type = "none"
+#   }
 
-  tags = {
-    Name = module.value.locust_takehiro1111_com
-  }
-}
+#   tags = {
+#     Name = module.value.locust_takehiro1111_com
+#   }
+# }
 
 
 
@@ -473,23 +460,19 @@ module "cloudfront_locust_takehiro1111_com" {
 ###########################################################################################
 # Cloudfront Log For V2
 ###########################################################################################
-module "cloudfront_log_v2" {
-  source = "../../modules/cloudfront-log-v2"
-  providers = {
-    aws   = aws.us-east-1
-    awscc = awscc.us-east-1
-  }
+# module "cloudfront_log_v2" {
+#   source = "../../modules/cloudfront-log-v2"
+#   providers = {
+#     aws   = aws.us-east-1
+#     awscc = awscc.us-east-1
+#   }
 
-  delivery_destination_arn = data.terraform_remote_state.stats_stg.outputs.aws_cloudwatch_log_delivery_destination_for_cloudfront_arn["kidsna-travel"]
+#   delivery_destination_arn = data.terraform_remote_state.stats_stg.outputs.aws_cloudwatch_log_delivery_destination_for_cloudfront_arn["kidsna-travel"]
 
-  cloudfront_distributions = [
-    {
-      name         = "stg_travel_kidsna_com"
-      resource_arn = aws_cloudfront_distribution.ngx_kidsna_travel_com.arn
-    },
-    {
-      name         = "admin-stg_travel_kidsna_com"
-      resource_arn = aws_cloudfront_distribution.stg_admin_kidsna_travel_com.arn
-    },
-  ]
-}
+#   cloudfront_distributions = [
+#     {
+#       name         = "stg_travel_kidsna_com"
+#       resource_arn = aws_cloudfront_distribution..arn
+#     }
+#   ]
+# }
