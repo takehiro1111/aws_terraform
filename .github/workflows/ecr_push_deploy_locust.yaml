@@ -95,7 +95,7 @@ jobs:
 
       # https://github.com/actions/download-artifact
       - name: Download the Artifact
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4 # uploadと同じバージョン(v4),nameを指定しないとエラーになるので注意。
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4 # uploadと同じバージョン(v4),nameを指定しないとエラーになるので注意。
         with:
           name: image-uri
           path: download/artifacts #ランナーの中でダウンロード先のディレクトリが動的に作成されるのでこちらは任意のパスを記載。 
@@ -108,7 +108,7 @@ jobs:
       # https://github.com/aws-actions/amazon-ecs-render-task-definition
       - name: Fill in the new image URI in the amazon ECS task definition
         id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@23e93b6b860a402948c739b0db055bc5dc55dfa9 # v1
+        uses: aws-actions/amazon-ecs-render-task-definition@e89b6874818d80bb892e7010a5013519bde9d9a6 # v1
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION_API }}
           container-name: ${{ env.CONTAINER_NAME}}
@@ -116,7 +116,7 @@ jobs:
 
       #  https://github.com/aws-actions/amazon-ecs-deploy-task-definition
       - name: Deploy ECS task
-        uses: aws-actions/amazon-ecs-deploy-task-definition@176bcc0288c49ee545288583859af21ee17f4b2c # v2
+        uses: aws-actions/amazon-ecs-deploy-task-definition@538b32884c2bf327057c6805f0315e5ee92102cc # v2
         with:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
