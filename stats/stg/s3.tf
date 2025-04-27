@@ -4,7 +4,7 @@
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_forwarding_vpc_flow_logs" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.6.1"
+  version       = "4.7.0"
   create_bucket = false
 
   # aws_s3_bucket
