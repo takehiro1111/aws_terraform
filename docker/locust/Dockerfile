@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 locustio/locust@sha256:ce78eb12e88a5c8a514c849ab40cc55c1779c175e0233b94bff1e36322bc0804
+FROM --platform=linux/x86_64 locustio/locust@sha256:ae11b0e2f04ca0026e8c547ef03c872b90509c9fe8951855f29b111c0a78e81e
 
 # 作業ディレクトリを設定
 WORKDIR /src
