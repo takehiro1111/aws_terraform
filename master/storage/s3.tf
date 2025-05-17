@@ -4,7 +4,7 @@
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_cloudtrail_audit_log" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.8.0"
+  version       = "4.9.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -128,7 +128,7 @@ data "aws_iam_policy_document" "cloudtrail_audit_log" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_config_audit_log" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.8.0"
+  version       = "4.9.0"
   create_bucket = true
 
   # aws_s3_bucket
@@ -234,7 +234,7 @@ data "aws_iam_policy_document" "this" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "s3_bucket_sam_deploy" {
   source        = "terraform-aws-modules/s3-bucket/aws"
-  version       = "4.8.0"
+  version       = "4.9.0"
   create_bucket = true
 
   # aws_s3_bucket
