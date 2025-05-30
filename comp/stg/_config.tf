@@ -10,8 +10,10 @@ terraform {
     }
   }
 
-  backend "local" {
-    path = "state/terraform.tfstate"
+  backend "s3" {
+    bucket = "terraform-state-122627526840-dst"
+    key    = "comp/stg/terraform.tfstate"
+    region = "ap-northeast-1"
   }
 }
 
@@ -41,3 +43,8 @@ provider "aws" {
 module "value" {
   source = "../../modules/variable"
 }
+
+##########################################################################
+# Data Block
+##########################################################################
+data "aws_caller_identity" "self" {}

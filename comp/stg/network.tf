@@ -2,15 +2,15 @@
 # Network Resources
 #################################################
 # ref:https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest
-module "vpc_development" {
+module "vpc_comp_stg" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.21.0"
 
   ## tags
-  name = "company-${local.env}"
+  name = replace(module.value.comp_takehiro1111_com, ".", "-")
 
   ### VPC ###
-  cidr                                 = module.value.vpc_ips.development
+  cidr                                 = module.value.vpc_ips.comp_stg
   instance_tenancy                     = "default"
   enable_dns_support                   = true
   enable_dns_hostnames                 = true
@@ -20,9 +20,9 @@ module "vpc_development" {
   create_igw = true
 
   ### NAT GW ###
-  enable_nat_gateway     = false // Will be changed to true when using compute resources.
-  single_nat_gateway     = true  // To reduce costs, each private subnet points to a single NAT GW.
-  one_nat_gateway_per_az = true  // Place NAT GW in a single AZ for cost reasons. Because Accept reduced availability.
+  enable_nat_gateway     = true // Will be changed to true when using compute resources.
+  single_nat_gateway     = true // To reduce costs, each private subnet points to a single NAT GW.
+  one_nat_gateway_per_az = true // Place NAT GW in a single AZ for cost reasons. Because Accept reduced availability.
 
   ### Subnet ###
   ## Shared
@@ -33,8 +33,8 @@ module "vpc_development" {
 
   ## Public
   public_subnets = [
-    module.value.subnet_ips_development.a_public,
-    module.value.subnet_ips_development.c_public
+    module.value.subnet_ips_comp_stg.a_public,
+    module.value.subnet_ips_comp_stg.c_public
   ]
 
   map_public_ip_on_launch                           = false
@@ -42,8 +42,8 @@ module "vpc_development" {
 
   ## Private 
   private_subnets = [
-    module.value.subnet_ips_development.a_private,
-    module.value.subnet_ips_development.c_private
+    module.value.subnet_ips_comp_stg.a_private,
+    module.value.subnet_ips_comp_stg.c_private
   ]
   private_subnet_private_dns_hostname_type_on_launch = "ip-name"
 
@@ -55,6 +55,7 @@ module "vpc_development" {
 
   ## Private
   // Created when a NAT GW is created.
+
   manage_default_vpc            = false
   manage_default_security_group = false
   manage_default_network_acl    = false
