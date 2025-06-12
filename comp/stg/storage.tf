@@ -5,7 +5,7 @@
 ## refarence: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/3.6.0
 module "s3_bastion_tmp" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.9.0"
+  version = "4.10.1"
 
   # insert the 7 required variables her
   bucket = "for-bastion-${data.aws_caller_identity.self.account_id}"
@@ -65,7 +65,7 @@ module "s3_bastion_tmp" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/s3-bucket/aws/latest
 module "tfstate" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.9.0"
+  version = "4.10.1"
 
   # aws_s3_bucket
   bucket              = "terraform-state-${data.aws_caller_identity.self.account_id}-dst"
@@ -144,7 +144,7 @@ module "tfstate" {
  */
 module "s3_accesslog_stg" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.9.0"
+  version = "4.10.1"
 
   bucket = "s3-accesslog-stg-comp-${data.aws_caller_identity.self.account_id}"
   versioning = {
