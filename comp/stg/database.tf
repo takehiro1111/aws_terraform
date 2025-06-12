@@ -1,8 +1,8 @@
 # Officeial Module -----------------------------------------
 # refarence: https://registry.terraform.io/modules/terraform-aws-modules/rds-aurora/aws/latest
-module "aurora_mysql_takehiro1111_com" {
-  source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.13.0"
+# module "aurora_mysql_takehiro1111_com" {
+#   source  = "terraform-aws-modules/rds-aurora/aws"
+#   version = "9.13.0"
 
 #   create = true
 
