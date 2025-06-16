@@ -2,7 +2,7 @@
 # Terraform Block
 #####################################################
 terraform {
-  required_version = "1.12.1"
+  required_version = "1.12.2"
 
   cloud {
     organization = "takehiro1111"
@@ -15,7 +15,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.99.1"
+      version = "5.100.0"
     }
   }
 
