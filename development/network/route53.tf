@@ -107,5 +107,16 @@ module "route53_records_takehiro1111_com" {
     #     evaluate_target_health = false
     #   }
     # },
+    {
+      name = "comp"
+      type = "NS"
+      ttl  = 300
+      records = [
+        "ns-116.awsdns-14.com",
+        "ns-945.awsdns-54.net",
+        "ns-1584.awsdns-06.co.uk",
+        "ns-1078.awsdns-06.org"
+      ]
+    }
   ]
 }

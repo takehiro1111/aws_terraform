@@ -1,4 +1,4 @@
-FROM prom/prometheus:v3.3.0@sha256:339ce86a59413be18d0e445472891d022725b4803fab609069110205e79fb2f1
+FROM prom/prometheus:v3.4.1@sha256:9abc6cf6aea7710d163dbb28d8eeb7dc5baef01e38fa4cd146a406dd9f07f70d
 
 WORKDIR /etc/prometheus
 COPY conf/prometheus.yml prometheus.yml

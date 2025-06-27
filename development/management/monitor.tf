@@ -15,7 +15,7 @@
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_stopped" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.16.0"
+  version = "3.17.1"
 
   create              = true
   create_role         = false
@@ -83,7 +83,7 @@ module "event_bridge_ecs_stopped" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.16.0"
+  version = "3.17.1"
 
   create              = true
   create_role         = false
@@ -129,7 +129,7 @@ module "event_bridge_ecs_autoscaling" {
 # // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "event_bridge_ecs_app_autoscaling" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.16.0"
+  version = "3.17.1"
 
   create              = true
   create_role         = false
@@ -218,7 +218,7 @@ module "event_bridge_ecs_app_autoscaling" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/eventbridge/aws/latest
 module "rds_event" {
   source  = "terraform-aws-modules/eventbridge/aws"
-  version = "3.16.0"
+  version = "3.17.1"
 
   rules = {
     rds_event = {
@@ -438,7 +438,7 @@ resource "aws_sns_topic_policy" "slack_alert" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/sns/aws/latest
 module "sns_notify_chatbot" {
   source  = "terraform-aws-modules/sns/aws"
-  version = "6.1.3"
+  version = "6.2.0"
 
   create       = true
   name         = "slack_notify"
@@ -466,7 +466,7 @@ data "aws_iam_policy_document" "sns_notify_chatbot" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/sns/aws/latest
 module "sns_notify_chatbot_ecs_cw_alert" {
   source  = "terraform-aws-modules/sns/aws"
-  version = "6.1.3"
+  version = "6.2.0"
 
   create       = true
   name         = "sns_notify_chatbot_ecs_cw_alert"

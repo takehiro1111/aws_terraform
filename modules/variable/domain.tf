@@ -41,4 +41,10 @@ output "func_takehiro1111_com" {
   value       = "func.takehiro1111.com"
 }
 
+output "comp_takehiro1111_com" {
+  description = "会社付与の学習アカウント用ドメイン"
+  value       = "comp.takehiro1111.com"
+}
+
+
 
