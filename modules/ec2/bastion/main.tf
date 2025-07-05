@@ -111,7 +111,7 @@ resource "aws_security_group_rule" "egress" {
 ####################
 module "iam_role_this" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
-  version = "5.58.0"
+  version = "5.59.0"
 
   create_role = var.create_common_resource
   role_name   = "EC2BastionRole"
