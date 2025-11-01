@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       targets: ${{ steps.list-targets.outputs.targets }}
-    timeout-minutes: 300
+    timeout-minutes: 5
     if: ${{ ! contains(fromJson('["renovate[bot]", "dependabot[bot]"]'), github.actor) }}
     steps:
       - name: Checkout to the branch
