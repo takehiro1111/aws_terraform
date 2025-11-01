@@ -35,7 +35,7 @@ data "aws_cloudfront_response_headers_policy" "security_headers" {
 // ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "cdn_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.1.0"
+  version = "4.2.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = true
@@ -480,7 +480,7 @@ resource "aws_cloudfront_function" "url_redirect" {
 # ref: https://registry.terraform.io/modules/terraform-aws-modules/cloudfront/aws/latest
 module "cloudfront_func_takehiro1111_com" {
   source  = "terraform-aws-modules/cloudfront/aws"
-  version = "4.1.0"
+  version = "4.2.0"
 
   # aws_cloudfront_origin_access_control
   create_origin_access_control = true

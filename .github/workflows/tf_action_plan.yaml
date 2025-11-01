@@ -33,14 +33,14 @@ jobs:
     if: ${{ ! contains(fromJson('["renovate[bot]", "dependabot[bot]"]'), github.actor) }}
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
-      - uses: aquaproj/aqua-installer@d1fe50798dbadd4eb5b98957290ca175f6b4870f # v4.0.2
+      - uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
         with:
-          aqua_version: v2.53.3
+          aqua_version: v2.55.1
 
       # 変更のあった作業ディレクトリを取得
-      - uses: suzuki-shunsuke/tfaction/list-targets@fe01abc967d9c7a9889abbb8502e2947a1dfece3 # v1.17.0
+      - uses: suzuki-shunsuke/tfaction/list-targets@7f13fd8815c30cde9c665b81e611c8ebdf9217b7 # v1.20.0
         id: list-targets
 
 
@@ -65,12 +65,12 @@ jobs:
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: aquas install
-        uses: aquaproj/aqua-installer@d1fe50798dbadd4eb5b98957290ca175f6b4870f # v4.0.2
+        uses: aquaproj/aqua-installer@ea518c135a02fc11ff8024364510c181a5c6b342 # v4.0.3
         with:
-          aqua_version: v2.53.3
+          aqua_version: v2.55.1
 
       - name: Generate Github token
         id: generate_token
@@ -105,7 +105,7 @@ jobs:
       #     tfcmt --version
 
       - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5
         with:
           aws-region: ${{env.AWS_REGION}}
           role-to-assume: ${{ secrets.MASTER_APPLY_ROLE }}
