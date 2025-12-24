@@ -15,7 +15,7 @@ packages:
 - name: hashicorp/terraform@v1.14.3
 - name: suzuki-shunsuke/tfcmt@v4.14.13
 - name: suzuki-shunsuke/github-comment@v6.4.1
-- name: suzuki-shunsuke/ci-info@v2.4.2
+- name: suzuki-shunsuke/ci-info@v2.4.3
 - name: int128/ghcp@v1.15.1
 - name: suzuki-shunsuke/tfcmt@v4.14.13
 - name: mercari/tfnotify@v1.1.5
