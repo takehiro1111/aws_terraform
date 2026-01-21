@@ -10,7 +10,7 @@ registries:
 - type: standard
   ref: v4.460.1 # renovate: depName=aquaproj/aqua-registry
 packages:
-- name: cli/cli@v2.85.0
+- name: cli/cli@v2.86.0
 - name: junegunn/fzf@v0.67.0
 - name: hashicorp/terraform@v1.14.3
 - name: suzuki-shunsuke/tfcmt@v4.14.14
