@@ -15,6 +15,6 @@
   "license": "ISC",
   "devDependencies": {
     "husky": "9.1.7",
-    "lint-staged": "16.3.3"
+    "lint-staged": "16.4.0"
   }
 }
