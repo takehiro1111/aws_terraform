@@ -3,7 +3,7 @@
  */
 module "route53_zones" {
   source  = "terraform-aws-modules/route53/aws//modules/zones"
-  version = "5.0.0"
+  version = "6.4.0"
 
   create = true
   zones = {
