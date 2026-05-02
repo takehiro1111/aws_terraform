@@ -2,7 +2,7 @@
 # Terraform Block
 #####################################################
 terraform {
-  required_version = "1.14.9"
+  required_version = "1.15.1"
 
   required_providers {
     aws = {
