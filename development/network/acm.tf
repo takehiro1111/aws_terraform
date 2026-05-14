@@ -4,7 +4,7 @@
 ## us-east-1
 module "acm_takehiro1111_com_us_east_1" {
   source  = "terraform-aws-modules/acm/aws"
-  version = "5.2.0"
+  version = "6.3.0"
 
   # aws_acm_certificate
   create_certificate        = true
@@ -27,7 +27,7 @@ module "acm_takehiro1111_com_us_east_1" {
 ## ap-northeast-1
 module "acm_takehiro1111_com_ap_northeast_1" {
   source  = "terraform-aws-modules/acm/aws"
-  version = "5.2.0"
+  version = "6.3.0"
 
   # aws_acm_certificate
   create_certificate        = true
