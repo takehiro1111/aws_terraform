@@ -14,11 +14,11 @@ terraform {
     }
     http = {
       source  = "hashicorp/http"
-      version = "3.6.0"
+      version = "3.6.1"
     }
     awscc = {
       source  = "hashicorp/awscc"
-      version = "1.96.0"
+      version = "1.97.0"
     }
   }
 }
