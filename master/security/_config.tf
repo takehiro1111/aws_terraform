@@ -2,7 +2,7 @@
 # Terraform Block
 #####################################################
 terraform {
-  required_version = "1.16.2"
+  required_version = "1.16.3"
 
   cloud {
     organization = "takehiro1111"
