@@ -98,3 +98,7 @@ __pycache__
 
 # dependencies
 node_modules
+
+# all-accounts-cost-alert Lambda のビルド成果物
+function/all_accounts_cost_alert/dist
+development/cost_alert/build
