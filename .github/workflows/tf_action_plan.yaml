@@ -37,7 +37,7 @@ jobs:
 
       - uses: aquaproj/aqua-installer@611554c6f0137ba41c8dd15aca8bee82504ea461 # v4.1.1
         with:
-          aqua_version: v2.64.0
+          aqua_version: v2.65.2
 
       # 変更のあった作業ディレクトリを取得
       - uses: suzuki-shunsuke/tfaction/list-targets@07a983968cbace490e9059103a7019a638c65e10 # v2.3.3
@@ -70,7 +70,7 @@ jobs:
       - name: aquas install
         uses: aquaproj/aqua-installer@611554c6f0137ba41c8dd15aca8bee82504ea461 # v4.1.1
         with:
-          aqua_version: v2.64.0
+          aqua_version: v2.65.2
 
       - name: Generate Github token
         id: generate_token
