@@ -34,6 +34,22 @@ target_groups:
     terraform_apply_config:
       aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-apply
 
+  - working_directory: master/cost_alert_reader
+    target: master/cost_alert_reader
+    aws_region: ap-northeast-1
+    terraform_plan_config:
+      aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-plan
+    terraform_apply_config:
+      aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-apply
+
+  - working_directory: master/cost_anomaly_detection
+    target: master/cost_anomaly_detection
+    aws_region: ap-northeast-1
+    terraform_plan_config:
+      aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-plan
+    terraform_apply_config:
+      aws_assume_role_arn: arn:aws:iam::685339645368:role/deploy-github-actions-apply
+
   ########################################################################
   # Development
   ########################################################################
