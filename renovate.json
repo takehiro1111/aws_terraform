@@ -18,7 +18,9 @@
   "automergeType": "pr",
   "automergeStrategy": "auto",
   "rebaseWhen": "auto",
-  "dependencyDashboard": true,
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "ignoreTests": true,
   "ignoreReviewers": ["takehiro1111"],
   "reviewers": ["Renovate Approve[bot]","Renovate Approve 2[bot]"],
